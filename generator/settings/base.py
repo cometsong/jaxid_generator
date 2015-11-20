@@ -104,12 +104,11 @@ PREREQ_APPS = [
     'django.contrib.staticfiles',
 
     # 3rd party
+    'django_tables2',
     ]
 
 PROJECT_APPS = [
     'id_generate',
-    # 'id_check',
-    # 'id_list',
     ]
 
 INSTALLED_APPS = PREREQ_APPS + PROJECT_APPS
