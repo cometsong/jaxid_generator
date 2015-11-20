@@ -3,7 +3,7 @@ WSGI config for jaxid_generator project.
 """
 # django virtualenv variables
 path_app = "/var/www/django/jaxid_generator"
-app_settings = "metrics.settings"
+app_settings = "generator.settings.dev"
 path_site_packages = path_app + "/lib/python3.4/site-packages"
 
 # semi-global wsgi script
@@ -23,8 +23,8 @@ os.environ["DJANGO_SETTINGS_MODULE"] = app_settings
 # start the trick
 sys.path.extend([
     path_app,
-    path_app + '/jaxid_generator/',
-    path_app + '/list/',
+    path_app + '/generator/',
+    path_app + '/id_generate/',
 ])
 # Reorder syspath
 new_sys_path = [p for p in sys.path if p not in prev_sys_path]
