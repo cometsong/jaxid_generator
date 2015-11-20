@@ -6,7 +6,7 @@ Created: 2015-11-19
 """ #}}}
 
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 ### Secret_Key {{{
 SECRET_KEY = '4$rboj1nrj84s(o79w^^5k(88@x*s03mt0*h5j=g6-j7@r^%)%'
@@ -57,7 +57,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
-    os.path.join(BASE_DIR, 'list', 'static'),
+    # os.path.join(BASE_DIR, 'id_list', 'static'),
     os.path.join(BASE_DIR, 'id_generate', 'static'),
 )
 # }}}
@@ -108,8 +108,8 @@ PREREQ_APPS = [
 
 PROJECT_APPS = [
     'id_generate',
-    'id_check',
-    'id_list',
+    # 'id_check',
+    # 'id_list',
     ]
 
 INSTALLED_APPS = PREREQ_APPS + PROJECT_APPS
