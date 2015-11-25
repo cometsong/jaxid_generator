@@ -1,0 +1,3 @@
+TODOs
+TODO: mv db.sqlite3 to a more apt filename, e.g. 'jaxid_master_list.db.sqlite3'
+TODO: create automated (cron?) job to backup jaxid_master_list.db.sqlite3

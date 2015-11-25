@@ -2,7 +2,8 @@ from django.db import models
 
 JAXID_TYPES = (
         ('J', 'sample id'),
-        ('L', '??'),
+        ('B', 'box id'),
+        ('P', 'plate id'),
         ('etc', '??'),
         )
 

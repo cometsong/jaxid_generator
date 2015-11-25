@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-File: jaxid_generator.py
+File: jaxid_generate.py
 Author: Benjamin Leopold (cometsong)
 Created: 2015-01-13 09:15:00-0500
 Description: Create and check uniqueness of a new JAXid
@@ -25,7 +25,7 @@ __author__ = 'Benjamin Leopold'
 __copyright__ = 'Copyright 2014 Benjamin Leopold'
 __version__ = '0.2'
 __status__ = 'Development'
-__program__ = 'JAXid_generator'
+__program__ = 'JAXid_generate'
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Classiness ~~~~~
 class RandomID(object):
@@ -38,6 +38,21 @@ class RandomID(object):
         if size < 1:
             size = self.size
         return ''.join(random.choice(chars) for _ in range(size))
+
+
+def generate_jaxid(self):
+    """Use id_generator and add preceding 'J' character for the JAXid"""
+    return ''.join(['J', RandomID().generate(size=5)])
+
+def generate_boxid(self):
+    """Use id_generator and add preceding 'B' character for the JAXid"""
+    return ''.join(['B', RandomID().generate(size=5)])
+
+def generate_plateid(self):
+    """Use id_generator and add preceding 'P' character for the JAXid"""
+    return ''.join(['P', RandomID().generate(size=5)])
+
+
 
 
 class JAXid_gen(RandomID):

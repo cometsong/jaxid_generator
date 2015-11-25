@@ -50,14 +50,18 @@ USE_TZ = True
 ### Static files (CSS, JavaScript, Images) {{{
 STATIC_URL = '/jaxid_generator/static/'
 STATIC_ROOT = '/var/www/html/jaxid_generator/static'
-#STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'compressor.finders.CompressorFinder',
+)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
-    # os.path.join(BASE_DIR, 'id_list', 'static'),
     os.path.join(BASE_DIR, 'id_generate', 'static'),
 )
 # }}}
@@ -77,7 +81,9 @@ MIDDLEWARE_CLASSES = (
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [
+            os.path.join(BASE_DIR, 'templates'),
+            ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -104,6 +110,7 @@ PREREQ_APPS = [
     'django.contrib.staticfiles',
 
     # 3rd party
+    'compressor',
     'django_tables2',
     ]
 
@@ -127,8 +134,10 @@ CSRF_COOKIE_HTTPONLY = True
 X_FRAME_OPTIONS = 'DENY'
 #}}}
 
+## Site Admins {{{
 ADMINS = [
-    ('Benjamin', 'benjamin.leopold@jax.org')
+    ('Benjamin', 'benjamin.leopold@jax.org'),
     ]
+#}}}
 
 # vim: set fdm=marker :#
