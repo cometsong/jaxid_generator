@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django_tables2 import RequestConfig
-from .models import JaxIdMasterList, ProjectLinks
+from .models import JAXIdMasterList, JAXIdDetail, SampleType, SequencingType
 from .tables import ListTable
 
 
@@ -11,8 +11,8 @@ def index(request):
 def id_list(request):
     template_page = 'id_generate/list.html'
 
-    total = JaxIdMasterList.objects.count()
-    table = ListTable(JaxIdMasterList.objects.all())
+    total = JAXIdMasterList.objects.count()
+    table = ListTable(JAXIdMasterList.objects.all())
     RequestConfig(request, paginate={"per_page": 25}
             ).configure(table)
 
