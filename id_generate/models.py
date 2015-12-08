@@ -14,7 +14,7 @@ class SequencingType(models.Model):
     ordering = ['sequencing_code']
 
     def __str__(self):
-        return '{}, {}'.format(self.sequencing_code, self.details)
+        return '{} - {}'.format(self.sequencing_code, self.details)
 
     def save(self, force_insert=False, force_update=False):
         self.sequencing_code = self.sequencing_code.upper()
@@ -33,7 +33,7 @@ class ProjectCode(models.Model):
     ordering = ['project_code']
 
     def __str__(self):
-        return '{}, {}'.format(self.project_code, self.details)
+        return '{} - {}'.format(self.project_code, self.details)
 
     def save(self, force_insert=False, force_update=False):
         self.project_code = self.project_code.upper()
@@ -52,7 +52,7 @@ class SampleType(models.Model):
     ordering = ['sample_code']
 
     def __str__(self):
-        return '{}, {}'.format(self.sample_code, self.details)
+        return '{} - {}'.format(self.sample_code, self.details)
 
     def save(self, force_insert=False, force_update=False):
         self.sample_code = self.sample_code.upper()
