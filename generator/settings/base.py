@@ -112,6 +112,7 @@ PREREQ_APPS = [
     # 3rd party
     'compressor',
     'django_tables2',
+    'import_export',
     ]
 
 PROJECT_APPS = [
