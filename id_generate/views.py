@@ -26,4 +26,3 @@ def detail_list(request):
             ).configure(table)
     context = { 'table': table, 'total': total, }
     return render(request, template_page, context)
-

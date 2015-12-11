@@ -1,0 +1,25 @@
+{% extends "id_generate/base.html" %}
+
+{% load staticfiles %}
+{% block page_title %}JAXid Batch Generator{% endblock %}
+<link href="{% static 'css/bootstrap.min.css' %}" rel='stylesheet'/>
+<body class="{% block body_class %}{% endblock %}">
+{% block body %}
+
+{% block content %}
+<strong>Yo ID-Master!</strong><br/><br/>
+<form action="new_ids" method="post">
+    {% csrf_token %}
+    <div class="form-group">
+        {{ form.amount.label }}{{ form.amount }}
+    </div>
+    <div class="form-group">
+        {{ form.type.label }}{{ form.type }}
+    </div>
+    <input type="submit" value="Bring 'Em On!'" />
+</form>
+{% endblock %}
+
+{% endblock %}
+</body>
+</html>

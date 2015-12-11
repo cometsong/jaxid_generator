@@ -1,7 +1,8 @@
 from django import forms
 from django.contrib import admin
 
-from .models import JAXIdMasterList, JAXIdDetail, SampleType, SequencingType, ProjectCode
+from .models import ID_TYPES, JAXIdMasterList, JAXIdDetail, SampleType, \
+                    SequencingType, ProjectCode
 
 class SampleForm(forms.ModelForm):
     class Meta:
@@ -38,3 +39,4 @@ class JAXIdDetailForm(forms.ModelForm):
         widgets = {
             'collab_id': forms.TextInput(attrs={'size':'40'})
             }
+

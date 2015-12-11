@@ -1,8 +1,14 @@
 from django.contrib import admin
+from import_export import resources
+from import_export.admin import ImportExportModelAdmin
 
 from .models import JAXIdMasterList, JAXIdDetail,\
         SampleType, SequencingType, ProjectCode
 from .forms import JAXIdDetailForm, SequencingForm, SampleForm, ProjectCodeForm
+
+
+# disable the 'delete' action sitewide!
+# admin.site.disable_action('delete_selected')
 
 @admin.register(JAXIdMasterList)
 class JAXIdListAdmin(admin.ModelAdmin):
@@ -45,10 +51,28 @@ class SampleType(admin.ModelAdmin):
     search_fields = all_fields
     ordering = ['sample_code']
 
+
+# ImportExport Resources
+class DetailResource(resources.ModelResource):
+    class Meta:
+        model = JAXIdDetail
+        all_fields = ( 'jaxid', 'project_code', 'collab_id',
+                'sample_code', 'sequencing_type' )
+        fields = all_fields
+        export_order = all_fields
+        import_id_fields = ( 'jaxid' )
+
+
 @admin.register(JAXIdDetail)
-class JAXIdDetail(admin.ModelAdmin):
+# class JAXIdDetailAdmin(admin.ModelAdmin):
+class JAXIdDetailAdmin(ImportExportModelAdmin):
+    resource_class = DetailResource
+    def has_add_permission(self, request):
+        return False
     form = JAXIdDetailForm
     actions_on_top = True
+    # actions = []
+    actions = None
     all_fields = ( 'jaxid', 'project_code', 'collab_id',
             'sample_code', 'sequencing_type', )
     fields = ( all_fields, )
