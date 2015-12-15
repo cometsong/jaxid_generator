@@ -33,7 +33,7 @@ class JAXIdDetailForm(forms.ModelForm):
     class Meta:
         model = JAXIdDetail
         fields = ( 'jaxid', 'project_code', 'collab_id',
-                'sample_code', 'sequencing_type', )
+                'sample_type', 'sequencing_type', )
         readonly_fields = ( 'jaxid' ),
 
         widgets = {

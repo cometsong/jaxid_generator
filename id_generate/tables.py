@@ -13,7 +13,7 @@ class DetailTable(Table):
         model = JAXIdDetail
         attrs = {"class": "paleblue"}
         sequence = ('id', 'jaxid', 'project_code',
-                'collab_id', 'sample_code', 'sequencing_type',
+                'collab_id', 'sample_type', 'sequencing_type',
                 'creation_date')
         order_by = 'creation_date'
 

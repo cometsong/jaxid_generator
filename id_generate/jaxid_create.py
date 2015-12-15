@@ -18,14 +18,15 @@ class RandomID(object):
 
 
 class JAXidGenerate(object):
-    def __init__(self, id_model, column='jaxid', prefix='J'):
+    # def __init__(self, id_model, column='jaxid', prefix='J'):
+    def __init__(self, prefix='J'):
         # id_model = exec()
         # if not isinstance(id_model, Model):
             # print("Model '{}' does not have column {}? Does not exist!".format(
                     # id_model, column))
         # else:
             self.id_model = JAXIdDetail
-            self.column = column
+            # self.column = column
             self.prefix = prefix
             self.rand_size = 5
 
@@ -34,41 +35,16 @@ class JAXidGenerate(object):
             6 characater JAXid or 'B' for BoxID or 'P' for PlateID
         """
         ID = ''.join([self.prefix, RandomID().generate(size=self.rand_size)])
-        if self.id_does_not_exist(ID):
+        if self.id_exists(ID):
+            return self.generate()
+        # if self.id_exists('JIT4T3'):
+            # return 'foo'
+        else:
             return ID
-        else:
-            self.generate()
-
-    def id_does_not_exist(self, id):
-        if self.id_exists(id):
-            return false
-        else:
-            return True
 
     def id_exists(self, id):
         try:
-            e = self.id_model.objects.get(id)
-            return True
+            e = self.id_model.objects.get(jaxid=id)
         except ObjectDoesNotExist as err:
-            return err
-
-    def ids_exist(self, ids):
-        id_list = []
-        try:
-            for id in ids:
-                id_list.append(id)
-            e = self.id_model.objects.get_queryset(id_list)
-            return e
-        except Error as err:
-            return err # TODO: return error message!
-
-    def create_id_records(self, ids):
-        id_list = []
-        try:
-            for id in ids:
-                id_list.append(id)
-            e = self.id_model.objects.bulk_create(id_list)
-            return e
-        except Error as err:
-            return err # TODO: return error message!
+            return False
 
