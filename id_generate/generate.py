@@ -4,8 +4,13 @@ from django.http import HttpResponse
 
 import tablib
 
-from .models import ID_TYPES
 from .jaxid_create import JAXidGenerate
+
+ID_TYPES = (
+            ('J', 'JAXID'),
+            ('B', 'Box ID'),
+            ('P', 'Plate ID'),
+           )
 
 FILE_TYPES = (
         ('C', 'csv'),

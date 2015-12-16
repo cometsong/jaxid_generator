@@ -1,7 +1,9 @@
 from django import forms
 from django.contrib import admin
+from django.db import models
 
-from .models import ID_TYPES, JAXIdMasterList, JAXIdDetail, SampleType, \
+# from .generate import generate_JAX_id
+from .models import JAXIdMasterList, JAXIdDetail, SampleType, \
                     SequencingType, ProjectCode
 
 class SampleForm(forms.ModelForm):
@@ -36,7 +38,8 @@ class JAXIdDetailForm(forms.ModelForm):
                 'sample_type', 'sequencing_type', )
         readonly_fields = ( 'jaxid' ),
 
-        widgets = {
-            'collab_id': forms.TextInput(attrs={'size':'40'})
-            }
+        # widgets = {
+            # 'jaxid': forms.TextInput(attrs={'size':'6'}),
+            # 'collab_id': forms.TextInput(attrs={'size':'40'}),
+            # }
 

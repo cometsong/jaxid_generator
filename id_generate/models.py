@@ -1,11 +1,5 @@
 from django.db import models
 
-ID_TYPES = (
-            ('J', 'JAXID'),
-            ('B', 'Box ID'),
-            ('P', 'Plate ID'),
-           )
-
 class SequencingType(models.Model):
     code = models.CharField('Type Code',
             max_length=1, blank=False,
@@ -71,7 +65,7 @@ class JAXIdDetail(models.Model):
     jaxid = models.CharField('JAX ID',
             max_length=6, blank=False,
             help_text="A unique ID string for every sample.",
-            # default=generate_JAX_id(),
+            unique=True,
             )
     project_code = models.ForeignKey(ProjectCode, to_field='code')
     collab_id = models.TextField('Collaborator ID', blank=False,
@@ -84,7 +78,8 @@ class JAXIdDetail(models.Model):
 
 class JAXIdMasterList(models.Model):
     verbose_name = 'JAX Id Master List'
-    jaxid = models.ForeignKey(JAXIdDetail, on_delete=models.PROTECT)
+    jaxid = models.ForeignKey(JAXIdDetail, on_delete=models.PROTECT,
+            to_field='jaxid',)
     creation_date = models.DateTimeField(auto_now_add=True)
     ordering = ['creation_date']
 
