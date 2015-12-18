@@ -3,8 +3,13 @@ from django.contrib import admin
 from django.db import models
 
 # from .generate import generate_JAX_id
-from .models import JAXIdMasterList, JAXIdDetail, SampleType, \
-                    SequencingType, ProjectCode
+from .models import (
+        JAXIdMasterList,
+        JAXIdDetail,
+        SampleType,
+        SequencingType,
+        ProjectCode
+        )
 
 class SampleForm(forms.ModelForm):
     class Meta:
@@ -37,9 +42,4 @@ class JAXIdDetailForm(forms.ModelForm):
         fields = ( 'jaxid', 'project_code', 'collab_id',
                 'sample_type', 'sequencing_type', )
         readonly_fields = ( 'jaxid' ),
-
-        # widgets = {
-            # 'jaxid': forms.TextInput(attrs={'size':'6'}),
-            # 'collab_id': forms.TextInput(attrs={'size':'40'}),
-            # }
 

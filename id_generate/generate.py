@@ -6,6 +6,9 @@ import tablib
 
 from .jaxid_create import JAXidGenerate
 
+#TODO: use IdModel_meta.fields to generate list of field names for file.headers in new_ids()
+id_detail_fields = ['jaxid', 'project_code', 'collab_id', 'sample_type', 'sequencing_type']
+
 ID_TYPES = (
             ('J', 'JAXID'),
             ('B', 'Box ID'),
@@ -54,7 +57,7 @@ def new_ids(request, fields):
 
     file = tablib.Dataset()
     # NOTE: Dataset requires >1 column for each instance
-    file.headers = ['jaxid', 'project_code', 'collab_id', 'sample_type', 'sequencing_type']
+    file.headers = id_detail_fields
     for N in range(0,amount):
         ID = generate_JAX_id(prefix)
         # field_list = ID,'','','',''

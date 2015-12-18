@@ -2,9 +2,19 @@ from django.contrib import admin
 from import_export import resources, fields, widgets
 from import_export.admin import ImportExportModelAdmin
 
-from .models import JAXIdMasterList, JAXIdDetail,\
-        SampleType, SequencingType, ProjectCode
-from .forms import JAXIdDetailForm, SequencingForm, SampleForm, ProjectCodeForm
+from .models import (
+        JAXIdMasterList,
+        JAXIdDetail,
+        SampleType,
+        SequencingType,
+        ProjectCode
+        )
+from .forms import (
+        JAXIdDetailForm,
+        SequencingForm,
+        SampleForm,
+        ProjectCodeForm
+        )
 from .generate import generate_JAX_id
 
 
@@ -32,7 +42,7 @@ class ProjectCodeAdmin(admin.ModelAdmin):
     ordering = ['code']
 
 @admin.register(SequencingType)
-class SequencingType(admin.ModelAdmin):
+class SequencingTypeAdmin(admin.ModelAdmin):
     form = SequencingForm
     actions_on_top = False
     all_fields = ( 'code', 'details' )
@@ -43,7 +53,7 @@ class SequencingType(admin.ModelAdmin):
     ordering = ['code']
 
 @admin.register(SampleType)
-class SampleType(admin.ModelAdmin):
+class SampleTypeAdmin(admin.ModelAdmin):
     form = SampleForm
     actions_on_top = False
     all_fields = ( 'code', 'details' )
@@ -55,21 +65,26 @@ class SampleType(admin.ModelAdmin):
 
 """ImportExport Resource"""
 class DetailResource(resources.ModelResource):
-    jaxid = fields.Field(
-        default=generate_JAX_id(prefix='J'),
-        readonly=True,
-        widget=widgets.CharWidget(),
-        )
-    project_code = fields.Field(column_name='project_code', attribute='project_code',
+    # jaxid = fields.Field(
+        # attribute='jaxid',
+        # default=generate_JAX_id(prefix='J'),
+        # readonly=True,
+        # widget=widgets.CharWidget(),
+        # )
+    project_code = fields.Field(
+        attribute='project_code',
         widget=widgets.ForeignKeyWidget(ProjectCode, 'code'),
         )
     sample_type = fields.Field(
+        attribute='sample_type',
         widget=widgets.ForeignKeyWidget(SampleType, 'code'),
         )
     sequencing_type = fields.Field(
+        attribute='sequencing_type',
         widget=widgets.ForeignKeyWidget(SequencingType, 'code'),
         )
     collab_id = fields.Field(
+        attribute='collab_id',
         widget=widgets.CharWidget(),
         )
 
@@ -87,8 +102,8 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     resource_class = DetailResource
 
     # has_add_permission removes the individual 'add' admin action
-    # def has_add_permission(self, request):
-        # return False
+    def has_add_permission(self, request):
+        return False
 
     form = JAXIdDetailForm
     actions_on_top = False
