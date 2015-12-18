@@ -1,0 +1,6 @@
+README.rst
+gnupg.py
+python_gnupg.egg-info/PKG-INFO
+python_gnupg.egg-info/SOURCES.txt
+python_gnupg.egg-info/dependency_links.txt
+python_gnupg.egg-info/top_level.txt
