@@ -60,6 +60,26 @@ class SampleType(models.Model):
         super(SampleType, self).save(force_insert, force_update)
 
 
+class NucleicAcidType(models.Model):
+    code = models.CharField('Type Code',
+            max_length=20, blank=False,
+            help_text="Nucleic acid type identifiying code.",
+            unique=True,
+            )
+    details = models.TextField('name details', blank=False,
+            help_text="Nucleic acid type detailed name."
+            )
+
+    ordering = ['code']
+
+    def __str__(self):
+        return '{} ({})'.format(self.code, self.details)
+
+    def save(self, force_insert=False, force_update=False):
+        # self.code = self.code.upper()
+        super(NucleicAcidType, self).save(force_insert, force_update)
+
+
 class JAXIdDetail(models.Model):
     verbose_name = 'JAX Id Detail'
     jaxid = models.CharField('JAX ID',
@@ -67,12 +87,15 @@ class JAXIdDetail(models.Model):
             help_text="A unique ID string for every sample.",
             unique=True,
             )
-    project_code = models.ForeignKey(ProjectCode, to_field='code')
+    project_code = models.ForeignKey(ProjectCode, to_field='code', blank=False)
     collab_id = models.TextField('Collaborator ID', blank=False,
             help_text="Collaborator sample ID."
             )
-    sample_type = models.ForeignKey(SampleType, to_field='code')
-    sequencing_type = models.ForeignKey(SequencingType, to_field='code')
+    sample_type = models.ForeignKey(SampleType, to_field='code', blank=True)
+    nucleic_acid_type = models.ForeignKey(NucleicAcidType,
+            to_field='code', blank=True)
+    sequencing_type = models.ForeignKey(SequencingType,
+            to_field='code', blank=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
 

@@ -7,12 +7,14 @@ from .models import (
         JAXIdDetail,
         SampleType,
         SequencingType,
+        NucleicAcidType,
         ProjectCode
         )
 from .forms import (
         JAXIdDetailForm,
         SequencingForm,
         SampleForm,
+        NucleicAcidTypeForm,
         ProjectCodeForm
         )
 from .generate import generate_JAX_id
@@ -55,6 +57,16 @@ class SequencingTypeAdmin(admin.ModelAdmin):
 @admin.register(SampleType)
 class SampleTypeAdmin(admin.ModelAdmin):
     form = SampleForm
+    actions_on_top = False
+    all_fields = ( 'code', 'details' )
+    fields = ( all_fields, )
+    list_display = all_fields
+    search_fields = all_fields
+    ordering = ['code']
+
+@admin.register(NucleicAcidType)
+class NucleicAcidTypeAdmin(admin.ModelAdmin):
+    form = NucleicAcidTypeForm
     actions_on_top = False
     all_fields = ( 'code', 'details' )
     fields = ( all_fields, )
@@ -109,7 +121,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     actions_on_top = False
     actions = None
     all_fields = ( 'jaxid', 'project_code', 'collab_id',
-            'sample_type', 'sequencing_type', )
+            'sample_type', 'nucleic_acid_type', 'sequencing_type', )
     fields = ( all_fields, )
     list_display = all_fields
     search_fields = all_fields

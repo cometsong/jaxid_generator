@@ -7,7 +7,8 @@ import tablib
 from .jaxid_create import JAXidGenerate
 
 #TODO: use IdModel_meta.fields to generate list of field names for file.headers in new_ids()
-id_detail_fields = ['jaxid', 'project_code', 'collab_id', 'sample_type', 'sequencing_type']
+id_detail_fields = ['jaxid', 'project_code', 'collab_id',
+    'sample_type', 'nucleic_acid_type', 'sequencing_type']
 
 ID_TYPES = (
             ('J', 'JAXID'),
@@ -16,8 +17,8 @@ ID_TYPES = (
            )
 
 FILE_TYPES = (
-        ('C', 'csv'),
         ('X', 'xlsx'),
+        ('C', 'csv'),
         )
 
 class GenerateForm(forms.Form):
@@ -61,18 +62,20 @@ def new_ids(request, fields):
     for N in range(0,amount):
         ID = generate_JAX_id(prefix)
         # field_list = ID,'','','',''
-        file.append((ID, '','','',''))
+        file.append((ID, '','','','',''))
 
     file_export_name = 'id_list'
     if filetype == 'X':
         file_export = file.xlsx
-        content_type = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        content_type = \
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
     else: # filetype == 'C':
         file_export = file.csv
         content_type = 'text/csv'
 
     response = HttpResponse(file_export, content_type=content_type)
-    response['Content-Disposition'] = 'attachment; filename={}'.format(file_export_name)
+    response['Content-Disposition'] = \
+            'attachment; filename={}'.format(file_export_name)
     return response
 
 def generate_JAX_id(prefix='J'):

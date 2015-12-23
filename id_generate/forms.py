@@ -8,6 +8,7 @@ from .models import (
         JAXIdDetail,
         SampleType,
         SequencingType,
+        NucleicAcidType,
         ProjectCode
         )
 
@@ -33,6 +34,15 @@ class ProjectCodeForm(forms.ModelForm):
         fields = '__all__'
         widgets = {
             'project_code': forms.TextInput(attrs={'size':'4'}),
+            'details': forms.TextInput(attrs={'size':'100'})
+            }
+
+class NucleicAcidTypeForm(forms.ModelForm):
+    class Meta:
+        model = NucleicAcidType
+        fields = '__all__'
+        widgets = {
+            'code': forms.TextInput(attrs={'size':'20'}),
             'details': forms.TextInput(attrs={'size':'100'})
             }
 
