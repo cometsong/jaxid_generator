@@ -1,6 +1,7 @@
 from django.contrib import admin
 from import_export import resources, fields, widgets
 from import_export.admin import ImportExportModelAdmin
+from import_export.formats import base_formats
 
 from .models import (
         JAXIdMasterList,
@@ -25,7 +26,14 @@ from .generate import generate_JAX_id
 
 @admin.register(JAXIdMasterList)
 class JAXIdListAdmin(admin.ModelAdmin):
+    # has_add_permission removes the individual 'add' admin action
+    def has_add_permission(self, request):
+        return False
+    # def has_change_permission(self, request):
+        # return False
+
     actions_on_top = False
+    actions = None
     all_fields = ( 'jaxid', 'creation_date' )
     fields = ( all_fields, )
     list_display = all_fields
@@ -87,23 +95,27 @@ class DetailResource(resources.ModelResource):
         attribute='project_code',
         widget=widgets.ForeignKeyWidget(ProjectCode, 'code'),
         )
+    collab_id = fields.Field(
+        attribute='collab_id',
+        widget=widgets.CharWidget(),
+        )
     sample_type = fields.Field(
         attribute='sample_type',
         widget=widgets.ForeignKeyWidget(SampleType, 'code'),
+        )
+    nucleic_acid_type = fields.Field(
+        attribute='nucleic_acid_type',
+        widget=widgets.ForeignKeyWidget(NucleicAcidType, 'code'),
         )
     sequencing_type = fields.Field(
         attribute='sequencing_type',
         widget=widgets.ForeignKeyWidget(SequencingType, 'code'),
         )
-    collab_id = fields.Field(
-        attribute='collab_id',
-        widget=widgets.CharWidget(),
-        )
 
     class Meta:
         model = JAXIdDetail
         all_fields = ( 'jaxid', 'project_code', 'collab_id',
-                'sample_type', 'sequencing_type', )
+                'sample_type', 'nucleic_acid_type', 'sequencing_type', )
         import_id_fields = ( 'jaxid', )
         fields = all_fields
         export_order = all_fields
@@ -125,7 +137,9 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     fields = ( all_fields, )
     list_display = all_fields
     search_fields = all_fields
+    # readonly_fields = ( 'jaxid', 'creation_date' ),
     readonly_fields = ( 'jaxid' ),
     list_filter = ( 'sample_type', 'sequencing_type', 'project_code' )
     ordering = ['creation_date', 'project_code', 'sequencing_type']
+    formats = (base_formats.XLSX, base_formats.CSV, )
 
