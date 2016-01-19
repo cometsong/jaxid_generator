@@ -96,13 +96,24 @@ class JAXIdDetail(models.Model):
             to_field='code', blank=True)
     sequencing_type = models.ForeignKey(SequencingType,
             to_field='code', blank=True)
+    entered_into_lims = models.BooleanField('Entered into LIMS', blank=True,
+            help_text="Entered into LIMS"
+            )
+    notes = models.TextField('Notes', blank=True,
+            help_text="Notes"
+            )
     creation_date = models.DateTimeField(auto_now_add=True)
 
 
 class JAXIdMasterList(models.Model):
     verbose_name = 'JAX Id Master List'
-    jaxid = models.ForeignKey(JAXIdDetail, on_delete=models.PROTECT,
-            to_field='jaxid',)
+    jaxid = models.CharField('JAX ID',
+            max_length=6, blank=False,
+            help_text="A unique ID string for every sample.",
+            unique=True,
+            )
+    # jaxid = models.ForeignKey(JAXIdDetail, on_delete=models.PROTECT,
+            # to_field='jaxid',)
     creation_date = models.DateTimeField(auto_now_add=True)
     ordering = ['creation_date']
 
