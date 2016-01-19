@@ -105,6 +105,17 @@ class JAXIdDetail(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
 
+class JAXidsUsed(models.Model):
+    verbose_name = 'JAX Id Master List'
+    jaxid = models.CharField('JAX ID',
+            max_length=6, blank=False,
+            help_text="A unique ID string used in prior imports.",
+            unique=True,
+            )
+    creation_date = models.DateTimeField(auto_now_add=True)
+    ordering = ['creation_date']
+
+
 class JAXIdMasterList(models.Model):
     verbose_name = 'JAX Id Master List'
     jaxid = models.CharField('JAX ID',
