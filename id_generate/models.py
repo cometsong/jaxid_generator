@@ -86,6 +86,7 @@ class JAXIdDetail(models.Model):
             max_length=6, blank=False,
             help_text="A unique ID string for every sample.",
             unique=True,
+            # indexed=True,
             )
     project_code = models.ForeignKey(ProjectCode, to_field='code', blank=False)
     collab_id = models.TextField('Collaborator ID', blank=False,

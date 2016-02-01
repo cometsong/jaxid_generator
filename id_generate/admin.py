@@ -111,11 +111,25 @@ class DetailResource(resources.ModelResource):
         attribute='sequencing_type',
         widget=widgets.ForeignKeyWidget(SequencingType, 'code'),
         )
+    sequencing_type = fields.Field(
+        attribute='sequencing_type',
+        widget=widgets.ForeignKeyWidget(SequencingType, 'code'),
+        )
+    entered_into_lims = fields.Field(
+        attribute='entered_into_lims',
+        widget=widgets.BooleanWidget(),
+        )
+    notes = fields.Field(
+        attribute='notes',
+        widget=widgets.CharWidget(),
+        )
+    raise_errors = True
 
     class Meta:
         model = JAXIdDetail
         all_fields = ( 'jaxid', 'project_code', 'collab_id',
-                'sample_type', 'nucleic_acid_type', 'sequencing_type', )
+                'sample_type', 'nucleic_acid_type', 'sequencing_type',
+                'entered_into_lims', 'notes', )
         import_id_fields = ( 'jaxid', )
         fields = all_fields
         export_order = all_fields
@@ -133,13 +147,15 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     actions_on_top = False
     actions = None
     all_fields = ( 'jaxid', 'project_code', 'collab_id',
-            'sample_type', 'nucleic_acid_type', 'sequencing_type', )
+            'sample_type', 'nucleic_acid_type', 'sequencing_type',
+            'entered_into_lims', 'notes', )
     fields = ( all_fields, )
     list_display = all_fields
     search_fields = all_fields
     # readonly_fields = ( 'jaxid', 'creation_date' ),
     readonly_fields = ( 'jaxid' ),
-    list_filter = ( 'sample_type', 'sequencing_type', 'project_code' )
+    list_filter = ( 'sample_type', 'sequencing_type',
+                    'entered_into_lims', 'project_code', )
     ordering = ['creation_date', 'project_code', 'sequencing_type']
     formats = (base_formats.XLSX, base_formats.CSV, )
 
