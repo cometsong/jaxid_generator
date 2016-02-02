@@ -105,27 +105,10 @@ class JAXIdDetail(models.Model):
             )
     creation_date = models.DateTimeField(auto_now_add=True)
 
-
-class JAXidsUsed(models.Model):
-    verbose_name = 'JAX Id Master List'
-    jaxid = models.CharField('JAX ID',
-            max_length=6, blank=False,
-            help_text="A unique ID string used in prior imports.",
-            unique=True,
-            )
-    creation_date = models.DateTimeField(auto_now_add=True)
-    ordering = ['creation_date']
-
-
-class JAXIdMasterList(models.Model):
-    verbose_name = 'JAX Id Master List'
-    jaxid = models.CharField('JAX ID',
-            max_length=6, blank=False,
-            help_text="A unique ID string for every sample.",
-            unique=True,
-            )
-    # jaxid = models.ForeignKey(JAXIdDetail, on_delete=models.PROTECT,
-            # to_field='jaxid',)
-    creation_date = models.DateTimeField(auto_now_add=True)
-    ordering = ['creation_date']
-
+    def all_field_names():
+        names = (
+                'jaxid', 'project_code', 'collab_id',
+                'sample_type', 'nucleic_acid_type', 'sequencing_type',
+                'entered_into_lims', 'notes',
+                )
+        return names

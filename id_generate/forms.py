@@ -4,13 +4,14 @@ from django.db import models
 
 # from .generate import generate_JAX_id
 from .models import (
-        JAXIdMasterList,
         JAXIdDetail,
         SampleType,
         SequencingType,
         NucleicAcidType,
         ProjectCode
         )
+
+ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
 class SampleForm(forms.ModelForm):
     class Meta:
@@ -49,7 +50,6 @@ class NucleicAcidTypeForm(forms.ModelForm):
 class JAXIdDetailForm(forms.ModelForm):
     class Meta:
         model = JAXIdDetail
-        fields = ( 'jaxid', 'project_code', 'collab_id',
-                'sample_type', 'sequencing_type', )
+        fields = ( ID_DETAIL_FIELDS )
         readonly_fields = ( 'jaxid' ),
 

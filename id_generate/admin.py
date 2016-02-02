@@ -4,7 +4,6 @@ from import_export.admin import ImportExportModelAdmin
 from import_export.formats import base_formats
 
 from .models import (
-        JAXIdMasterList,
         JAXIdDetail,
         SampleType,
         SequencingType,
@@ -21,25 +20,11 @@ from .forms import (
 from .generate import generate_JAX_id
 
 
+ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
+
+
 # disable the 'delete' action sitewide!
 # admin.site.disable_action('delete_selected')
-
-@admin.register(JAXIdMasterList)
-class JAXIdListAdmin(admin.ModelAdmin):
-    # has_add_permission removes the individual 'add' admin action
-    def has_add_permission(self, request):
-        return False
-    # def has_change_permission(self, request):
-        # return False
-
-    actions_on_top = False
-    actions = None
-    all_fields = ( 'jaxid', 'creation_date' )
-    fields = ( all_fields, )
-    list_display = all_fields
-    search_fields = all_fields
-    readonly_fields = ('creation_date',)
-    ordering = ['creation_date']
 
 @admin.register(ProjectCode)
 class ProjectCodeAdmin(admin.ModelAdmin):
@@ -127,12 +112,10 @@ class DetailResource(resources.ModelResource):
 
     class Meta:
         model = JAXIdDetail
-        all_fields = ( 'jaxid', 'project_code', 'collab_id',
-                'sample_type', 'nucleic_acid_type', 'sequencing_type',
-                'entered_into_lims', 'notes', )
+        all_fields = ( ID_DETAIL_FIELDS, )
         import_id_fields = ( 'jaxid', )
-        fields = all_fields
-        export_order = all_fields
+        fields = ID_DETAIL_FIELDS
+        export_order = ID_DETAIL_FIELDS
 
 @admin.register(JAXIdDetail)
 # class JAXIdDetailAdmin(admin.ModelAdmin):
@@ -146,12 +129,9 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     form = JAXIdDetailForm
     actions_on_top = False
     actions = None
-    all_fields = ( 'jaxid', 'project_code', 'collab_id',
-            'sample_type', 'nucleic_acid_type', 'sequencing_type',
-            'entered_into_lims', 'notes', )
-    fields = ( all_fields, )
-    list_display = all_fields
-    search_fields = all_fields
+    fields = ( ID_DETAIL_FIELDS, )
+    list_display = ID_DETAIL_FIELDS
+    search_fields = ID_DETAIL_FIELDS
     # readonly_fields = ( 'jaxid', 'creation_date' ),
     readonly_fields = ( 'jaxid' ),
     list_filter = ( 'sample_type', 'sequencing_type',

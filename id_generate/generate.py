@@ -5,12 +5,11 @@ from django.http import HttpResponse
 import tablib
 
 from .jaxid_create import JAXidGenerate
+from .models import JAXIdDetail
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Globals ~~~~~
-#TODO: use IdModel_meta.fields to generate list of field names for file.headers in new_ids()
-ID_DETAIL_FIELDS = ['jaxid', 'project_code', 'collab_id',
-    'sample_type', 'nucleic_acid_type', 'sequencing_type']
+ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
 FILE_EXPORT_NAME = 'generated_id_list'
 
@@ -71,11 +70,12 @@ def new_ids(request, fields):
     file = tablib.Dataset()
     # NOTE: Dataset requires >1 column for each instance
     file.headers = ID_DETAIL_FIELDS
-    # empty_fields = ["''," for l in range(1, len(file.headers))]
     # print('empty_fields: {}'.format(empty_fields))
     for ID in generate_JAX_id(prefix, amount):
-        id_row_fields = (ID, '','','','','')
-        #TODO: test id_row_fields = (ID, empty_fields)
+        # id_row_fields = (ID, empty_fields)
+        empty_fields = ['' for l in range(1, len(file.headers))]
+        empty_fields.insert(0,ID)
+        id_row_fields = empty_fields
         file.append(id_row_fields)
         print('id_row_fields: {}'.format(id_row_fields))
 

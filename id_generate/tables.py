@@ -1,19 +1,16 @@
 from django_tables2 import Table
-from .models import JAXIdMasterList, JAXIdDetail
+from .models import JAXIdDetail
 
-class ListTable(Table):
-    class Meta:
-        model = JAXIdMasterList
-        attrs = {"class": "paleblue"}
-        sequence = ('jaxid', 'creation_date')
-        order_by = 'creation_date'
+ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
 class DetailTable(Table):
     class Meta:
         model = JAXIdDetail
         attrs = {"class": "paleblue"}
-        sequence = ('id', 'jaxid', 'project_code',
-                'collab_id', 'sample_type', 'sequencing_type',
-                'creation_date')
+        # convert to list, insert, append, convert back to set
+        field_list = list(ID_DETAIL_FIELDS)
+        field_list.insert(0,'id')
+        field_list.append('creation_date')
+        sequence = tuple(field_list)
         order_by = 'creation_date'
 
