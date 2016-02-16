@@ -94,13 +94,13 @@ class JAXIdDetail(models.Model):
             )
     sample_type = models.ForeignKey(SampleType, to_field='code', blank=True)
     nucleic_acid_type = models.ForeignKey(NucleicAcidType,
-            to_field='code', blank=True)
+            to_field='code', blank=True, null=True,)
     sequencing_type = models.ForeignKey(SequencingType,
-            to_field='code', blank=True)
+            to_field='code', blank=True, null=True,)
     entered_into_lims = models.BooleanField('Entered into LIMS', blank=True,
-            help_text="Entered into LIMS"
+            help_text="Entered into LIMS",
             )
-    notes = models.TextField('Notes', blank=True,
+    notes = models.TextField('Notes', blank=True, null=True,
             help_text="Notes"
             )
     creation_date = models.DateTimeField(auto_now_add=True)
