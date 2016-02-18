@@ -100,15 +100,20 @@ class JAXIdDetail(models.Model):
     entered_into_lims = models.BooleanField('Entered into LIMS', blank=True,
             help_text="Entered into LIMS",
             )
+    external_data = models.BooleanField('External data (not sequenced here.)',
+            blank=True, default=False,
+            help_text='External data (not sequenced here.)',
+            )
     notes = models.TextField('Notes', blank=True, null=True,
             help_text="Notes"
             )
+
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def all_field_names():
         names = (
                 'jaxid', 'project_code', 'collab_id',
                 'sample_type', 'nucleic_acid_type', 'sequencing_type',
-                'entered_into_lims', 'notes',
+                'entered_into_lims', 'external_data', 'notes',
                 )
         return names

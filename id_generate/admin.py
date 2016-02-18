@@ -104,6 +104,10 @@ class DetailResource(resources.ModelResource):
         attribute='entered_into_lims',
         widget=widgets.BooleanWidget(),
         )
+    external_data = fields.Field(
+        attribute='external_data',
+        widget=widgets.BooleanWidget(),
+        )
     notes = fields.Field(
         attribute='notes',
         widget=widgets.CharWidget(),
