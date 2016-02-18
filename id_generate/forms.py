@@ -48,6 +48,7 @@ class NucleicAcidTypeForm(forms.ModelForm):
             }
 
 class JAXIdDetailForm(forms.ModelForm):
+    collab_id = forms.CharField(widget=forms.TextInput())
     class Meta:
         model = JAXIdDetail
         fields = ( ID_DETAIL_FIELDS )
