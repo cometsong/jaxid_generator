@@ -97,7 +97,8 @@ class JAXIdDetail(models.Model):
             to_field='code', blank=True, null=True,)
     sequencing_type = models.ForeignKey(SequencingType,
             to_field='code', blank=True, null=True,)
-    entered_into_lims = models.BooleanField('Entered into LIMS', blank=True,
+    entered_into_lims = models.BooleanField('Entered into LIMS',
+            blank=True, default=False,
             help_text="Entered into LIMS",
             )
     external_data = models.BooleanField('External data (not sequenced here.)',
