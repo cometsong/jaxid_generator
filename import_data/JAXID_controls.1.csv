@@ -1,0 +1,4 @@
+jaxid,project_code,collab_id,sample_type,nucleic_acid_type,sequencing_type,entered_into_lims,notes
+JPC000,WLAB,Positive_Control,PC,Z,Z,True,
+JNC000,WLAB,Negative_Control,NC,Z,Z,True,
+JXC000,WLAB,Extraction_Control,XC,Z,Z,True,
