@@ -111,6 +111,14 @@ class JAXIdDetail(models.Model):
 
     creation_date = models.DateTimeField(auto_now_add=True)
 
+    def search_fields():
+        names = (
+                'jaxid', 'project_code__code', 'collab_id',
+                'sample_type__code', 'nucleic_acid_type__code', 'sequencing_type__code',
+                'entered_into_lims', 'external_data', 'notes',
+                )
+        return names
+
     def all_field_names():
         names = (
                 'jaxid', 'project_code', 'collab_id',

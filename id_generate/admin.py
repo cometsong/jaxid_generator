@@ -135,7 +135,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     actions = None
     fields = ( ID_DETAIL_FIELDS, )
     list_display = ID_DETAIL_FIELDS
-    search_fields = ID_DETAIL_FIELDS
+    search_fields = JAXIdDetail.search_fields()
     # readonly_fields = ( 'jaxid', 'creation_date' ),
     readonly_fields = ( 'jaxid' ),
     list_filter = ( 'sample_type', 'sequencing_type',
