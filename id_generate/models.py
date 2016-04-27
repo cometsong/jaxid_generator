@@ -12,6 +12,9 @@ class SequencingType(models.Model):
 
     ordering = ['code']
 
+    def disp(self):
+        return self.code
+
     def __str__(self):
         return '{} ({})'.format(self.code, self.details)
 
@@ -31,6 +34,9 @@ class ProjectCode(models.Model):
             )
 
     ordering = ['code']
+
+    def disp(self):
+        return self.code
 
     def __str__(self):
         return '{} ({})'.format(self.code, self.details)
@@ -52,6 +58,9 @@ class SampleType(models.Model):
 
     ordering = ['code']
 
+    def disp(self):
+        return self.code
+
     def __str__(self):
         return '{} ({})'.format(self.code, self.details)
 
@@ -71,6 +80,9 @@ class NucleicAcidType(models.Model):
             )
 
     ordering = ['code']
+
+    def disp(self):
+        return self.code
 
     def __str__(self):
         return '{} ({})'.format(self.code, self.details)
@@ -101,7 +113,7 @@ class JAXIdDetail(models.Model):
             blank=True, default=False,
             help_text="Entered into LIMS",
             )
-    external_data = models.BooleanField('External data (not sequenced here.)',
+    external_data = models.BooleanField('External data',
             blank=True, default=False,
             help_text='External data (not sequenced here.)',
             )
@@ -110,6 +122,22 @@ class JAXIdDetail(models.Model):
             )
 
     creation_date = models.DateTimeField(auto_now_add=True)
+
+    def project_disp(self):
+        return self.project_code.disp()
+    project_disp.short_description = 'Project'
+
+    def sample_disp(self):
+        return self.sample_type.disp()
+    sample_disp.short_description = 'Sample'
+
+    def sequencing_disp(self):
+        return self.sequencing_type.disp()
+    sequencing_disp.short_description = 'Sequencing'
+
+    def nucleic_acid_disp(self):
+        return self.nucleic_acid_type.disp()
+    nucleic_acid_disp.short_description = 'NucleicAcid'
 
     def search_fields():
         names = (

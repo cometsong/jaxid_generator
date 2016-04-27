@@ -134,7 +134,17 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     actions_on_top = False
     actions = None
     fields = ( ID_DETAIL_FIELDS, )
-    list_display = ID_DETAIL_FIELDS
+    # list_display = ID_DETAIL_FIELDS
+    list_display = ( 'jaxid',
+                     'project_disp',
+                     'collab_id',
+                     'sample_disp',
+                     'nucleic_acid_disp',
+                     'sequencing_disp',
+                     'entered_into_lims',
+                     'external_data',
+                     'notes',
+                     )
     search_fields = JAXIdDetail.search_fields()
     # readonly_fields = ( 'jaxid', 'creation_date' ),
     readonly_fields = ( 'jaxid' ),
