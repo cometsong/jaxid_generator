@@ -148,7 +148,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     search_fields = JAXIdDetail.search_fields()
     # readonly_fields = ( 'jaxid', 'creation_date' ),
     readonly_fields = ( 'jaxid' ),
-    list_filter = ( 'sample_type', 'sequencing_type',
+    list_filter = ( 'sample_type', 'nucleic_acid_type', 'sequencing_type',
                     'entered_into_lims', 'project_code', )
     ordering = ['creation_date', 'project_code', 'sequencing_type']
     formats = (base_formats.XLSX, base_formats.CSV, )
