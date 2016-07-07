@@ -1,5 +1,24 @@
 from django.db import models
 
+class BaseRefClass(models.Model):
+    code = models.CharField('Code',
+            max_length=1, blank=False,)
+    details = models.TextField('details', blank=False,
+            help_text="details")
+
+    ordering = ['code']
+
+    def disp(self):
+        return self.code
+
+    def __str__(self):
+        return '{} ({})'.format(self.code, self.details)
+
+    def save(self, force_insert=False, force_update=False):
+        self.code = self.code.upper()
+        super(self.__name__, self).save(force_insert, force_update)
+
+
 class SequencingType(models.Model):
     code = models.CharField('Type Code',
             max_length=1, blank=False,
