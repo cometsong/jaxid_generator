@@ -136,6 +136,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin):
     fields = ( ID_DETAIL_FIELDS, )
     # list_display = ID_DETAIL_FIELDS
     list_display = ( 'jaxid',
+                     'parent_jaxid',
                      'project_disp',
                      'collab_id',
                      'sample_disp',

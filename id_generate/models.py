@@ -94,11 +94,16 @@ class NucleicAcidType(models.Model):
 
 class JAXIdDetail(models.Model):
     verbose_name = 'JAX Id Detail'
-    jaxid = models.CharField('JAX ID',
+    jaxid = models.CharField('JAXid',
             max_length=6, blank=False,
             help_text="A unique ID string for every sample.",
             unique=True,
             # indexed=True,
+            )
+    parent_jaxid = models.CharField('Parent JAXid',
+            max_length=6, blank=True,
+            help_text="Parent ID string or leave blank if has no parent.",
+            unique=False,
             )
     project_code = models.ForeignKey(ProjectCode, to_field='code', blank=False)
     collab_id = models.TextField('Collaborator ID', blank=False,
@@ -120,7 +125,6 @@ class JAXIdDetail(models.Model):
     notes = models.TextField('Notes', blank=True, null=True,
             help_text="Notes"
             )
-
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def project_disp(self):
@@ -149,7 +153,7 @@ class JAXIdDetail(models.Model):
 
     def all_field_names():
         names = (
-                'jaxid', 'project_code', 'collab_id',
+                'jaxid', 'parent_jaxid', 'project_code', 'collab_id',
                 'sample_type', 'nucleic_acid_type', 'sequencing_type',
                 'entered_into_lims', 'external_data', 'notes',
                 )
