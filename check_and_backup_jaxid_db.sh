@@ -5,7 +5,7 @@
 #-------------------------------------------------------------------------------
 
 ## check if db has been changed
-DBPATH=/var/www/django/jaxid_generator
+DBPATH=/var/www/apps/jaxid_generator
 DBNAME=db.sqlite3
 
 
