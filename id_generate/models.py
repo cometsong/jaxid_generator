@@ -120,7 +120,7 @@ class JAXIdDetail(models.Model):
             # indexed=True,
             )
     parent_jaxid = models.CharField('Parent JAXid',
-            max_length=6, blank=True,
+            max_length=6, blank=True, default='',
             help_text="Parent ID string or leave blank if has no parent.",
             unique=False,
             )

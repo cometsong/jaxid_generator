@@ -1,15 +1,2 @@
-Thu Mar 3 14:30:21 EST 2016
-Migrations for 'id_generate':
-  0041_auto_20160303_1430.py:
-    - Alter field entered_into_lims on jaxiddetail
-    - Alter field external_data on jaxiddetail
-Thu Mar 3 15:19:08 EST 2016
-Migrations for 'id_generate':
-  0042_auto_20160303_1519.py:
-    - Alter field entered_into_lims on jaxiddetail
-    - Alter field external_data on jaxiddetail
-Thu Mar 3 15:22:19 EST 2016
-Migrations for 'id_generate':
-  0043_auto_20160303_1522.py:
-    - Alter field entered_into_lims on jaxiddetail
-    - Alter field external_data on jaxiddetail
+Mon Apr 3 14:43:56 EDT 2017
+No changes detected
