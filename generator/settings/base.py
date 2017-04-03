@@ -8,10 +8,6 @@ Created: 2015-11-19
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-### Secret_Key {{{
-SECRET_KEY = '4$rboj1nrj84s(o79w^^5k(88@x*s03mt0*h5j=g6-j7@r^%)%'
-# }}}
-
 ### Debugging {{{
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -22,7 +18,7 @@ ALLOWED_HOSTS = [
     #'*',
     '127.0.0.1',
     'localhost',
-    'ctweinstock02',
+    'mbiome_core',
 ] # }}}
 
 ### Application definition {{{
