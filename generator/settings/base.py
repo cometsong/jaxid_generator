@@ -89,7 +89,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.template.context_processors.request',
                 ],
             },
         },
@@ -130,9 +129,9 @@ IMPORT_EXPORT_USE_TRANSACTIONS = True
 # Django Suit configuration example
 SUIT_CONFIG = {
     # header
-    'ADMIN_NAME': 'Mbiome Core Admin',
-    'HEADER_DATE_FORMAT': 'r',
-    'HEADER_TIME_FORMAT': 'H:i',
+    'ADMIN_NAME': 'Mbiome Core JAXid Generator Admin',
+    'HEADER_DATE_FORMAT': 'l, d-M-o',
+    'HEADER_TIME_FORMAT': 'H:i e',
 
     # forms
     'SHOW_REQUIRED_ASTERISK': True,  # Default True
