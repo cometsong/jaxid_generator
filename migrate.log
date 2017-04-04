@@ -1,2 +1,24 @@
 Mon Apr 3 14:43:56 EDT 2017
 No changes detected
+Tue Apr 4 11:17:48 EDT 2017
+No changes detected
+Tue Apr 4 11:39:52 EDT 2017
+Migrations for 'filer':
+  lib64/python3.6/site-packages/filer/migrations/0008_auto_20170404_1139.py:
+    - Alter field is_public on file
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, easy_thumbnails, filer, id_generate, sessions
+Running migrations:
+  Applying admin.0002_logentry_remove_auto_add... OK
+  Applying auth.0007_alter_validators_add_error_messages... OK
+  Applying auth.0008_alter_user_username_max_length... OK
+  Applying easy_thumbnails.0001_initial... OK
+  Applying easy_thumbnails.0002_thumbnaildimensions... OK
+  Applying filer.0001_initial... OK
+  Applying filer.0002_auto_20150606_2003... OK
+  Applying filer.0003_thumbnailoption... OK
+  Applying filer.0004_auto_20160328_1434... OK
+  Applying filer.0005_auto_20160623_1425... OK
+  Applying filer.0006_auto_20160623_1627... OK
+  Applying filer.0007_auto_20161016_1055... OK
+  Applying filer.0008_auto_20170404_1139... OK
