@@ -114,6 +114,7 @@ PREREQ_APPS = [
     'compressor',
     'django_tables2',
     'import_export',
+    'easy_thumbnails', 'filer', 'mptt',
     ]
 
 PROJECT_APPS = [
@@ -125,6 +126,22 @@ INSTALLED_APPS = ADMIN_APPS + PREREQ_APPS + PROJECT_APPS
 
 ### App Settings {{{
 IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+# Filer
+FILER_ENABLE_LOGGING = True
+FILER_DEBUG = False #default false
+FILER_ENABLE_PERMISSIONS = False #default false
+    # include "url(r'^', include('filer.server.urls'))," in root urls.py without prefix
+    #   when FILER_ENABLE_PERMISSIONS is True
+FILER_IS_PUBLIC_DEFAULT = False
+THUMBNAIL_HIGH_RESOLUTION = True
+THUMBNAIL_PROCESSORS = (
+    'easy_thumbnails.processors.colorspace',
+    'easy_thumbnails.processors.autocrop',
+    'easy_thumbnails.processors.scale_and_crop',
+    # 'filer.thumbnail_processors.scale_and_crop_with_subject_location',
+    'easy_thumbnails.processors.filters',
+)
 
 # Django Suit configuration example
 SUIT_CONFIG = {
