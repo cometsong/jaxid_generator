@@ -19,6 +19,8 @@ ALLOWED_HOSTS = [
     '127.0.0.1',
     'localhost',
     'mbiome_core',
+    'mbiome_core.jax.org',
+    'ctmbioc01ld.jax.org',
 ] # }}}
 
 ### Application definition {{{
@@ -87,7 +89,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'django.core.context_processors.request',
+                'django.template.context_processors.request',
                 ],
             },
         },
@@ -96,9 +98,13 @@ TEMPLATES = [
 # }}}
 
 ### Installed Apps {{{
+ADMIN_APPS = [
+    # 'jet',
+    'suit',
+    'django.contrib.admin',
+    ]
 PREREQ_APPS = [
     # core
-    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -115,11 +121,42 @@ PROJECT_APPS = [
     'id_generate',
     ]
 
-INSTALLED_APPS = PREREQ_APPS + PROJECT_APPS
+INSTALLED_APPS = ADMIN_APPS + PREREQ_APPS + PROJECT_APPS
 # }}}
 
 ### App Settings {{{
 IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+# Django Suit configuration example
+SUIT_CONFIG = {
+    # header
+    'ADMIN_NAME': 'Mbiome Core Admin',
+    'HEADER_DATE_FORMAT': 'r',
+    'HEADER_TIME_FORMAT': 'H:i',
+
+    # forms
+    'SHOW_REQUIRED_ASTERISK': True,  # Default True
+    'CONFIRM_UNSAVED_CHANGES': True, # Default True
+
+    # menu
+    # 'SEARCH_URL': '/admin/auth/user/',
+    # 'MENU_ICONS': {
+    #    'sites': 'icon-leaf',
+    #    'auth': 'icon-lock',
+    # },
+    # 'MENU_OPEN_FIRST_CHILD': True, # Default True
+    # 'MENU_EXCLUDE': ('auth.group',),
+    # 'MENU': (
+    #     'sites',
+    #     {'app': 'auth', 'icon':'icon-lock', 'models': ('user', 'group')},
+    #     {'label': 'Settings', 'icon':'icon-cog', 'models': ('auth.user', 'auth.group')},
+    #     {'label': 'Support', 'icon':'icon-question-sign', 'url': '/support/'},
+    # ),
+
+    # misc
+    # 'LIST_PER_PAGE': 15
+}
+
 # }}}
 
 ## Secure Server {{{
