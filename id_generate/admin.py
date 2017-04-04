@@ -126,6 +126,9 @@ class DetailResource(resources.ModelResource):
 class JAXIdDetailAdmin(ImportExportModelAdmin):
     resource_class = DetailResource
 
+    # has_delete_permission removes 'delete' admin action
+    def has_delete_permission(self, request, obj=None):
+        return False
     # has_add_permission removes the individual 'add' admin action
     def has_add_permission(self, request):
         return False
