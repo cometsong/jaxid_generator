@@ -3,4 +3,4 @@ PATH=/sbin:/bin:/usr/sbin:/usr/bin
 MAILTO=$USER
 HOME=/home/$USER
 
-0  0  *  *  * /var/www/django/jaxid_generator/check_and_backup_jaxid_db.sh
+0  0  *  *  * /var/www/apps/jaxid_generator/check_and_backup_jaxid_db.sh
