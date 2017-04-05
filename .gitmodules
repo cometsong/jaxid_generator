@@ -1,0 +1,4 @@
+[submodule "django-suit-v2"]
+	path = src/django-suit
+	url = git@github.com:darklow/django-suit.git
+	branch = v2
