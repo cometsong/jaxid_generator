@@ -77,3 +77,93 @@ Running migrations:
   Applying id_generate.0055_auto_20170428_1608... OK
 Fri Apr 28 16:19:22 EDT 2017
 No changes detected
+Tue May 2 16:11:38 EDT 2017
+Tue May 2 16:13:04 EDT 2017
+Tue May 2 16:13:38 EDT 2017
+Tue May 2 16:14:03 EDT 2017
+No changes detected
+Wed May 3 09:52:50 EDT 2017
+No changes detected
+Wed May 3 10:00:19 EDT 2017
+Wed May 3 10:00:34 EDT 2017
+Wed May 3 10:03:20 EDT 2017
+Wed May 3 10:05:49 EDT 2017
+Migrations for 'id_generate':
+  id_generate/migrations/0056_auto_20170503_1005.py
+    - Delete model BaseRefClass
+    - Change Meta options on sequencingtype
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, id_generate, sessions
+Running migrations:
+  Applying id_generate.0056_auto_20170503_1005... OK
+Wed May 3 10:08:37 EDT 2017
+No changes detected
+Wed May 3 10:58:10 EDT 2017
+No changes detected
+Wed May 3 11:09:19 EDT 2017
+No changes detected
+Wed May 3 11:57:07 EDT 2017
+Migrations for 'id_generate':
+  id_generate/migrations/0057_auto_20170503_1157.py
+    - Change Meta options on projectcode
+    - Alter field details on projectcode
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, id_generate, sessions
+Running migrations:
+  Applying id_generate.0057_auto_20170503_1157... OK
+Wed May 3 12:00:00 EDT 2017
+Migrations for 'id_generate':
+  id_generate/migrations/0058_auto_20170503_1200.py
+    - Alter field details on nucleicacidtype
+    - Alter field details on sampletype
+    - Alter field details on sequencingtype
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, id_generate, sessions
+Running migrations:
+  Applying id_generate.0058_auto_20170503_1200... OK
+Wed May 3 12:03:09 EDT 2017
+Migrations for 'id_generate':
+  id_generate/migrations/0059_auto_20170503_1203.py
+    - Alter field code on projectcode
+    - Alter field details on projectcode
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, id_generate, sessions
+Running migrations:
+  Applying id_generate.0059_auto_20170503_1203... OK
+Wed May 3 12:04:01 EDT 2017
+Migrations for 'id_generate':
+  id_generate/migrations/0060_auto_20170503_1204.py
+    - Alter field code on nucleicacidtype
+    - Alter field code on projectcode
+    - Alter field code on sampletype
+    - Alter field code on sequencingtype
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, id_generate, sessions
+Running migrations:
+  Applying id_generate.0060_auto_20170503_1204... OK
+Wed May 3 12:08:35 EDT 2017
+No changes detected
+Wed May 3 12:09:11 EDT 2017
+Migrations for 'id_generate':
+  id_generate/migrations/0061_auto_20170503_1209.py
+    - Change Meta options on projectcode
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, id_generate, sessions
+Running migrations:
+  Applying id_generate.0061_auto_20170503_1209... OK
+Mon May 8 14:38:05 EDT 2017
+Mon May 8 14:41:36 EDT 2017
+No changes detected
+Mon May 8 15:30:20 EDT 2017
+No changes detected
+Tue May 9 13:22:05 EDT 2017
+No changes detected
+Tue May 9 15:12:21 EDT 2017
+No changes detected
+Tue May 9 15:38:51 EDT 2017
+No changes detected
+Tue May 9 15:51:22 EDT 2017
+Tue May 9 15:52:18 EDT 2017
+No changes detected
+Tue May 9 16:06:05 EDT 2017
+No changes detected
