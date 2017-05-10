@@ -1,6 +1,8 @@
 from django import forms
+from django.contrib import admin
 from django.shortcuts import render
 from django.http import HttpResponse
+from django.contrib.admin.views.decorators import staff_member_required
 
 import tablib
 
@@ -25,6 +27,46 @@ FILE_TYPES = (
         )
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Classy ~~~~~
+
+# @staff_member_required
+class NewIDForm(forms.Form):
+    """form accepts type and file of rows to generate ids during import"""
+    error_css_class = 'error'
+    required_css_class = 'required'
+
+    prefix = forms.ChoiceField(
+            label='What type (JAX, box, plate)?',
+            choices=ID_TYPES, initial='J')
+    filetype = forms.ChoiceField(
+            label='What file type (csv, xlsx)?',
+            choices=FILE_TYPES, initial='X')
+    filename = forms.FileField(allow_empty_file=False, widget=forms.FileInput)
+
+# @admin.register()
+def generate_new_ids(request):
+    """direct to import/generate new ids"""
+    template_page = 'admin/import_new_ids.html'
+
+    if request.method == 'POST':
+        form = NewIDForm(request.POST)
+        if form.is_valid():
+            fields = form.cleaned_data
+            return import_new_ids(request, fields)
+    else: # if GET (or other method) send blank form
+        form = NewIDForm()
+
+    context = { 'form': form  }
+    return render(request, template_page, context)
+
+def generate_JAX_id(prefix='J', amount=1):
+    """Use id_generator and add preceding 'J' character for the 6 character
+        JAXid or 'B' for BoxID or 'P' for PlateID
+    """
+    JG = JAXidGenerate(prefix, amount)
+    return JG.generate_new_ids()
+    
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ V1 Classy ~~~~~
 class GenerateForm(forms.Form):
     amount = forms.IntegerField(label="How many ID's needed?",
             min_value=1, max_value=9999, initial=25)
@@ -53,13 +95,6 @@ def generate_batch(request):
 def batch(request):
     """ redir to generate_batch """
     return generate_batch(request)
-
-def generate_JAX_id(prefix='J', amount=1):
-    """Use id_generator and add preceding 'J' character for the 6 character
-        JAXid or 'B' for BoxID or 'P' for PlateID
-    """
-    JG = JAXidGenerate(prefix, amount)
-    return JG.generate_new_ids()
 
 def new_ids(request, fields):
     """ response file w/ new ids requested """

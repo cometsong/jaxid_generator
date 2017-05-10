@@ -2,6 +2,9 @@ from django import forms
 from django.contrib import admin
 from django.db import models
 
+from suit.widgets import AutosizedTextarea
+from django_select2.forms import Select2Widget
+
 # from .generate import generate_JAX_id
 from .models import (
         JAXIdDetail,
@@ -48,9 +51,16 @@ class NucleicAcidTypeForm(forms.ModelForm):
             }
 
 class JAXIdDetailForm(forms.ModelForm):
-    collab_id = forms.CharField(widget=forms.TextInput())
+    error_css_class = 'error'
+    required_css_class = 'required'
+    jaxid = forms.CharField(disabled=True, max_length=6)
+    parent_jaxid = widget=forms.TextInput()
+    collab_id = forms.CharField(label='Collaborator ID', widget=forms.TextInput())
     class Meta:
         model = JAXIdDetail
+        # readonly_fields = ( 'jaxid' ),
         fields = ( ID_DETAIL_FIELDS )
-        readonly_fields = ( 'jaxid' ),
-
+        widgets = {
+                   'project_code': Select2Widget,
+                   'notes': AutosizedTextarea,
+                  }

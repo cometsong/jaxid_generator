@@ -1,3 +1,4 @@
+# from django.views.generic import ListView
 from django.shortcuts import render
 from django_tables2 import RequestConfig
 from .models import JAXIdDetail, SampleType, SequencingType

@@ -1,4 +1,4 @@
-{% extends "id_generate/base.html" %}
+{% extends "admin/base.html" %}
 
 {% load staticfiles %}
 {% block page_title %}JAXid Batch Generator{% endblock %}
@@ -8,7 +8,7 @@
 {% block content %}
 <div class="container">
     <h2>Yo ID-Master!</h2>
-    <form action="batch" method="post">
+    <form action="batch" method="post">{% csrf_token %}
         {% include "id_generate/form_snippet.html" %}
         <div class="btn-group btn-group-sm">
             <button type="submit" class="btn btn-default">Export IDs!</button>

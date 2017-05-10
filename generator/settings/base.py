@@ -1,5 +1,5 @@
 """ #{{{ Header
-Django settings for ctweinstock02.jax.org jaxid_generator project.
+Django settings for jaxid_generator project.
 
 Creator: Benjamin Leopold (cometsong)
 Created: 2015-11-19
@@ -24,6 +24,7 @@ ALLOWED_HOSTS = [
 ] # }}}
 
 ### Application definition {{{
+APP_NAME = 'jaxid_generator'
 ROOT_URLCONF = 'generator.urls'
 WSGI_APPLICATION = 'generator.wsgi.application'
 # }}}
@@ -33,7 +34,11 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
+        },
+    # 'production': {
+    #     'ENGINE': 'django.db.backends.mysql',
+    #     'OPTIONS': { 'read_default_file': os.path.join(BASE_DIR, 'db.my.cnf') }
+    #     }
     }
 # }}}
 
@@ -46,8 +51,8 @@ USE_TZ = True
 # }}}
 
 ### Static files (CSS, JavaScript, Images) {{{
-STATIC_URL = '/jaxid_generator/static/'
-STATIC_ROOT = '/var/www/html/jaxid_generator/static'
+STATIC_URL = '/{}/static/'.format(APP_NAME)
+STATIC_ROOT = '/var/www/html/{}/static'.format(APP_NAME)
 
 STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.FileSystemFinder',
@@ -97,81 +102,45 @@ TEMPLATES = [
 # }}}
 
 ### Installed Apps {{{
-ADMIN_APPS = [
-    # 'jet',
-    'suit',
-    'django.contrib.admin',
-    ]
-PREREQ_APPS = [
+INSTALLED_APPS = [
+    'generator',
+    'id_generate',
+
+    # 3rd party
+    'admin_view_permission',
+    'compressor',
+    'django_tables2',
+    'import_export',
+    'django_select2',
+
     # core
+    'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-
-    # 3rd party
-    'compressor',
-    'django_tables2',
-    'import_export',
-    'easy_thumbnails', 'filer', 'mptt',
     ]
-
-PROJECT_APPS = [
-    'id_generate',
-    ]
-
-INSTALLED_APPS = ADMIN_APPS + PREREQ_APPS + PROJECT_APPS
 # }}}
 
 ### App Settings {{{
 IMPORT_EXPORT_USE_TRANSACTIONS = True
 
 # Filer
-FILER_ENABLE_LOGGING = True
-FILER_DEBUG = False #default false
-FILER_ENABLE_PERMISSIONS = False #default false
-    # include "url(r'^', include('filer.server.urls'))," in root urls.py without prefix
-    #   when FILER_ENABLE_PERMISSIONS is True
-FILER_IS_PUBLIC_DEFAULT = False
-THUMBNAIL_HIGH_RESOLUTION = True
-THUMBNAIL_PROCESSORS = (
-    'easy_thumbnails.processors.colorspace',
-    'easy_thumbnails.processors.autocrop',
-    'easy_thumbnails.processors.scale_and_crop',
-    # 'filer.thumbnail_processors.scale_and_crop_with_subject_location',
-    'easy_thumbnails.processors.filters',
-)
-
-# Django Suit configuration example
-SUIT_CONFIG = {
-    # header
-    'ADMIN_NAME': 'Mbiome Core JAXid Generator Admin',
-    'HEADER_DATE_FORMAT': 'l, d-M-o',
-    'HEADER_TIME_FORMAT': 'H:i e',
-
-    # forms
-    'SHOW_REQUIRED_ASTERISK': True,  # Default True
-    'CONFIRM_UNSAVED_CHANGES': True, # Default True
-
-    # menu
-    # 'SEARCH_URL': '/admin/auth/user/',
-    # 'MENU_ICONS': {
-    #    'sites': 'icon-leaf',
-    #    'auth': 'icon-lock',
-    # },
-    # 'MENU_OPEN_FIRST_CHILD': True, # Default True
-    # 'MENU_EXCLUDE': ('auth.group',),
-    # 'MENU': (
-    #     'sites',
-    #     {'app': 'auth', 'icon':'icon-lock', 'models': ('user', 'group')},
-    #     {'label': 'Settings', 'icon':'icon-cog', 'models': ('auth.user', 'auth.group')},
-    #     {'label': 'Support', 'icon':'icon-question-sign', 'url': '/support/'},
-    # ),
-
-    # misc
-    # 'LIST_PER_PAGE': 15
-}
+# FILER_ENABLE_LOGGING = True
+# FILER_DEBUG = False #default false
+# FILER_ENABLE_PERMISSIONS = False #default false
+    # # include "url(r'^', include('filer.server.urls'))," in root urls.py without prefix
+    # #   when FILER_ENABLE_PERMISSIONS is True
+# FILER_IS_PUBLIC_DEFAULT = False
+# THUMBNAIL_HIGH_RESOLUTION = True
+# THUMBNAIL_PROCESSORS = (
+    # 'easy_thumbnails.processors.colorspace',
+    # 'easy_thumbnails.processors.autocrop',
+    # 'easy_thumbnails.processors.scale_and_crop',
+    # # 'filer.thumbnail_processors.scale_and_crop_with_subject_location',
+    # 'easy_thumbnails.processors.filters',
+# )
 
 # }}}
 

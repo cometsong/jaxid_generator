@@ -38,12 +38,12 @@ class RandomID(object):
 
 
 class JAXidGenerate(object):
-    def __init__(self, prefix='J', amount=10):
+    def __init__(self, prefix='J', amount=0):
         self.prefix = prefix
         self.amount = amount
         self.id_model = ID_MODEL
         self.id_length = ID_LENGTH
-        self.ids_used = self.get_all_ids_used()
+        # self.ids_used = self.get_all_ids_used()
         self.new_id_list = []
 
     def generate_random(self):
@@ -72,7 +72,7 @@ class JAXidGenerate(object):
     def get_all_ids_used(self):
         # NOTE: .values() returns a QuerySet, a list of dicts;
         #       then get elem['jaxid']
-        #       then append [1:] to remove Prefix letter on each ID
+        #       then slice [1:] to remove Prefix letter on each ID
         return [ d['jaxid'][1:]
                 for d in ID_MODEL.objects.values('jaxid')
                 if not self.id_is_control(d['jaxid'][1:]) ]
@@ -118,7 +118,10 @@ class JAXidGenerate(object):
         print('Starting generate_new_ids()')
         new_id_list = self.new_id_list
         pre = self.prefix
-        amt = amount if amount else self.amount
+        if amount:
+            _amount = int(amount)
+        else:
+            _amount = int(self.amount)
 
         try: # is MAX_NUM_ID passed in from previous iteration?
             max_num_in_list = self.new_id_list[-1]
@@ -132,23 +135,24 @@ class JAXidGenerate(object):
                     or max_num_in_list:
                 minimum = self.get_max_alpha_id_used()
                 new_id = self.new_id_alphanum(minimum)
-            else:
+            else: # use up numbers first
                 minimum = self.get_max_id_used()
                 new_id = self.new_id_num(minimum)
 
-            for x in range(amt):
-                new_id_next = new_id.__next__()
-                new_id_seq = ''.join([pre,new_id_next])
-                new_id_list.append(new_id_seq)
+            for x in range(_amount):
+                # new_id_next = new_id.__next__()
+                # new_id_seq = ''.join([pre,new_id_next])
+                new_id_seq = ''.join([pre,next(new_id)])
 
                 # check reached MAX_NUM_ID during generation:
                 if new_id_seq == self.prefix+MAX_NUM_ID:
                     # minimum = self.get_max_alpha_id_used()
                     # new_id = self.new_id_alphanum(minimum)
-                    self.new_id_list = new_id_list
-                    self.generate_new_ids(amount=amt-x)
+                    self.generate_new_ids(amount=_amount-x)
+
+                self.new_id_list.append(new_id_seq)
+                yield new_id_seq
 
         except StopIteration:
-            pass
-        return new_id_list
+            self.generate_new_ids.close()
 

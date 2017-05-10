@@ -1,0 +1,25 @@
+{#% extends "admin/base_site.html" %#}
+
+{% load staticfiles %}
+{% block page_title %}JAXid List Import and Generator{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Create and Import new JAXids!</h2>
+    <form action="import/" method="post">
+        {% csrf_token %}
+        {% for field in form %}
+            <div class="input-group">
+                {{ field.errors }}
+                {{ field.label_tag }} {{ field }}
+            </div>
+        {% endfor %}
+        <div class="btn-group btn-group-sm">
+            <button type="submit" class="btn btn-default">Get new IDs!</button>
+        </div>
+    </form>
+</div>
+{% endblock %}
+
+</body>
+</html>
