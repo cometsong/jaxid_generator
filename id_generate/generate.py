@@ -13,7 +13,7 @@ from .models import JAXIdDetail
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Globals ~~~~~
 ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
-FILE_EXPORT_NAME = 'generated_id_list'
+FILE_EXPORT_NAME = 'generated_jaxid_list'
 
 ID_TYPES = (
             ('J', 'JAXID'),
