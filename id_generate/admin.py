@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 
-from import_export import resources, fields, widgets
+from import_export import fields, widgets
 from import_export.admin import ExportActionModelAdmin, ImportExportModelAdmin, \
                                 ImportExportMixin, ExportMixin
 from import_export.formats import base_formats
@@ -25,8 +25,8 @@ from .forms import (
         NucleicAcidTypeForm,
         ProjectCodeForm
         )
-from .generate import generate_JAX_id
-from .jaxid_create import JAXidGenerate
+from .generate import generate_JAX_id, NewIDForm
+from .import_data import DetailResource
 
 
 ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
@@ -79,101 +79,13 @@ class NucleicAcidTypeAdmin(admin.ModelAdmin):
     ordering = ['code']
 
 
-"""ImportExport Resource"""
-class DetailResource(resources.ModelResource):
-    project_code = fields.Field(
-            attribute='project_code',
-            widget=widgets.ForeignKeyWidget(
-                ProjectCode, 'code'),)
-    collab_id = fields.Field(
-            attribute='collab_id',
-            widget=widgets.CharWidget(),)
-    sample_type = fields.Field(
-            attribute='sample_type',
-            widget=widgets.ForeignKeyWidget(
-                SampleType, 'code'),)
-    nucleic_acid_type = fields.Field(
-            attribute='nucleic_acid_type',
-            widget=widgets.ForeignKeyWidget(
-                NucleicAcidType, 'code'),)
-    sequencing_type = fields.Field(
-            attribute='sequencing_type',
-            widget=widgets.ForeignKeyWidget(
-                SequencingType, 'code'),)
-    sequencing_type = fields.Field(
-            attribute='sequencing_type',
-            widget=widgets.ForeignKeyWidget(
-                SequencingType, 'code'),)
-    entered_into_lims = fields.Field(
-            attribute='entered_into_lims',
-            widget=widgets.BooleanWidget(),)
-    external_data = fields.Field(
-            attribute='external_data',
-            widget=widgets.BooleanWidget(),)
-    notes = fields.Field(
-            attribute='notes',
-            widget=widgets.CharWidget(),)
-    raise_errors = True
-
-    def assign_new_id(self, new_ids, current_ids):
-        """recursively select id that is not used already in current set to be imported
-            params:
-                new_ids:  generator
-                current_ids: list of used ids
-        """
-        # print("current_ids: {}".format(current_ids))
-        next_id = next(new_ids)
-        if next_id in current_ids:
-            return self.assign_new_id(new_ids, current_ids)
-        else:
-            return next_id
-
-    def before_import(self, dataset, using_transactions=True, dry_run=False, **kwargs):
-        """ Overridden to generate new JAXid values for each row to be imported. """
-        num_rows = dataset.height
-        print('num_rows in dataset: {}'.format(num_rows))
-
-        #TODO: implement kwargs.prefix for Box/Plate/...
-        id_prefix = kwargs.get('prefix', 'J')
-
-        jid = JAXidGenerate(prefix=id_prefix)
-        new_jaxids = jid.generate_new_ids(num_rows)
-
-        jaxid_col_num = dataset.headers.index('jaxid')
-        dataset_jaxids = set([row[jaxid_col_num]
-                              for row in dataset
-                              if row[jaxid_col_num] != ''])
-        # print("current_ids used by incoming dataset: {}".format(dataset_jaxids))
-
-        for row in dataset.dict:
-            # print('dataset: {}'.format(row))
-            if row['jaxid'] == '':
-                row['jaxid'] = self.assign_new_id(new_jaxids, dataset_jaxids)
-                # print('dataset 2: {}'.format(row))
-            print('dataset final: {}'.format(row))
-
-        return super(self.__class__, self).before_import(dataset, using_transactions,
-                                                         dry_run, **kwargs)
-
-
-    # def before_import_row(self, row, **kwargs):
-    #     pass
-
-
-    class Meta:
-        model = JAXIdDetail
-        all_fields = ( ID_DETAIL_FIELDS, )
-        import_id_fields = ( 'jaxid', )
-        fields = ID_DETAIL_FIELDS
-        export_order = ID_DETAIL_FIELDS
-
-class IdImpExpMixin(ImportExportModelAdmin):
-    """subclass with mods for JAXids"""
-    def __init__(self):
-        super(IDExportMixin, self).__init__()
-        self.resource_class = DetailResource
-        self.change_list_template = 'admin/import_export/change_list_export.html'
-        self.export_template_name = 'admin/import_export/export.html'
+# class IdImpExpMixin(ImportExportModelAdmin):
+#     """subclass with mods for JAXids"""
+#     def __init__(self):
+#         super(IDExportMixin, self).__init__()
+#         self.resource_class = DetailResource
+#         self.change_list_template = 'admin/import_export/change_list_export.html'
+#         self.export_template_name = 'admin/import_export/export.html'
 
 
 @admin.register(JAXIdDetail)
@@ -228,4 +140,12 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     JAXIdDetail.nucleic_acid_type_code.admin_order_field = 'nucleic_acid_type'
     JAXIdDetail.sequencing_type_code.admin_order_field = 'sequencing_type'
     JAXIdDetail.sample_type_code.admin_order_field = 'sample_type'
+
+
+site_iter = []
+# @admin.site.register(site_iter)
+class ImportNewIds(admin.ModelAdmin):
+    form = NewIDForm
+    actions_on_top = False
+    actions = None
 

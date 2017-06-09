@@ -1,4 +1,4 @@
-{#% extends "admin/base_site.html" %#}
+{% extends "admin/base_site.html" %}
 
 {% load staticfiles %}
 {% block page_title %}JAXid List Import and Generator{% endblock %}
@@ -6,7 +6,7 @@
 {% block content %}
 <div class="container">
     <h2>Create and Import new JAXids!</h2>
-    <form action="import/" method="post">
+    <form action="import" method="post">
         {% csrf_token %}
         {% for field in form %}
             <div class="input-group">
@@ -15,7 +15,7 @@
             </div>
         {% endfor %}
         <div class="btn-group btn-group-sm">
-            <button type="submit" class="btn btn-default">Get new IDs!</button>
+            <button type="submit" class="btn btn-default">Process ID file!</button>
         </div>
     </form>
 </div>
