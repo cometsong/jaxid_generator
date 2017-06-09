@@ -89,9 +89,10 @@ class JAXIdDetail(models.Model):
             # help_text="A unique ID string for every sample.",
             )
     parent_jaxid = models.CharField('Parent JAXid',
-            max_length=6, blank=True, default='', unique=False,
-            help_text="Parent ID string or leave blank if has no parent; "
-                      "RECVD for newly received samples.",
+            max_length=9, default='', unique=False,
+            help_text="Parent ID string of source JAXid; or use "
+                      "'received' for newly received samples,"
+                      "'pool' for pools of libraries.",
             )
     project_code = models.ForeignKey(ProjectCode, to_field='code',)
     collab_id = models.TextField('Collaborator ID',
