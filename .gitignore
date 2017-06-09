@@ -61,3 +61,7 @@ venv/
 ENV/
 
 secret.key
+import_data
+backups
+db_backups
+share
