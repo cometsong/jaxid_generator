@@ -9,7 +9,7 @@ from import_export.formats import base_formats
 from suit.admin import RelatedFieldAdmin, get_related_field
 from suit import apps
 
-from generator.admin_link import admin_changelist_link
+from generator.utils import admin_changelist_link
 
 from .models import (
         JAXIdDetail,
