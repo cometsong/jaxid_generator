@@ -4,11 +4,11 @@ django-admin-tools==0.8.1
 django-admin-view-permission==0.9
 django-appconf==1.0.2
 django-compressor==2.1.1
--e git+git@github.com:django-import-export/django-import-export.git@cc61562a54b5e86ea8eface48e8c7c814e616ede#egg=django_import_export&subdirectory=../../../src/django-import-export
+-e git+git@github.com:django-import-export/django-import-export.git#egg=django_import_export
 django-nose==1.4.4
 django-polymorphic==1.2
 Django-Select2==5.10.0
--e git+git@github.com:darklow/django-suit.git@329c2e67ecf1ccacdf4dd7bcaff9bfa28c4c5dfb#egg=django_suit
+-e git+git@github.com:darklow/django-suit.git#egg=django_suit
 django-tables2==1.7.1
 django-template-finder==0.6.2
 et-xmlfile==1.0.1
