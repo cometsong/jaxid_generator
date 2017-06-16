@@ -53,6 +53,11 @@ class DetailResource(resources.ModelResource):
         num_rows = dataset.height
         print('DEBUG: num_rows in dataset: {}'.format(num_rows))
 
+        def replace_row(row_index, row_dict):
+            """'pop' for specific index number within dataset, followed by insertion of new 'row' values"""
+            del dataset[row_index]
+            dataset.insert(row_index, row_dict.values())
+
         #TODO: implement kwargs.prefix for Box/Plate/...
         id_prefix = kwargs.get('prefix', 'J')
 
@@ -65,23 +70,24 @@ class DetailResource(resources.ModelResource):
                               if row[jaxid_col_num] != ''])
         # print("DEBUG: current_ids used by incoming dataset: {}".format(dataset_jaxids))
 
-        dataset_with_ids = tablib.Dataset(headers=dataset.headers)
         # loop through rows, assigning new ids where needed
-        for row in dataset.dict:
+        for row_index, row_values in enumerate(dataset):
+            row = dict(zip(dataset.headers, row_values))
+            # print('DEBUG: dataset first: {} {}'.format(row_index, row_values))
             if not row['jaxid']:
                 row['jaxid'] = self.assign_new_id(new_jaxids, dataset_jaxids)
+                replace_row(row_index, row)
             if not row['parent_jaxid']:
                 id_type = check_id_type(row)
-            dataset_with_ids.append(row.values())
-            print('DEBUG: dataset final: {}'.format(row))
+                #TODO: implement other reality-check actions re: id_type
+            # print('DEBUG: dataset final: {}'.format(row))
 
-        # replace all dataset rows with new ids assigned:
-        dataset = dataset_with_ids
-        print('DEBUG: dataset ids final: {}'.format(str(dataset.dict)))
+        # print('DEBUG: dataset ids final: {}'.format(str(dataset.dict)))
 
 
-    def before_import_row(self, row, **kwargs):
-            print('DEBUG: before_import_row: {}'.format(str(row)))
+    def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
+        """ Overridden to offer download of imported/updated id records """
+        pass
 
 
     class Meta:
