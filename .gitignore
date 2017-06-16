@@ -61,4 +61,5 @@ venv/
 ENV/
 
 secret.key
-db.sqlite3 db.my.cnf
+db.sqlite3
+db.my.cnf
