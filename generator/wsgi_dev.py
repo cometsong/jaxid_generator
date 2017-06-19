@@ -3,7 +3,7 @@ WSGI config for jaxid_generator project.
 """
 # django virtualenv variables
 path_app = "/var/www/apps/jaxid_generator"
-app_settings = "generator.settings.prod"
+app_settings = "generator.settings.dev"
 path_site_packages = path_app + "/lib/python3.6/site-packages"
 
 # semi-global wsgi script
