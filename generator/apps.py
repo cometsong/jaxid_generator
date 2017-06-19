@@ -27,7 +27,7 @@ class SuitConfig(DjangoSuitConfig):
             #     model='id_generate.jaxiddetail',
             #     icon='fa th-list'),
             ParentItem('Reference Data',
-                use_first_child_url=False,
+                use_first_child_url=True,
                 url='',
                 children=[
                     ChildItem(model='id_generate.projectcode'),
