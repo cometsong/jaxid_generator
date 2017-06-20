@@ -1,8 +1,10 @@
+from django.conf import settings
+
 from suit import apps
 from suit.apps import DjangoSuitConfig
 from suit.menu import ParentItem, ChildItem
 
-APP_NAME = 'jaxid_generator'
+APP_NAME = settings.APP_NAME
 
 class SuitConfig(DjangoSuitConfig):
     name = 'suit'
