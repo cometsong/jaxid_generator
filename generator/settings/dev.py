@@ -1,6 +1,6 @@
 from .base import *
 
-BASE_DIR = os.path.join(BASE_DIR, 'devel')
+WSGI_APPLICATION = 'generator.wsgi_dev.application'
 
 DATABASES = {
     'default': {
