@@ -68,3 +68,4 @@ import_data
 backups
 db_backups
 share
+db*sqlite3

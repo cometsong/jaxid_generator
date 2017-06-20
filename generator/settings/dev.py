@@ -1,5 +1,6 @@
 from .base import *
 
+APP_NAME = 'jaxid_gen_dev'
 WSGI_APPLICATION = 'generator.wsgi_dev.application'
 
 DATABASES = {
