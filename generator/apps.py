@@ -22,7 +22,7 @@ class SuitConfig(DjangoSuitConfig):
     menu = (
             ParentItem(
                 label='JAXid Record List',
-                url='/{}/manage/id_generate/jaxiddetail'.format(APP_NAME),
+                url=f'/{APP_NAME}/manage/id_generate/jaxiddetail',
                 icon='fa th-list'),
             # ParentItem(
             #     label='JAXid Record List model',
@@ -40,12 +40,8 @@ class SuitConfig(DjangoSuitConfig):
                 icon='fa th-list'),
             ParentItem(
                 label='Generate new JAXid''s',
-                url='/{}/manage/id_generate/jaxiddetail/import/'.format(APP_NAME),
+                url=f'/{APP_NAME}/manage/id_generate/jaxiddetail/import/',
                 icon='fa open-file'),
-            # ParentItem(
-            #     label='Import JAXid''s',
-            #     url='/{}/manage/import_jaxids'.format(APP_NAME),
-            #     icon='fa open-file'),
             ParentItem(
                 label='Authorization',
                 children=[
