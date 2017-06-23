@@ -21,9 +21,7 @@ class BaseRefModel(models.Model):
         return '{} ({})'.format(self.code, self.details)
 
     def save(self, force_insert=False, force_update=False):
-        self.code = self.code.upper()
-        # super(self.__class__.__name__, self).save(force_insert, force_update)
-        # super(self.__name__, self).save(force_insert, force_update)
+        self.code = self.code.upper().strip()
         super().save(force_insert, force_update)
 
 
@@ -48,8 +46,7 @@ class ProjectCode(BaseRefModel):
     details = models.TextField('Name', blank=False,
             help_text="Project type detailed name."
             )
-    class Meta:
-        ordering = ['code']
+    class Meta(BaseRefModel.Meta):
         verbose_name_plural = 'Projects'
 
 
@@ -138,6 +135,7 @@ class JAXIdDetail(models.Model):
                 )
 
     def save(self, force_insert=False, force_update=False):
+        self.full_clean()
         self.jaxid = self.jaxid.upper()
         self.parent_jaxid = self.parent_jaxid.upper()
         super(JAXIdDetail, self).save(force_insert, force_update)
