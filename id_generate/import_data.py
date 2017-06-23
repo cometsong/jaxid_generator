@@ -1,3 +1,4 @@
+import re
 import tablib
 from import_export import resources, fields, widgets
 
@@ -10,6 +11,7 @@ from .models import (
         NucleicAcidType,
         ProjectCode
         )
+from generator.utils import field_is_empty
 
 ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
@@ -33,7 +35,10 @@ class DetailResource(resources.ModelResource):
             widget=widgets.BooleanWidget(),)
     notes = fields.Field(attribute='notes',
             widget=widgets.CharWidget(),)
+
     raise_errors = True
+    skip_unchanged = True
+    report_skipped = True
 
     def assign_new_id(self, new_ids, current_ids):
         """recursively select id that is not used already in current set to be imported
@@ -60,6 +65,7 @@ class DetailResource(resources.ModelResource):
 
         #TODO: implement kwargs.prefix for Box/Plate/...
         id_prefix = kwargs.get('prefix', 'J')
+        PREFIXES = 'JBP'
 
         jid = JAXidGenerate(prefix=id_prefix)
         new_jaxids = jid.generate_new_ids(num_rows)
@@ -67,26 +73,51 @@ class DetailResource(resources.ModelResource):
         jaxid_col_num = dataset.headers.index('jaxid')
         dataset_jaxids = set([row[jaxid_col_num]
                               for row in dataset
-                              if row[jaxid_col_num] != ''])
+                              if not field_is_empty(row[jaxid_col_num])])
         # print("DEBUG: current_ids used by incoming dataset: {}".format(dataset_jaxids))
 
         # loop through rows, assigning new ids where needed
+        rows_to_delete = []
         for row_index, row_values in enumerate(dataset):
             row = dict(zip(dataset.headers, row_values))
-            # print('DEBUG: dataset first: {} {}'.format(row_index, row_values))
-            if not row['jaxid']:
+            print('DEBUG: dataset row: {} {}'.format(row_index, row_values))
+
+            # check if row is all empty fields (plus with no space or newlines)
+            fields_with_contents = 0
+            for field in row:
+                if not field_is_empty(row[field]):
+                    fields_with_contents += 1
+            # print(f'DEBUG: fields_with_contents: {fields_with_contents}')
+
+            # make list of empty rows to delete post-for-loop
+            if fields_with_contents == 0:
+                rows_to_delete.insert(0, row_index)
+                continue
+
+            # assign new jaxid if empty or wrong format (prefix letter)
+            elif field_is_empty(row['jaxid']) \
+                    or not re.match(f'[{PREFIXES}]', row['jaxid']):
                 row['jaxid'] = self.assign_new_id(new_jaxids, dataset_jaxids)
                 replace_row(row_index, row)
-            if not row['parent_jaxid']:
-                id_type = check_id_type(row)
-                #TODO: implement other reality-check actions re: id_type
+
             # print('DEBUG: dataset final: {}'.format(row))
 
-        # print('DEBUG: dataset ids final: {}'.format(str(dataset.dict)))
+            # if not row['parent_jaxid']:
+            #     # id_type = check_id_type(row)
+            #     #TODO: implement other reality-check actions re: id_type
+            #     pass
+
+        # del the empty rows from the dataset
+        # print(f'DEBUG: rows_to_delete {rows_to_delete}')
+        for row_index in rows_to_delete:
+            del dataset[row_index]
+
+        # print('DEBUG: dataset final: {}'.format(str(dataset.dict)))
 
 
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         """ Overridden to offer download of imported/updated id records """
+        #TODO: return with link to download spreadsheet (in same file format) of the imported rows
         pass
 
 
