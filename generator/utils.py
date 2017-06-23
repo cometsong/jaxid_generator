@@ -1,3 +1,4 @@
+import importlib
 import operator
 from django.utils.html import format_html
 
@@ -58,3 +59,24 @@ def admin_changelist_link(
         field_func.admin_order_field = attr
         return field_func
     return wrap
+
+
+def field_is_empty(field):
+    """check for empty field value, post str.strip"""
+    #FIXME: field_is_empty not valid response on field bool=True !
+    if field \
+          and str(field) != '' \
+          and str(field).strip() != '' :
+        empty = False
+    else:
+        empty = True
+    return empty
+
+
+# def get_required_fields(model_meta):
+#     """subset of get_fields where blank == False"""
+#     fields - model_meta.get_fields()
+#     reqd_fields = [f for f in fields
+#             if hasattr(f, 'blank') and f.blank == False]
+#     return reqd_fields
+
