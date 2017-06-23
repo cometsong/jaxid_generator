@@ -59,7 +59,7 @@
       {% for error in result.base_errors  %}
       <li>
         {{ error.error }}
-        <div class="traceback">{{ error.traceback|linebreaks }}</div>
+        <!--<div class="traceback">{{ error.traceback|linebreaks }}</div>-->
       </li>
       {% endfor %}
       {% for line, errors in result.row_errors %}
@@ -67,7 +67,7 @@
           <li>
             {% trans "Line number" %}: {{ line }} - {{ error.error }}
             <div><code>{{ error.row.values|join:", " }}</code></div>
-            <div class="traceback">{{ error.traceback|linebreaks }}</div>
+            <!--<div class="traceback">{{ error.traceback|linebreaks }}</div>-->
           </li>
         {% endfor %}
       {% endfor %}
