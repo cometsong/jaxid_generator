@@ -27,7 +27,6 @@ from .forms import (
         NucleicAcidTypeForm,
         ProjectCodeForm
         )
-from .generate import generate_JAX_id, NewIDForm
 from .import_data import DetailResource
 
 
@@ -152,12 +151,4 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     JAXIdDetail.nucleic_acid_type_code.admin_order_field = 'nucleic_acid_type'
     JAXIdDetail.sequencing_type_code.admin_order_field = 'sequencing_type'
     JAXIdDetail.sample_type_code.admin_order_field = 'sample_type'
-
-
-site_iter = []
-# @admin.site.register(site_iter)
-class ImportNewIds(admin.ModelAdmin):
-    form = NewIDForm
-    actions_on_top = False
-    actions = None
 

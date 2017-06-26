@@ -5,7 +5,6 @@ from django.db import models
 from suit.widgets import AutosizedTextarea
 from django_select2.forms import Select2Widget
 
-# from .generate import generate_JAX_id
 from .models import (
         JAXIdDetail,
         SampleType,

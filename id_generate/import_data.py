@@ -3,7 +3,7 @@ import tablib
 from import_export import resources, fields, widgets
 
 from .jaxid_create import JAXidGenerate
-from .generate import check_id_type
+# from .generate import check_id_type
 from .models import (
         JAXIdDetail,
         SampleType,
