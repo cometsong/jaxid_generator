@@ -41,6 +41,7 @@ class SuitConfig(DjangoSuitConfig):
             ParentItem(
                 label='Generate new JAXid''s',
                 url=f'/{APP_NAME}/manage/id_generate/jaxiddetail/import/',
+                permissions='auth.change_jaxiddetail',
                 icon='fa open-file'),
             ParentItem(
                 label='Authorization',
