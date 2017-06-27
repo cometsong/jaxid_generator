@@ -7,8 +7,10 @@ WSGI_APPLICATION = 'generator.wsgi_dev.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.jaxid.devel.sqlite3'),
+        'ENGINE': 'django.db.backends.mysql',
+        'OPTIONS': { 'read_default_file': os.path.join(BASE_DIR, 'db.dev.my.cnf'),
+                     'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+                   }
         },
     }
 
