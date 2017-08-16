@@ -6,6 +6,8 @@ import random
 import re
 from itertools import product
 
+#TODO: import generator.unusable_ids # list of all obscene and unforgivable string sequences
+# [list comp ... if ['jaxid'][1:] not in unusable_ids.stringlist ]
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Globals ~~~~~
 DIGITS = string.digits
@@ -43,7 +45,6 @@ class JAXidGenerate(object):
         self.amount = amount
         self.id_model = ID_MODEL
         self.id_length = ID_LENGTH
-        # self.ids_used = self.get_all_ids_used()
         self.new_id_list = []
 
     def generate_random(self):
@@ -78,32 +79,41 @@ class JAXidGenerate(object):
                 if not self.id_is_control(d['jaxid'][1:]) ]
 
     def get_max_id_used(self):
-        ids = list(self.get_all_ids_used())
+        ids = self.get_all_ids_used()
         try:
             max_id = max(ids)
-        except ValueError:
-            min_id = ''.join(['0' for num in range(ID_LENGTH)])
+        except ValueError as ve:
+            print('ERROR: ValueError in "get_max_id_used"! ' + str(ve))
+            min_id = '0'*ID_LENGTH # if table Empty
+            # min_id ''.join([ '9'  for num in range(ID_LENGTH)])
             max_id = min_id
         return max_id
 
     def get_max_alpha_id_used(self):
+        """deprecated, to be replaced by get_max_id_used"""
         ids = self.get_all_ids_used()
         try:
             max_id = max( [id for id in ids.__iter__()
-                if re.search("[A-Z]",id[1:])
-                and id not in ID_CONTROLS] )
-        except ValueError:
-            max_id = ''.join(['0' for num in range(ID_LENGTH-1)])+'9'
+                          if re.search("[A-Z]",id[1:])
+                          and id not in ID_CONTROLS],
+                         key=ALPHADIGITS.index )
+        except ValueError as ve:
+            print('ERROR: ValueError in "get_max_alpha_id_used"! ' + str(ve))
+            # max_id = '0'*(ID_LENGTH-1)+'9'
             # max_id = ''.join([self.prefix,min_id])
+            max_id = None #TODO: error check on this ValueError result!
         return max_id
 
-    def new_id_num(self, minimum):
+    def new_id_num(self, minimum=0):
         seq_chars = DIGITS
         id_len = self.id_length
-        for id in (''.join(i) for i in product(seq_chars, repeat=id_len)
-                if not self.id_is_control(''.join(i))
-                and ''.join(i) > minimum ):
-            yield id
+        try:
+            for id in (''.join(i) for i in product(seq_chars, repeat=id_len)
+                    if not self.id_is_control(''.join(i))
+                    and int(''.join(i)) > int(minimum) ):
+                yield id
+        except Exception as e:
+            print('Exception!: '+e)
 
     def new_id_alphanum(self, minimum):
         seq_chars = ALPHADIGITS
@@ -116,16 +126,16 @@ class JAXidGenerate(object):
 
     def generate_new_ids(self, amount=0):
         print('Starting generate_new_ids()')
-        new_id_list = self.new_id_list
         pre = self.prefix
         if amount:
             _amount = int(amount)
         else:
             _amount = int(self.amount)
 
-        try: # is MAX_NUM_ID passed in from previous iteration?
-            max_num_in_list = self.new_id_list[-1]
-            if self.new_id_list[-1] == self.prefix+MAX_NUM_ID:
+        try:
+            # is MAX_NUM_ID passed in from previous iteration?
+            max_num_in_list = self.new_id_list.sort[-1]
+            if max_num_in_list == self.prefix+MAX_NUM_ID:
                 max_num_in_list = True
         except:
             max_num_in_list = False
@@ -140,19 +150,16 @@ class JAXidGenerate(object):
                 new_id = self.new_id_num(minimum)
 
             for x in range(_amount):
-                # new_id_next = new_id.__next__()
-                # new_id_seq = ''.join([pre,new_id_next])
                 new_id_seq = ''.join([pre,next(new_id)])
 
                 # check reached MAX_NUM_ID during generation:
                 if new_id_seq == self.prefix+MAX_NUM_ID:
-                    # minimum = self.get_max_alpha_id_used()
-                    # new_id = self.new_id_alphanum(minimum)
                     self.generate_new_ids(amount=_amount-x)
 
                 self.new_id_list.append(new_id_seq)
                 yield new_id_seq
 
-        except StopIteration:
-            self.generate_new_ids.close()
+        except Exception as e:
+            # self.generate_new_ids.close()
+            pass
 
