@@ -1,4 +1,5 @@
 import pprint
+
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.sessions.models import Session
@@ -30,12 +31,14 @@ from .forms import (
 from .import_data import DetailResource
 
 
+
 ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
 # IdGenerate AdminSite
-admin.site.site_header = 'Mbiome Core JAXid Tracking Administration'
-admin.site.site_title = 'Mbiome Core JAXid Tracking'
-admin.site.index_title = 'JAXid Generator'
+AdminSite.site_header = 'Mbiome Core JAXid Tracking Administration'
+AdminSite.site_title = 'Mbiome Core JAXid Tracking'
+AdminSite.index_title = 'JAXid Generator'
+AdminSite.site_url = None
 
 
 class SessionAdmin(admin.ModelAdmin):
@@ -151,4 +154,18 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     JAXIdDetail.nucleic_acid_type_code.admin_order_field = 'nucleic_acid_type'
     JAXIdDetail.sequencing_type_code.admin_order_field = 'sequencing_type'
     JAXIdDetail.sample_type_code.admin_order_field = 'sample_type'
+
+    # def get_urls(self):
+    #     urls = super().get_urls()
+    #     my_urls = [
+    #         url(r'^export/$',
+    #             self.admin_site.admin_view(self.export_action),
+    #             name='%s_%s_export' % self.get_model_info()),
+    #         # added in by bleopold 20170912
+    #         url(r'^export_imported/$',
+    #             self.admin_site.admin_view(self.export_imported_action),
+    #             name='%s_%s_export' % self.get_model_info()),
+    #     ]
+    #     return my_urls + urls
+
 
