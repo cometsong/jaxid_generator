@@ -6,7 +6,8 @@ from django_mysql.locks import TableLock
 
 from .jaxid_create import JAXidGenerate
 # from .generate import check_id_type
-import .models # for TableLock hack
+
+from . import models
 from .models import (
         JAXIdDetail,
         SampleType,
@@ -28,8 +29,6 @@ class DetailResource(resources.ModelResource):
             widget=widgets.ForeignKeyWidget(SampleType, 'code'),)
     nucleic_acid_type = fields.Field(attribute='nucleic_acid_type',
             widget=widgets.ForeignKeyWidget(NucleicAcidType, 'code'),)
-    sequencing_type = fields.Field(attribute='sequencing_type',
-            widget=widgets.ForeignKeyWidget(SequencingType, 'code'),)
     sequencing_type = fields.Field(attribute='sequencing_type',
             widget=widgets.ForeignKeyWidget(SequencingType, 'code'),)
     entered_into_lims = fields.Field(attribute='entered_into_lims',
@@ -60,11 +59,11 @@ class DetailResource(resources.ModelResource):
     def import_data(self, dataset, **kwargs):
         """Overridden from import_action to lock table then call super().import_data()"""
         #TODO: implement table-locking from before until after import
-        tables_need_some_lockin = [.models.JAXIdDetail,
-                                   .models.SampleType,
-                                   .models.SequencingType,
-                                   .models.NucleicAcidType,
-                                   .models.ProjectCode
+        tables_need_some_lockin = [models.JAXIdDetail,
+                                   models.SampleType,
+                                   models.SequencingType,
+                                   models.NucleicAcidType,
+                                   models.ProjectCode
                                   ]
         super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)    
 
