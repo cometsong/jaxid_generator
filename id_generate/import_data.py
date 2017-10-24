@@ -65,7 +65,7 @@ class DetailResource(resources.ModelResource):
                                    models.NucleicAcidType,
                                    models.ProjectCode
                                   ]
-        super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)    
+        return super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)    
 
     def before_import(self, dataset, using_transactions=True, dry_run=False, **kwargs):
         """ Overridden to generate new JAXid values for each row to be imported. """
