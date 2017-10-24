@@ -20,6 +20,7 @@ ALLOWED_HOSTS = [
     'localhost',
     'mbiome_core',
     'mbiome_core.jax.org',
+    'ctmbioc01ld',
     'ctmbioc01ld.jax.org',
 ] # }}}
 
