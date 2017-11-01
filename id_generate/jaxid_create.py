@@ -46,6 +46,7 @@ class JAXidGenerate(object):
         self.id_model = ID_MODEL
         self.id_length = ID_LENGTH
         self.new_id_list = []
+        self.id_alphanum = False
 
     def generate_random(self):
         """Use id generator and add preceding 'J' character for the
@@ -81,27 +82,18 @@ class JAXidGenerate(object):
     def get_max_id_used(self):
         ids = self.get_all_ids_used()
         try:
-            max_id = max(ids)
+            print(f'get_max_id_used begin; with alphanum: {self.id_alphanum}')
+            if self.id_alphanum:
+                id_is_type = lambda item: not self.id_is_numeric(item)
+            else:
+                id_is_type = lambda item: True
+            # max_id = max( ids ) # = 99999
+            max_id = max( [id for id in ids if id_is_type(id)] )
         except ValueError as ve:
             print('ERROR: ValueError in "get_max_id_used"! ' + str(ve))
             min_id = '0'*ID_LENGTH # if table Empty
-            # min_id ''.join([ '9'  for num in range(ID_LENGTH)])
             max_id = min_id
-        return max_id
-
-    def get_max_alpha_id_used(self):
-        """deprecated, to be replaced by get_max_id_used"""
-        ids = self.get_all_ids_used()
-        try:
-            max_id = max( [id for id in ids.__iter__()
-                          if re.search("[A-Z]",id[1:])
-                          and id not in ID_CONTROLS],
-                         key=ALPHADIGITS.index )
-        except ValueError as ve:
-            print('ERROR: ValueError in "get_max_alpha_id_used"! ' + str(ve))
-            # max_id = '0'*(ID_LENGTH-1)+'9'
-            # max_id = ''.join([self.prefix,min_id])
-            max_id = None #TODO: error check on this ValueError result!
+        # print(f'get_max_id_used max_id: {max_id}')
         return max_id
 
     def new_id_num(self, minimum=0):
@@ -126,40 +118,48 @@ class JAXidGenerate(object):
 
     def generate_new_ids(self, amount=0):
         print('Starting generate_new_ids()')
-        pre = self.prefix
+        prefix = self.prefix
         if amount:
             _amount = int(amount)
         else:
             _amount = int(self.amount)
 
         try:
-            # is MAX_NUM_ID passed in from previous iteration?
-            max_num_in_list = self.new_id_list.sort[-1]
-            if max_num_in_list == self.prefix+MAX_NUM_ID:
-                max_num_in_list = True
-        except:
-            max_num_in_list = False
+            print('generate initial setup beginning')
+            # MAX_NUM_ID preexisting or justcreated
+            max_num_id_generated = False
+            if len(self.new_id_list) > 0:
+                max_id_in_list = self.new_id_list.sort[-1]
+                if id_is_numeric(max_id_in_list) \
+                        and max_id_in_list ==  prefix+MAX_NUM_ID:
+                    max_num_id_generated = True
+            # print(f'generate first max_num_id_generated: {max_num_id_generated}')
 
-        try:
-            if self.id_exists(self.prefix+MAX_NUM_ID) \
-                    or max_num_in_list:
-                minimum = self.get_max_alpha_id_used()
+            if self.id_exists(prefix+MAX_NUM_ID) or max_num_id_generated:
+                self.id_alphanum = True
+                minimum = self.get_max_id_used()
                 new_id = self.new_id_alphanum(minimum)
-            else: # use up numbers first
+            else:
+                self.id_alphanum = False
                 minimum = self.get_max_id_used()
                 new_id = self.new_id_num(minimum)
+        except Exception as e:
+            self.id_alphanum = False
+            raise e
 
+        try:
+            print('generate for in amount')
             for x in range(_amount):
-                new_id_seq = ''.join([pre,next(new_id)])
+                new_id_seq = ''.join([prefix,next(new_id)])
 
                 # check reached MAX_NUM_ID during generation:
-                if new_id_seq == self.prefix+MAX_NUM_ID:
+                if new_id_seq == prefix+MAX_NUM_ID:
+                    self.id_alphanum = True
                     self.generate_new_ids(amount=_amount-x)
 
                 self.new_id_list.append(new_id_seq)
                 yield new_id_seq
 
         except Exception as e:
-            # self.generate_new_ids.close()
-            pass
+            raise e
 
