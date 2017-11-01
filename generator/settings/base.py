@@ -69,16 +69,16 @@ STATICFILES_DIRS = (
 # }}}
 
 ### Templates and Middleware {{{
-MIDDLEWARE = (
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.middleware.security.SecurityMiddleware',
-    )
+MIDDLEWARE = [
+	'django.contrib.sessions.middleware.SessionMiddleware',
+	'django.middleware.common.CommonMiddleware',
+	'django.middleware.csrf.CsrfViewMiddleware',
+	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+	'django.contrib.messages.middleware.MessageMiddleware',
+	'django.middleware.clickjacking.XFrameOptionsMiddleware',
+	'django.middleware.security.SecurityMiddleware',
+	]
 
 TEMPLATES = [
     {
@@ -129,6 +129,9 @@ INSTALLED_APPS = [
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
+
+FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",
+                        "django_excel.TemporaryExcelFileUploadHandler")
 
 # Filer
 # FILER_ENABLE_LOGGING = True
