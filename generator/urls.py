@@ -4,7 +4,6 @@ from django.conf.urls import include, url
 from id_generate.admin import admin_gen
 
 urlpatterns = [
-    url(r'^manage/id_generate', include('id_generate.urls')),
     url(r'^manage/', include(admin_gen.urls)),
 
     # url(r'^files/', include('filer.urls')),
