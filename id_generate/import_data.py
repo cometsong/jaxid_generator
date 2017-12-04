@@ -1,9 +1,13 @@
 import re
 import tablib
 from import_export import resources, fields, widgets
+# from django.shortcuts import redirect
+from django_mysql.locks import TableLock
 
 from .jaxid_create import JAXidGenerate
 # from .generate import check_id_type
+
+from . import models
 from .models import (
         JAXIdDetail,
         SampleType,
@@ -25,8 +29,6 @@ class DetailResource(resources.ModelResource):
             widget=widgets.ForeignKeyWidget(SampleType, 'code'),)
     nucleic_acid_type = fields.Field(attribute='nucleic_acid_type',
             widget=widgets.ForeignKeyWidget(NucleicAcidType, 'code'),)
-    sequencing_type = fields.Field(attribute='sequencing_type',
-            widget=widgets.ForeignKeyWidget(SequencingType, 'code'),)
     sequencing_type = fields.Field(attribute='sequencing_type',
             widget=widgets.ForeignKeyWidget(SequencingType, 'code'),)
     entered_into_lims = fields.Field(attribute='entered_into_lims',
@@ -53,8 +55,21 @@ class DetailResource(resources.ModelResource):
         else:
             return next_id
 
+
+    def import_data(self, dataset, **kwargs):
+        """Overridden from import_action to lock table then call super().import_data()"""
+        #TODO: implement table-locking from before until after import
+        tables_need_some_lockin = [models.JAXIdDetail,
+                                   models.SampleType,
+                                   models.SequencingType,
+                                   models.NucleicAcidType,
+                                   models.ProjectCode
+                                  ]
+        return super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)    
+
     def before_import(self, dataset, using_transactions=True, dry_run=False, **kwargs):
         """ Overridden to generate new JAXid values for each row to be imported. """
+        #TODO: implement table-locking from before until after import
         num_rows = dataset.height
         print('DEBUG: num_rows in dataset: {}'.format(num_rows))
 
@@ -87,7 +102,6 @@ class DetailResource(resources.ModelResource):
             for field in row:
                 if not field_is_empty(row[field]):
                     fields_with_contents += 1
-            # print(f'DEBUG: fields_with_contents: {fields_with_contents}')
 
             # make list of empty rows to delete post-for-loop
             if fields_with_contents == 0:
@@ -107,18 +121,48 @@ class DetailResource(resources.ModelResource):
             #     #TODO: implement other reality-check actions re: id_type
             #     pass
 
-        # del the empty rows from the dataset
+        # del the empty rows from the dataset after updating/replacing others
         # print(f'DEBUG: rows_to_delete {rows_to_delete}')
         for row_index in rows_to_delete:
             del dataset[row_index]
 
         # print('DEBUG: dataset final: {}'.format(str(dataset.dict)))
 
-
     def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
         """ Overridden to offer download of imported/updated id records """
         #TODO: return with link to download spreadsheet (in same file format) of the imported rows
-        pass
+        if using_transactions:
+            if dry_run or result.has_errors():
+                return
+            else:
+                jaxid_import_rows = []
+
+                row_pks = [row.object_id for row in result.rows]
+                print(f'DEBUG: row_pks length: {len(row_pks)!s}')
+                print(f'DEBUG: row_pks: {row_pks!s}')
+                jaxid_import_rows = self._meta.model.objects.filter(pk__in=row_pks)
+
+                self.Meta.jaxid_import_rows = jaxid_import_rows
+                self.Meta.jaxid_import_row_pks = row_pks
+                print('DEBUG: '+str(self.Meta.jaxid_import_rows))
+                # self.export(queryset=jaxid_import_rows)
+                # return redirect( self.export(None, queryset=jaxid_import_rows) )
+                result.imported_queryset = jaxid_import_rows
+                result.imported_row_pks = row_pks
+        # else:
+            # self.Meta.jaxid_import_rows = []
+            # return
+
+    # def get_queryset(self):
+    #     """
+    #     Returns a queryset of all objects for this model.
+    #     Overriden to check for meta imported_rows
+    #     """
+    #     if self.Meta.jaxid_import_rows.count:
+    #         return self._meta.jaxid_import_rows
+    #     else:
+    #         # orig :
+    #         return self._meta.model.objects.all()
 
 
     class Meta:
@@ -127,4 +171,7 @@ class DetailResource(resources.ModelResource):
         import_id_fields = ( 'jaxid', )
         fields = ID_DETAIL_FIELDS
         export_order = ID_DETAIL_FIELDS
+        jaxid_import_rows = None # for imported queryset
+        jaxid_import_row_pks = []
+        import_format = None
 

@@ -1,4 +1,5 @@
 import pprint
+
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
 from django.contrib.sessions.models import Session
@@ -27,15 +28,21 @@ from .forms import (
         NucleicAcidTypeForm,
         ProjectCodeForm
         )
-from .import_data import DetailResource
+from .import_data import DetailResource, export_dataset
+
 
 
 ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
 # IdGenerate AdminSite
-admin.site.site_header = 'Mbiome Core JAXid Tracking Administration'
-admin.site.site_title = 'Mbiome Core JAXid Tracking'
-admin.site.index_title = 'JAXid Generator'
+class IdGenAdminSite(AdminSite):
+    site_header = 'Mbiome Core JAXid Tracking Administration'
+    site_title = 'Mbiome Core JAXid Tracking'
+    site_owner = 'Microbiome Core'
+    index_title = 'JAXid Generator'
+    site_url = None
+
+admin_gen = IdGenAdminSite()
 
 
 class SessionAdmin(admin.ModelAdmin):
@@ -45,9 +52,9 @@ class SessionAdmin(admin.ModelAdmin):
     list_display = ['session_key', '_session_data', 'expire_date']
     readonly_fields = ['_session_data']
     exclude = ['session_data']
-admin.site.register(Session, SessionAdmin)
+admin_gen.register(Session, SessionAdmin)
 
-@admin.register(ProjectCode)
+# @admin.register(ProjectCode)
 class ProjectCodeAdmin(admin.ModelAdmin):
     form = ProjectCodeForm
     actions_on_top = False
@@ -57,8 +64,9 @@ class ProjectCodeAdmin(admin.ModelAdmin):
     search_fields = all_fields
     ordering = ['code']
     suit_list_filter_horizontal = all_fields
+admin_gen.register(ProjectCode, ProjectCodeAdmin)
 
-@admin.register(SequencingType)
+# @admin.register(SequencingType)
 class SequencingTypeAdmin(admin.ModelAdmin):
     form = SequencingForm
     actions_on_top = False
@@ -68,8 +76,9 @@ class SequencingTypeAdmin(admin.ModelAdmin):
     list_display = all_fields
     search_fields = all_fields
     ordering = ['code']
+admin_gen.register(SequencingType, SequencingTypeAdmin)
 
-@admin.register(SampleType)
+# @admin.register(SampleType)
 class SampleTypeAdmin(admin.ModelAdmin):
     form = SampleForm
     actions_on_top = False
@@ -78,8 +87,9 @@ class SampleTypeAdmin(admin.ModelAdmin):
     list_display = all_fields
     search_fields = all_fields
     ordering = ['code']
+admin_gen.register(SampleType, SampleTypeAdmin)
 
-@admin.register(NucleicAcidType)
+# @admin.register(NucleicAcidType)
 class NucleicAcidTypeAdmin(admin.ModelAdmin):
     form = NucleicAcidTypeForm
     actions_on_top = False
@@ -88,18 +98,10 @@ class NucleicAcidTypeAdmin(admin.ModelAdmin):
     list_display = all_fields
     search_fields = all_fields
     ordering = ['code']
+admin_gen.register(NucleicAcidType, NucleicAcidTypeAdmin)
 
 
-# class IdImpExpMixin(ImportExportModelAdmin):
-#     """subclass with mods for JAXids"""
-#     def __init__(self):
-#         super(IDExportMixin, self).__init__()
-#         self.resource_class = DetailResource
-#         self.change_list_template = 'admin/import_export/change_list_export.html'
-#         self.export_template_name = 'admin/import_export/export.html'
-
-
-@admin.register(JAXIdDetail)
+# @admin.register(JAXIdDetail)
 class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     resource_class = DetailResource
     # change_list_template = 'admin/import_export/change_list_export.html'
@@ -132,15 +134,14 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
                      'sample_type_code',
                      'nucleic_acid_type_code',
                      'sequencing_type_code',
-                     # 'entered_into_lims',
-                     # 'external_data',
                      'notes',
                      )
     search_fields = JAXIdDetail.search_fields()
     list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
     suit_list_filter_horizontal = list_filter
-    ordering = ['-jaxid']
-    formats = (base_formats.XLSX, base_formats.CSV, )
+    ordering = ['-creation_date']
+    # formats = (base_formats.XLSX, base_formats.CSV, )
+    formats = (base_formats.XLSX,)
 
     @admin_changelist_link('project_code', 'Project',
             query_string=lambda j: 'project_code__exact={}'.format(j.project_code.code))
@@ -151,4 +152,19 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     JAXIdDetail.nucleic_acid_type_code.admin_order_field = 'nucleic_acid_type'
     JAXIdDetail.sequencing_type_code.admin_order_field = 'sequencing_type'
     JAXIdDetail.sample_type_code.admin_order_field = 'sample_type'
+
+    # def get_urls(self):
+    #     urls = super().get_urls()
+    #     my_urls = [
+    #         url(r'^export/$',
+    #             self.admin_site.admin_view(self.export_action),
+    #             name='%s_%s_export' % self.get_model_info()),
+    #         # added in by bleopold 20170912
+    #         url(r'^export_imported/$',
+    #             self.admin_site.admin_view(self.export_imported_action),
+    #             name='%s_%s_export' % self.get_model_info()),
+    #     ]
+    #     return my_urls + urls
+admin_gen.register(JAXIdDetail, JAXIdDetailAdmin)
+
 

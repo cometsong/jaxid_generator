@@ -5,4 +5,5 @@ with open(os.path.join(BASE_DIR, 'secret.key')) as f:
     SECRET_KEY = f.read().strip()
 
 SECURE_HSTS_PRELOAD = True
-DEBUG = True
+DEBUG = False
+DEBUG = True # for initial deployment only!!
