@@ -73,7 +73,7 @@ class NucleicAcidType(BaseRefModel):
 
     def save(self, force_insert=False, force_update=False):
         """orverride the uppercasing save"""
-        super(NucleicAcidType, self).save(force_insert, force_update)
+        super().save(force_insert, force_update)
 
 
 class JAXIdDetail(models.Model):
@@ -138,7 +138,7 @@ class JAXIdDetail(models.Model):
         self.full_clean()
         self.jaxid = self.jaxid.upper()
         self.parent_jaxid = self.parent_jaxid.upper()
-        super(JAXIdDetail, self).save(force_insert, force_update)
+        super().save(force_insert, force_update)
 
     def all_field_names():
         names = (
