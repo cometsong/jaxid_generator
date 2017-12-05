@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% load suit_tags admin_urls %}
+{% block breadcrumbs %}
+{% endblock %}
+{% block footer %}
+    {% if not is_popup %}
+        <div id="footer">
+        <footer class="footer">
+            <div class="container-fluid">
+                {% block footer_content %}
+                    <div class="row">
+
+                        <div class="col-xs-12 col-sm-3 footer-links">
+                            {% block footer_links %}
+                            {% endblock %}
+                        </div>
+
+                        <div class="col-xs-12 col-sm-6 text-sm-center footer-copyright">
+                            {% block copyright %}
+                                Copyright &copy; <span class="hidden-md-down">2015-</span>{% now "Y" %} Microbiome Core at JAXGM
+                            {% endblock %}
+                        </div>
+
+                        <div class="col-xs-12 col-sm-3 text-sm-right footer-version">
+                            {% block footer_branding %}
+                                {% with admin_name=site_header|default:_('administration') django_version='django_version'|suit_conf:request %}
+                                    {{ admin_name }}
+                                {% endwith %}
+                            {% endblock %}
+                        </div>
+
+                    </div>
+                {% endblock %}
+            </div>
+        </footer>
+    {% endif %}
+{% endblock %}
+
