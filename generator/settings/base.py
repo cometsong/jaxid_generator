@@ -18,10 +18,10 @@ ALLOWED_HOSTS = [
     #'*',
     '127.0.0.1',
     'localhost',
-    'mbiome_core',
-    'mbiome_core.jax.org',
-    'ctmbioc01ld',
-    'ctmbioc01ld.jax.org',
+    'mbiomecore',
+    'mbiomecore.jax.org',
+    # 'ctmbioc01ld',
+    # 'ctmbioc01ld.jax.org',
 ] # }}}
 
 ### Application definition {{{
@@ -70,11 +70,11 @@ STATICFILES_DIRS = (
 
 ### Templates and Middleware {{{
 MIDDLEWARE = [
-	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.middleware.common.CommonMiddleware',
 	'django.middleware.csrf.CsrfViewMiddleware',
-	'django.contrib.auth.middleware.AuthenticationMiddleware',
+	'django.contrib.sessions.middleware.SessionMiddleware',
 	'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
+	'django.contrib.auth.middleware.AuthenticationMiddleware',
 	'django.contrib.messages.middleware.MessageMiddleware',
 	'django.middleware.clickjacking.XFrameOptionsMiddleware',
 	'django.middleware.security.SecurityMiddleware',
