@@ -1,0 +1,8 @@
+## TODOs ##
+# TODO: mv db.sqlite3 to a more apt filename, e.g. 'jaxid_master_list.db.sqlite3'
+# TODO: create automated (cron?) job to backup jaxid_master_list.db.sqlite3
+# TODO: mod app name id_generate (folder/files/strings) to 'ids'? id_records'?
+# TODO: add link(s) from jaxiddetail admin list for each project/sample/nucleic/seqtype to subset list for that search'd filter
+# TODO: implement icons for admin suit-menu
+# TODO: remove unused pip installs, e.g. django-tables2, virtualenv(?)
+# TODO: redefine list_filter to make default is_staff=Yes
