@@ -1,2 +1,22 @@
 Thu Jun 8 15:06:51 EDT 2017
 No changes detected
+Mon Nov 27 14:44:14 EST 2017
+Migrations for 'id_generate':
+  id_generate/migrations/0002_auto_20171127_1444.py
+    - Remove field nucleic_acid_type from jaxiddetail
+    - Remove field project_code from jaxiddetail
+    - Remove field sample_type from jaxiddetail
+    - Remove field sequencing_type from jaxiddetail
+    - Delete model JAXIdDetail
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, id_generate, sessions
+Running migrations:
+  Applying id_generate.0002_auto_20171127_1444... OK
+Mon Nov 27 14:49:31 EST 2017
+Migrations for 'id_generate':
+  id_generate/migrations/0003_jaxiddetail.py
+    - Create model JAXIdDetail
+Operations to perform:
+  Apply all migrations: admin, auth, contenttypes, id_generate, sessions
+Running migrations:
+  Applying id_generate.0003_jaxiddetail... OK
