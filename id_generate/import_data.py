@@ -1,7 +1,6 @@
 import re
 import tablib
 from import_export import resources, fields, widgets
-# from django.shortcuts import redirect
 from django_mysql.locks import TableLock
 
 from .jaxid_create import JAXidGenerate
@@ -17,7 +16,6 @@ from .models import (
         )
 from generator.utils import field_is_empty
 
-ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
 """ImportExport Resource"""
 class DetailResource(resources.ModelResource):
@@ -54,7 +52,6 @@ class DetailResource(resources.ModelResource):
             return self.assign_new_id(new_ids, current_ids)
         else:
             return next_id
-
 
     def import_data(self, dataset, **kwargs):
         """Overridden from import_action to lock table then call super().import_data()"""
@@ -128,50 +125,12 @@ class DetailResource(resources.ModelResource):
 
         # print('DEBUG: dataset final: {}'.format(str(dataset.dict)))
 
-    def after_import(self, dataset, result, using_transactions, dry_run, **kwargs):
-        """ Overridden to offer download of imported/updated id records """
-        #TODO: return with link to download spreadsheet (in same file format) of the imported rows
-        if using_transactions:
-            if dry_run or result.has_errors():
-                return
-            else:
-                jaxid_import_rows = []
-
-                row_pks = [row.object_id for row in result.rows]
-                print(f'DEBUG: row_pks length: {len(row_pks)!s}')
-                print(f'DEBUG: row_pks: {row_pks!s}')
-                jaxid_import_rows = self._meta.model.objects.filter(pk__in=row_pks)
-
-                self.Meta.jaxid_import_rows = jaxid_import_rows
-                self.Meta.jaxid_import_row_pks = row_pks
-                print('DEBUG: '+str(self.Meta.jaxid_import_rows))
-                # self.export(queryset=jaxid_import_rows)
-                # return redirect( self.export(None, queryset=jaxid_import_rows) )
-                result.imported_queryset = jaxid_import_rows
-                result.imported_row_pks = row_pks
-        # else:
-            # self.Meta.jaxid_import_rows = []
-            # return
-
-    # def get_queryset(self):
-    #     """
-    #     Returns a queryset of all objects for this model.
-    #     Overriden to check for meta imported_rows
-    #     """
-    #     if self.Meta.jaxid_import_rows.count:
-    #         return self._meta.jaxid_import_rows
-    #     else:
-    #         # orig :
-    #         return self._meta.model.objects.all()
-
 
     class Meta:
         model = JAXIdDetail
-        all_fields = ( ID_DETAIL_FIELDS, )
         import_id_fields = ( 'jaxid', )
-        fields = ID_DETAIL_FIELDS
-        export_order = ID_DETAIL_FIELDS
-        jaxid_import_rows = None # for imported queryset
-        jaxid_import_row_pks = []
+        fields = model.all_field_names()
+        export_order = fields
+        all_fields = ( fields, )
         import_format = None
 
