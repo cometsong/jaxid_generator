@@ -1,11 +1,11 @@
 from django.conf import settings
 from django.conf.urls import include, url
 
-from id_generate.admin import admin_gen
+from id_generate.admin import idadmin
 
 urlpatterns = [
-    url(r'^manage/', include(admin_gen.urls), name='admin'),
-    url(r'^$', admin_gen.login, name='login'),
+    url(r'^manage/', include(idadmin.urls), name='admin'),
+    url(r'^$', idadmin.login, name='login'),
 
     # url(r'^files/', include('filer.urls')),
     # url(r'^', include('id_generate.urls')),
