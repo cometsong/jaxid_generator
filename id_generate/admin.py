@@ -170,30 +170,9 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
             messages.info(request, export_message)
 
 
-    def get_queryset(self, request):
-        """ Returns queryset. Default implementation respects applied search and filters.
-        This override returns request attr 'imported_queryset' if exists
-        """
-        try:
-            qs = super().get_queryset(request)
-            print(f'DEBUG: qs - super_qset length: {qs.count()}')
-            print('DEBUG: qs - getting qset_attr')
-            pks_attr = request.POST.getlist('imported_pks')
-            print(f'DEBUG: qs - pks_attr POST: {pks_attr!s}')
-            if pks_attr:
-                print('DEBUG: qs - filtering qset super')
-                qs = qs.filter(pk__in=pks_attr)
-                print(f'DEBUG: qs - qset pks length: {qs.count()}')
-        except Exception as e:
-            print(f'ERROR: qs - Exception: {e.response}')
-        finally:
-            print(f'DEBUG: qs - qset length: {qs.count()}')
-            return qs
-
-
-    # def get_changelist(self, request, **kwargs):
-    #     """ Returns the ChangeList class for use on the changelist page. """
-    #     return IdChangeList  # override with local class
+    def get_changelist(self, request, **kwargs):
+        """ Returns the ChangeList class for use on the changelist page. """
+        return IdChangeList  # override with local class
 
 
     # override import-export admin method to redirect to immediate export url post-import
@@ -203,15 +182,15 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
             # print(f'DEBUG: calling super process_result')
             sup = super().process_result(result, request)
 
-            imported_pks = [row.object_id for row in result.rows]
+            imported_ids = [row.object_id for row in result.rows]
 
             if request.method == 'POST' and request.POST:
                 request.POST = request.POST.copy() # mutable via copy
-                request.POST.setlist('imported_pks', imported_pks)
+                request.POST.setlist('imported_ids', imported_ids)
                 # print(f'DEBUG: req POST: {request.POST!s}')
 
             from django.contrib import messages
-            self.add_export_message(request, imported_ids=imported_pks)
+            self.add_export_message(request, imported_ids=imported_ids)
         except Exception as e:
             print(f'DEBUG: request copy/mod/reinstate yuckiness: {e.message!s}')
             # raise e
@@ -224,7 +203,7 @@ idadmin.register(JAXIdDetail, JAXIdDetailAdmin)
 
 from django.contrib.admin.views.main import ChangeList
 class IdChangeList(ChangeList):
-    """ Override default Changelist to check for request attr 'imported_pks' """
+    """ Override default Changelist to check for request attr 'imported_ids' """
 
     def get_queryset(self, request):
         """ Returns queryset. Default implementation respects applied search and filters.
@@ -232,14 +211,14 @@ class IdChangeList(ChangeList):
         """
         try:
             qs = super().get_queryset(request)
-            print(f'DEBUG: qs - super_qset length: {qs.count()}')
+            # print(f'DEBUG: qs - super_qset length: {qs.count()}')
             print('DEBUG: qs - getting qset_attr')
-            pks_attr = request.POST.getlist('imported_pks')
+            pks_attr = request.POST.getlist('imported_ids')
             print(f'DEBUG: qs - pks_attr POST: {pks_attr!s}')
             if pks_attr:
                 print('DEBUG: qs - filtering qset super')
                 qs = qs.filter(pk__in=pks_attr)
-                print(f'DEBUG: qs - qset pks length: {qs.count()}')
+                # print(f'DEBUG: qs - qset pks length: {qs.count()}')
         except Exception as e:
             print(f'ERROR: qs - Exception: {e.response}')
         finally:
@@ -250,4 +229,5 @@ class IdChangeList(ChangeList):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # qs = self.get_queryset(request) #AttributeError
+        # self.queryset = self.get_queryset(request) #NameError requeset not defined
 
