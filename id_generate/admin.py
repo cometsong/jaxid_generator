@@ -1,21 +1,15 @@
+import os
 import pprint
 
-from django.http import QueryDict
-from django.http import HttpResponseRedirect, HttpResponse
-from django.urls import reverse
-from django.shortcuts import redirect, render
-from django.template.response import TemplateResponse
-
+from django.conf import settings
 from django.contrib import messages
 from django.contrib import admin
 from django.contrib.admin.sites import AdminSite
+from django.contrib.admin.views.main import ChangeList
 from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 
-from django.views.decorators.cache import never_cache
-
-from import_export import fields, widgets
 from import_export.admin import ImportExportModelAdmin
 from import_export.formats import base_formats
 
@@ -23,7 +17,7 @@ from suit.admin import RelatedFieldAdmin, get_related_field
 # from suit import apps
 from django.apps import apps
 
-from generator.utils import admin_changelist_link
+from generator.utils import admin_changelist_link, funcname
 
 from .models import (
         JAXIdDetail,
@@ -148,8 +142,8 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
     suit_list_filter_horizontal = list_filter
     ordering = ['-creation_date']
-    # formats = (base_formats.XLSX, base_formats.CSV, )
-    formats = (base_formats.XLSX,)
+    formats = (base_formats.XLSX, base_formats.CSV, )
+    # formats = (base_formats.XLSX,)
 
     @admin_changelist_link('project_code', 'Project',
             query_string=lambda j: 'project_code__exact={}'.format(j.project_code.code))
@@ -162,11 +156,45 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     JAXIdDetail.sample_type_code.admin_order_field = 'sample_type'
 
 
-    def add_export_message(self, request, imported_ids=None):
+    def export_imported_file(self, request, *args, **kwargs):
+        try:
+            print(f'DEBUG: {funcname()} beginning')
+            input_format = request.POST.get('input_format')
+            orig_filename = request.POST.get('original_file_name')
+            new_name_prefix = 'generated'
+            export_filename = '_'.join([new_name_prefix, orig_filename])
+            print(f'DEBUG: {funcname()} - format: {input_format}, export_name: {export_filename}')
+
+            formats = self.get_export_formats()
+            file_format = formats[int(input_format)]()
+            # print(f'DEBUG: {funcname()} file_format: {file_format!s}')
+
+            queryset = self.get_export_queryset(request)
+            # print(f'DEBUG: {funcname()} queryset: {queryset!s}')
+
+            export_data = self.get_export_data(file_format, queryset, request=request)
+            # print(f'DEBUG: {funcname()} dataset length: {len(export_data)!s}')
+            file_baseurl = settings.IMPORTED_FILE_PATH
+            file_basepath = os.path.join(settings.HTML_DIR, settings.IMPORTED_FILE_PATH)
+            filepath = os.path.join(file_basepath, export_filename)
+            fileurl = os.path.join('/', file_baseurl, export_filename)
+            # print(f'DEBUG: {funcname()} filepath: {filepath!s}')
+            # print(f'DEBUG: {funcname()} fileurl: {fileurl!s}')
+            with open(filepath, 'wb') as exp:
+                exp.write(export_data)
+        except Exception as e:
+            print(f'ERROR: {funcname()}: {e.message!s}')
+            # raise e
+        finally:
+            return fileurl
+
+
+    def add_export_message(self, request, file_url=None):
         opts = self.model._meta
-        if imported_ids:
+        if file_url:
+            filename = os.path.basename(file_url)
             export_message = f'The ids imported into {opts.verbose_name_plural}, can <em>now</em> be ' \
-                             f'exported using the &quot;Export&quot; button on the right. '
+                             f'downloaded with this link: <a href={file_url!s}>"{filename}"</a>'
             messages.info(request, export_message)
 
 
@@ -179,9 +207,8 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     def process_result(self, result, request):
         print(f'DEBUG: entering overridden process_result')
         try:
-            # print(f'DEBUG: calling super process_result')
+            # print(f'DEBUG: {funcname()} calling super process_result')
             sup = super().process_result(result, request)
-
             imported_ids = [row.object_id for row in result.rows]
 
             if request.method == 'POST' and request.POST:
@@ -189,10 +216,11 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
                 request.POST.setlist('imported_ids', imported_ids)
                 # print(f'DEBUG: req POST: {request.POST!s}')
 
+            export_file_url = self.export_imported_file(request)
             from django.contrib import messages
-            self.add_export_message(request, imported_ids=imported_ids)
+            self.add_export_message(request, file_url=export_file_url)
         except Exception as e:
-            print(f'DEBUG: request copy/mod/reinstate yuckiness: {e.message!s}')
+            print(f'ERROR: {funcname()} request copy/mod/reinstate yuckiness: {e.message!s}')
             # raise e
         finally:
             return self.changelist_view(request, extra_context=None)
@@ -201,7 +229,6 @@ idadmin.register(JAXIdDetail, JAXIdDetailAdmin)
 
 
 
-from django.contrib.admin.views.main import ChangeList
 class IdChangeList(ChangeList):
     """ Override default Changelist to check for request attr 'imported_ids' """
 
@@ -212,17 +239,17 @@ class IdChangeList(ChangeList):
         try:
             qs = super().get_queryset(request)
             # print(f'DEBUG: qs - super_qset length: {qs.count()}')
-            print('DEBUG: qs - getting qset_attr')
+            # print(f'DEBUG: {funcname()} - getting qset_attr')
             pks_attr = request.POST.getlist('imported_ids')
-            print(f'DEBUG: qs - pks_attr POST: {pks_attr!s}')
+            # print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
             if pks_attr:
-                print('DEBUG: qs - filtering qset super')
+                print(f'DEBUG: {funcname()} - filtering qset super')
                 qs = qs.filter(pk__in=pks_attr)
                 # print(f'DEBUG: qs - qset pks length: {qs.count()}')
         except Exception as e:
-            print(f'ERROR: qs - Exception: {e.response}')
+            print(f'ERROR: {funcname()} - Exception: {e.response}')
         finally:
-            print(f'DEBUG: qs - qset length: {qs.count()}')
+            # print(f'DEBUG: {funcname()} - qset length: {qs.count()}')
             return qs
 
 

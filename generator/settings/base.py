@@ -7,6 +7,7 @@ Created: 2015-11-19
 
 import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+HTML_DIR = '/var/www/html'
 
 ### Debugging {{{
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -66,6 +67,11 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static'),
     os.path.join(BASE_DIR, 'id_generate', 'static'),
 )
+# }}}
+
+
+### Import Generated file path (subdir to HTML_DIR) {{{
+IMPORTED_FILE_PATH = 'jaxid_generated_files'
 # }}}
 
 ### Templates and Middleware {{{
