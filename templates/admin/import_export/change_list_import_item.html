@@ -1,0 +1,5 @@
+{% load i18n %}
+{% load admin_urls %}
+{% if perms.id_generate.change_jaxiddetail %}
+<li><a href='{% url opts|admin_urlname:"import" %}' class="import_link" style="position: fixed; top: 1em; right: 6em;">{% trans "Import" %}</a></li>
+{% endif %}
