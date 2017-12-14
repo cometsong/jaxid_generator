@@ -103,6 +103,17 @@ def render_to(template):
     return renderer
 
 
+def funcname():
+    """use 'sys' to return name of calling function"""
+    import sys
+    try:
+        name = sys._getframe(1).f_code.co_name
+    except (IndexError, TypeError, AttributeError):  # something went wrong
+        name = "<unknown>"
+    finally:
+        return name
+
+
 # def get_required_fields(model_meta):
 #     """subset of get_fields where blank == False"""
 #     fields - model_meta.get_fields()
