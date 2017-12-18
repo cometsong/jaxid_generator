@@ -23,7 +23,7 @@ class SuitConfig(DjangoSuitConfig):
             ParentItem(
                 label='JAXid Record List',
                 url=f'/{APP_NAME}/manage/id_generate/jaxiddetail',
-                icon='fa th-list'),
+                icon='fa fa-list-ul'),
             # ParentItem(
             #     label='JAXid Record List model',
             #     model='id_generate.jaxiddetail',
@@ -37,12 +37,12 @@ class SuitConfig(DjangoSuitConfig):
                     ChildItem(model='id_generate.sampletype'),
                     ChildItem(model='id_generate.sequencingtype'),
                     ],
-                icon='fa th-list'),
+                icon='fa fa-list'),
             ParentItem(
                 label='Generate new JAXid''s',
                 url=f'/{APP_NAME}/manage/id_generate/jaxiddetail/import/',
                 permissions='id_generate.change_jaxiddetail',
-                icon='fa open-file'),
+                icon='fa fa-rocket'),
             ParentItem(
                 label='Authorization',
                 children=[
@@ -50,7 +50,7 @@ class SuitConfig(DjangoSuitConfig):
                     ChildItem(model='auth.group'),
                     ChildItem(model='sessions.session'),
                     ],
-                icon='fa th-list'),
+                icon='fa fa-user-circle'),
            )
     # menu_handler = None
     menu_show_home = False
