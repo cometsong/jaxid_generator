@@ -19,7 +19,6 @@ ID_LENGTH = 5
 ID_MODEL = JAXIdDetail
 ID_FIELD = 'jaxid'
 ID_CONTROLS = [ 'XC000', 'PC000', 'NC000' ]
-# ID_CONTROLS.__iter__
 
 NUMERIC_RE = ''.join(['\\d' for num in range(ID_LENGTH)])
 MAX_NUM_ID = ''.join([ '9'  for num in range(ID_LENGTH)])
@@ -93,7 +92,7 @@ class JAXidGenerate(object):
             print('ERROR: ValueError in "get_max_id_used"! ' + str(ve))
             min_id = '0'*ID_LENGTH # if table Empty
             max_id = min_id
-        # print(f'get_max_id_used max_id: {max_id}')
+        print(f'get_max_id_used - max_id: {max_id}')
         return max_id
 
     def new_id_num(self, minimum=0):
@@ -108,6 +107,10 @@ class JAXidGenerate(object):
             print('Exception!: '+e)
 
     def new_id_alphanum(self, minimum):
+        """generate new alphanumeric id
+           check it is: not numeric, not control, more than 'minimum'
+           TODO: make checks faster!
+        """
         seq_chars = ALPHADIGITS
         id_len = self.id_length
         for id in (''.join(i) for i in product(seq_chars, repeat=id_len)
@@ -115,6 +118,17 @@ class JAXidGenerate(object):
                 and not self.id_is_control(''.join(i))
                 and ''.join(i) > minimum ):
             yield id
+
+    def new_id_alphanum_TEST(self, minimum):
+        """generate new alphanumeric id
+           check it is: not numeric, not control, more than 'minimum'
+           TODO: make checks faster!
+        """
+        seq_chars = ALPHADIGITS
+        id_len = self.id_length
+        for id in (''.join(i) for i in product(seq_chars, repeat=id_len)):
+            if re.match('[A-Z]', id) and not self.id_is_control(id) and id > minimum :
+                yield id
 
     def generate_new_ids(self, amount=0):
         print('Starting generate_new_ids()')

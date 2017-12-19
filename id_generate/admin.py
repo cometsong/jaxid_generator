@@ -139,8 +139,15 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
                      'notes',
                      )
     search_fields = JAXIdDetail.search_fields()
-    list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
-    suit_list_filter_horizontal = list_filter
+    list_filter = ('project_code',
+                   'sample_type',
+                   'nucleic_acid_type',
+                   'sequencing_type',)
+    # suit_list_filter_horizontal = list_filter
+    suit_list_filter_horizontal = ('project_code',
+                                   'sample_type',
+                                   'nucleic_acid_type',
+                                   'sequencing_type',)
     ordering = ['-creation_date']
     formats = (base_formats.XLSX, base_formats.CSV, )
     # formats = (base_formats.XLSX,)
@@ -194,7 +201,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
         if file_url:
             filename = os.path.basename(file_url)
             export_message = f'The ids imported into {opts.verbose_name_plural}, can <em>now</em> be ' \
-                             f'downloaded with this link: <a href={file_url!s}>"{filename}"</a>'
+                             f'downloaded with this link:  <a href={file_url}>"<strong>{filename}</strong>"</a>'
             messages.info(request, export_message)
 
 
@@ -237,20 +244,20 @@ class IdChangeList(ChangeList):
         This override returns request attr 'imported_queryset' if exists
         """
         try:
-            qs = super().get_queryset(request)
-            # print(f'DEBUG: qs - super_qset length: {qs.count()}')
+            queryset = super().get_queryset(request)
+            print(f'DEBUG: qs - super_qset length: {queryset.count()}')
             # print(f'DEBUG: {funcname()} - getting qset_attr')
             pks_attr = request.POST.getlist('imported_ids')
             # print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
             if pks_attr:
                 print(f'DEBUG: {funcname()} - filtering qset super')
-                qs = qs.filter(pk__in=pks_attr)
-                # print(f'DEBUG: qs - qset pks length: {qs.count()}')
+                queryset = queryset.filter(pk__in=pks_attr)
+                print(f'DEBUG: qs - qset pks length: {queryset.count()}')
         except Exception as e:
             print(f'ERROR: {funcname()} - Exception: {e.response}')
         finally:
-            # print(f'DEBUG: {funcname()} - qset length: {qs.count()}')
-            return qs
+            # print(f'DEBUG: {funcname()} - qset length: {queryset.count()}')
+            return queryset
 
 
     def __init__(self, *args, **kwargs):
