@@ -7,7 +7,6 @@ urlpatterns = [
     url(r'^manage/', include(idadmin.urls), name='admin'),
     url(r'^$', idadmin.login, name='login'),
 
-    # url(r'^files/', include('filer.urls')),
     # url(r'^', include('id_generate.urls')),
 ]
 if settings.DEBUG:

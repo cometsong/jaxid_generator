@@ -112,7 +112,6 @@ INSTALLED_APPS = [
     'id_generate',
 
     # 3rd party
-    # 'filer',
     'admin_view_permission',
     'compressor',
     'django_tables2',
@@ -135,25 +134,6 @@ INSTALLED_APPS = [
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
 IMPORT_EXPORT_USE_TRANSACTIONS = True
-
-FILE_UPLOAD_HANDLERS = ("django_excel.ExcelMemoryFileUploadHandler",
-                        "django_excel.TemporaryExcelFileUploadHandler")
-
-# Filer
-# FILER_ENABLE_LOGGING = True
-# FILER_DEBUG = False #default false
-# FILER_ENABLE_PERMISSIONS = False #default false
-#     # include "url(r'^', include('filer.server.urls'))," in root urls.py without prefix
-#     #   when FILER_ENABLE_PERMISSIONS is True
-# FILER_IS_PUBLIC_DEFAULT = False
-# THUMBNAIL_HIGH_RESOLUTION = True
-# THUMBNAIL_PROCESSORS = (
-#     'easy_thumbnails.processors.colorspace',
-#     'easy_thumbnails.processors.autocrop',
-#     'easy_thumbnails.processors.scale_and_crop',
-#     # 'filer.thumbnail_processors.scale_and_crop_with_subject_location',
-#     'easy_thumbnails.processors.filters',
-# )
 
 # }}}
 
