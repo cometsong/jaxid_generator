@@ -7,7 +7,7 @@ django-admin-view-permission==1.1
 django-appconf==1.0.2
 django-compressor==2.2
 django-debug-toolbar==1.9.1
--e git+git@github.com:django-import-export/django-import-export.git@1deead657a88e8c2c1f36b99007937c1e7350459#egg=django_import_export&subdirectory=../../../src/django-import-export
+-e git+git@github.com:django-import-export/django-import-export.git@1deead657a88e8c2c1f36b99007937c1e7350459#egg=django_import_export
 -e git+git@github.com:cometsong/django-mysql.git@037d4a01665f12801353318ceb497e79e30d1e29#egg=django_mysql
 django-polymorphic==1.3
 django-select2==6.0.0
