@@ -113,7 +113,7 @@ INSTALLED_APPS = [
     'id_generate',
 
     # 3rd party
-    'admin_view_permission',
+    'admin_log_entries',
     'compressor',
     'django_tables2',
     'import_export',

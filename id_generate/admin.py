@@ -10,6 +10,9 @@ from django.contrib.sessions.models import Session
 from django.contrib.auth.models import User, Group
 from django.contrib.auth.admin import UserAdmin, GroupAdmin
 
+from django.contrib.admin.models import LogEntry
+from admin_log_entries.admin import LogEntryAdmin
+
 from import_export.admin import ImportExportModelAdmin
 from import_export.formats import base_formats
 
@@ -54,6 +57,11 @@ UserAdmin.list_display = ('username', 'first_name', 'last_name',
                           'is_active', 'is_superuser',)
 idadmin.register(User, UserAdmin)
 idadmin.register(Group, GroupAdmin)
+
+idadmin.register(LogEntry, LogEntryAdmin)
+
+# from django.contrib.auth.models import Permission
+# idadmin.register(Permission)
 
 class SessionAdmin(admin.ModelAdmin):
     def _session_data(self, obj):
@@ -140,7 +148,10 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
                      )
     search_fields = JAXIdDetail.search_fields()
     list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
-    suit_list_filter_horizontal = list_filter
+    # suit_list_filter_horizontal = list_filter
+    # suit_list_filter_horizontal = ('project_code', 'sequencing_type',)
+    # suit_list_filter_horizontal = JAXIdDetail.all_field_names()
+
     ordering = ['-creation_date']
     formats = (base_formats.XLSX, base_formats.CSV, )
     # formats = (base_formats.XLSX,)
@@ -238,7 +249,7 @@ class IdChangeList(ChangeList):
         """
         try:
             qs = super().get_queryset(request)
-            # print(f'DEBUG: qs - super_qset length: {qs.count()}')
+            # print(f'DEBUG: {settings.APP_NAME}: qs - super_qset length: {qs.count()}')
             # print(f'DEBUG: {funcname()} - getting qset_attr')
             pks_attr = request.POST.getlist('imported_ids')
             # print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
