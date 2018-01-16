@@ -48,7 +48,7 @@ class SuitConfig(DjangoSuitConfig):
                 children=[
                     ChildItem('Staff', model='auth.user'),
                     ChildItem(model='auth.group'),
-                    ChildItem(model='sessions.session'),
+                    # ChildItem(model='sessions.session'),
                     ],
                 icon='fa fa-user-circle'),
            )

@@ -6,4 +6,4 @@ with open(os.path.join(BASE_DIR, 'secret.key')) as f:
 
 SECURE_HSTS_PRELOAD = True
 DEBUG = False
-DEBUG = True # for initial deployment only!!
+DEBUG = True # for intranet use - debug tracebacks are good here too. :|
