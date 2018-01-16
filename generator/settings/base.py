@@ -48,7 +48,8 @@ LANGUAGE_CODE = 'en'
 TIME_ZONE = 'America/New_York'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
+# USE_TZ = True
+USE_TZ = False # for functional admin_logentries app
 # }}}
 
 ### Static files (CSS, JavaScript, Images) {{{
