@@ -38,6 +38,10 @@ from .forms import (
         )
 from .import_data import DetailResource
 
+# implement and register databrowse for external read-only access
+import django_databrowse
+django_databrowse.site.register(ProjectCode, SampleType, SequencingType, NucleicAcidType, JAXIdDetail)
+
 
 # IdGenerate AdminSite
 class IdGenAdminSite(AdminSite):

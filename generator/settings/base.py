@@ -114,6 +114,7 @@ INSTALLED_APPS = [
     'id_generate',
 
     # 3rd party
+    'django_databrowse',
     'admin_log_entries',
     'compressor',
     'django_tables2',
