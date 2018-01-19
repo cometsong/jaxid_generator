@@ -20,10 +20,10 @@
   </form>
 
 {% else %}
-  <form action="" method="post" enctype="multipart/form-data">
+  <form action="" method="post" enctype="multipart/form-data" class="col-md-8">
     {% csrf_token %}
 
-    <div class="row"><div class="col-md-5">
+    <div class="row"><div>
         <p class="h3 text-center text-uppercase bg-primary" style="padding:1em">Important Note:</p>
         <p class="bg-warning lead" style="padding:1em">Please ensure that you have <b>parent_jaxid</b> information!<br><br>
         As in the SOP, import only <span class="text-primary">received samples</span>, or only <span class="text-primary">extractions</span>,
