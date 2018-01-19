@@ -5,3 +5,6 @@
 [submodule "src/django-import-export"]
 	path = src/django-import-export
 	url = git@github.com:django-import-export/django-import-export.git
+[submodule "src/databrowse"]
+	path = src/databrowse
+	url = git@github.com:Alir3z4/django-databrowse.git
