@@ -79,6 +79,7 @@ idadmin.register(Session, SessionAdmin)
 class ProjectCodeAdmin(admin.ModelAdmin):
     form = ProjectCodeForm
     actions_on_top = False
+    actions = None
     all_fields = ( 'code', 'details' )
     fields = ((all_fields))
     list_display = all_fields
@@ -90,6 +91,7 @@ idadmin.register(ProjectCode, ProjectCodeAdmin)
 class SequencingTypeAdmin(admin.ModelAdmin):
     form = SequencingForm
     actions_on_top = False
+    actions = None
     all_fields = ( 'code', 'details' )
     # all_fields = SequencingType._meta.get_all_field_names(),
     fields = ((all_fields))
@@ -101,6 +103,7 @@ idadmin.register(SequencingType, SequencingTypeAdmin)
 class SampleTypeAdmin(admin.ModelAdmin):
     form = SampleForm
     actions_on_top = False
+    actions = None
     all_fields = ( 'code', 'details' )
     fields = ((all_fields))
     list_display = all_fields
@@ -111,6 +114,7 @@ idadmin.register(SampleType, SampleTypeAdmin)
 class NucleicAcidTypeAdmin(admin.ModelAdmin):
     form = NucleicAcidTypeForm
     actions_on_top = False
+    actions = None
     all_fields = ( 'code', 'details' )
     fields = ((all_fields))
     list_display = all_fields
