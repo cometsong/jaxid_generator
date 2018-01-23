@@ -161,8 +161,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     # suit_list_filter_horizontal = JAXIdDetail.all_field_names()
 
     ordering = ['-creation_date']
-    formats = (base_formats.XLSX, base_formats.CSV, )
-    # formats = (base_formats.XLSX,)
+    formats = (base_formats.XLSX,)
 
     @admin_changelist_link('project_code', 'Project',
             query_string=lambda j: 'project_code__exact={}'.format(j.project_code.code))
