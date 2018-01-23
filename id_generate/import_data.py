@@ -109,14 +109,10 @@ class DetailResource(resources.ModelResource):
             elif field_is_empty(row['jaxid']) \
                     or not re.match(f'[{PREFIXES}]', row['jaxid']):
                 row['jaxid'] = self.assign_new_id(new_jaxids, dataset_jaxids)
-                replace_row(row_index, row)
 
-            # print('DEBUG: dataset final: {}'.format(row))
+            replace_row(row_index, row)
 
-            # if not row['parent_jaxid']:
-            #     # id_type = check_id_type(row)
-            #     #TODO: implement other reality-check actions re: id_type
-            #     pass
+            print(f'DEBUG: dataset NEW: {row_index}={tuple(row.values())}')
 
         # del the empty rows from the dataset after updating/replacing others
         # print(f'DEBUG: rows_to_delete {rows_to_delete}')

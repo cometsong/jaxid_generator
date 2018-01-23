@@ -222,9 +222,10 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     def process_result(self, result, request):
         print(f'DEBUG: entering overridden process_result')
         try:
-            # print(f'DEBUG: {funcname()} calling super process_result')
+            print(f'DEBUG: {funcname()} calling super process_result')
             sup = super().process_result(result, request)
             imported_ids = [row.object_id for row in result.rows]
+            print(f'DEBUG: {funcname()} imported_ids: {imported_ids!s}')
 
             if request.method == 'POST' and request.POST:
                 request.POST = request.POST.copy() # mutable via copy
@@ -256,11 +257,10 @@ class IdChangeList(ChangeList):
             # print(f'DEBUG: {settings.APP_NAME}: qs - super_qset length: {qs.count()}')
             # print(f'DEBUG: {funcname()} - getting qset_attr')
             pks_attr = request.POST.getlist('imported_ids')
-            # print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
             if pks_attr:
+                print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
                 print(f'DEBUG: {funcname()} - filtering qset super')
-                qs = qs.filter(pk__in=pks_attr)
-                # print(f'DEBUG: qs - qset pks length: {qs.count()}')
+                qs = qs.filter(pk__in=pks_attr).reverse()
         except Exception as e:
             print(f'ERROR: {funcname()} - Exception: {e.response}')
         finally:
