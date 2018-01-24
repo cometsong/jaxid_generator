@@ -4,8 +4,8 @@
 	branch = v2
 [submodule "django-import-export"]
 	path = src/django-import-export
-	url = git@github.com:django-import-export/django-import-export.git
-    branch = master
+	url = git@github.com:cometsong/django-import-export.git
+	branch = master
 [submodule "databrowse"]
 	path = src/databrowse
 	url = git@github.com:cometsong/django-databrowse.git

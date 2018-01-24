@@ -71,3 +71,4 @@ share
 db*sqlite3
 include/
 prod
+pip-selfcheck.json
