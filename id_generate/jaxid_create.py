@@ -119,10 +119,7 @@ class JAXidGenerate(object):
     def generate_new_ids(self, amount=0):
         print('Starting generate_new_ids()')
         prefix = self.prefix
-        if amount:
-            _amount = int(amount)
-        else:
-            _amount = int(self.amount)
+        _amount = int(amount) if amount else int(self.amount)
 
         try:
             print('generate initial setup beginning')
@@ -148,7 +145,6 @@ class JAXidGenerate(object):
             raise e
 
         try:
-            print('generate for in amount')
             for x in range(_amount):
                 new_id_seq = ''.join([prefix,next(new_id)])
 

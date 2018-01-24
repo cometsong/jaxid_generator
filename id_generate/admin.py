@@ -79,6 +79,7 @@ idadmin.register(Session, SessionAdmin)
 class ProjectCodeAdmin(admin.ModelAdmin):
     form = ProjectCodeForm
     actions_on_top = False
+    actions = None
     all_fields = ( 'code', 'details' )
     fields = ((all_fields))
     list_display = all_fields
@@ -90,6 +91,7 @@ idadmin.register(ProjectCode, ProjectCodeAdmin)
 class SequencingTypeAdmin(admin.ModelAdmin):
     form = SequencingForm
     actions_on_top = False
+    actions = None
     all_fields = ( 'code', 'details' )
     # all_fields = SequencingType._meta.get_all_field_names(),
     fields = ((all_fields))
@@ -101,6 +103,7 @@ idadmin.register(SequencingType, SequencingTypeAdmin)
 class SampleTypeAdmin(admin.ModelAdmin):
     form = SampleForm
     actions_on_top = False
+    actions = None
     all_fields = ( 'code', 'details' )
     fields = ((all_fields))
     list_display = all_fields
@@ -111,6 +114,7 @@ idadmin.register(SampleType, SampleTypeAdmin)
 class NucleicAcidTypeAdmin(admin.ModelAdmin):
     form = NucleicAcidTypeForm
     actions_on_top = False
+    actions = None
     all_fields = ( 'code', 'details' )
     fields = ((all_fields))
     list_display = all_fields
@@ -157,8 +161,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     # suit_list_filter_horizontal = JAXIdDetail.all_field_names()
 
     ordering = ['-creation_date']
-    formats = (base_formats.XLSX, base_formats.CSV, )
-    # formats = (base_formats.XLSX,)
+    formats = (base_formats.XLSX,)
 
     @admin_changelist_link('project_code', 'Project',
             query_string=lambda j: 'project_code__exact={}'.format(j.project_code.code))
@@ -222,9 +225,10 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     def process_result(self, result, request):
         print(f'DEBUG: entering overridden process_result')
         try:
-            # print(f'DEBUG: {funcname()} calling super process_result')
+            print(f'DEBUG: {funcname()} calling super process_result')
             sup = super().process_result(result, request)
             imported_ids = [row.object_id for row in result.rows]
+            print(f'DEBUG: {funcname()} imported_ids: {imported_ids!s}')
 
             if request.method == 'POST' and request.POST:
                 request.POST = request.POST.copy() # mutable via copy
@@ -256,11 +260,10 @@ class IdChangeList(ChangeList):
             # print(f'DEBUG: {settings.APP_NAME}: qs - super_qset length: {qs.count()}')
             # print(f'DEBUG: {funcname()} - getting qset_attr')
             pks_attr = request.POST.getlist('imported_ids')
-            # print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
             if pks_attr:
+                print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
                 print(f'DEBUG: {funcname()} - filtering qset super')
-                qs = qs.filter(pk__in=pks_attr)
-                # print(f'DEBUG: qs - qset pks length: {qs.count()}')
+                qs = qs.filter(pk__in=pks_attr).reverse()
         except Exception as e:
             print(f'ERROR: {funcname()} - Exception: {e.response}')
         finally:
