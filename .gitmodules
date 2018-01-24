@@ -8,5 +8,5 @@
     branch = master
 [submodule "databrowse"]
 	path = src/databrowse
-	url = git@github.com:Alir3z4/django-databrowse.git
+	url = git@github.com:cometsong/django-databrowse.git
 	branch = master
