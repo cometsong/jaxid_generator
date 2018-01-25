@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinLengthValidator
 
 class BaseRefModel(models.Model):
     code = models.CharField(max_length=1, blank=False, unique=True,)
@@ -81,8 +82,8 @@ class JAXIdDetail(models.Model):
         verbose_name_plural = 'JAXid Detail Records'
     verbose_name = 'JAXid Detail'
 
-    jaxid = models.CharField('JAXid',
-            max_length=6, unique=True,
+    jaxid = models.CharField('JAXid', max_length=6,
+            unique=True, validators=[MinLengthValidator(6)],
             # help_text="A unique ID string for every sample.",
             )
     parent_jaxid = models.CharField('Parent JAXid',
