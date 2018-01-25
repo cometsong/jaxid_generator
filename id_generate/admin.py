@@ -147,7 +147,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     list_select_related = ('project_code', 'nucleic_acid_type', 'sequencing_type', 'sample_type',)
     list_display = ( 'jaxid',
                      'parent_jaxid',
-                     'project_code_subset',
+                     'project_code_code',
                      'collab_id',
                      'sample_type_code',
                      'nucleic_acid_type_code',
@@ -162,11 +162,6 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
 
     ordering = ['-creation_date']
     formats = (base_formats.XLSX,)
-
-    @admin_changelist_link('project_code', 'Project',
-            query_string=lambda j: 'project_code__exact={}'.format(j.project_code.code))
-    def project_code_subset(self, project_code):
-        return project_code.code
 
     JAXIdDetail.project_code_code.admin_order_field = 'project_code'
     JAXIdDetail.nucleic_acid_type_code.admin_order_field = 'nucleic_acid_type'
