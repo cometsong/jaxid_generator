@@ -1,4 +1,5 @@
 import os
+import re
 import pprint
 
 from django.conf import settings
@@ -176,6 +177,7 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
             orig_filename = request.POST.get('original_file_name')
             new_name_prefix = 'generated'
             export_filename = '_'.join([new_name_prefix, orig_filename])
+            export_filename, subnum = re.subn(' ', '_', export_filename)
             print(f'DEBUG: {funcname()} - format: {input_format}, export_name: {export_filename}')
 
             formats = self.get_export_formats()
