@@ -151,3 +151,55 @@ class JAXIdDetail(models.Model):
 
     def __str__(self):
         return '{} ({}, {})'.format(self.jaxid, self.project_code_code(), self.collab_id)
+
+
+class BaseIdModel(models.Model):
+    class Meta:
+        abstract = True
+
+    parent_id = models.CharField('Parent id', blank=True, null=True,
+                                 max_length=6, default='', unique=False)
+    name = models.TextField('Name')
+    project = models.ForeignKey(ProjectCode,
+                verbose_name='Project', to_field='code')
+    sample = models.ForeignKey(SampleType,
+                verbose_name='Sample Type', to_field='code',)
+    nucleic_acid = models.ForeignKey(NucleicAcidType,
+                verbose_name='Nucleic Acid Type', to_field='code')
+    seq_type = models.ForeignKey(SequencingType,
+                verbose_name='Sequencing Type', to_field='code')
+    external_data = models.NullBooleanField('External data', blank=True, null=True,
+                                        default=False, help_text='(not sequenced here.)')
+    notes = models.TextField('Notes', blank=True, null=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    def all_field_names():
+        return (
+                'parent_id', 'project', 'sample', 'nucleic_acid', 'seq_type',
+                'external_data', 'notes',
+               )
+
+    def save(self, force_insert=False, force_update=False):
+        self.parent_id = self.parent_id.upper()
+        self.full_clean()
+        super().save(force_insert, force_update)
+
+
+class BoxId(BaseIdModel):
+    class Meta:
+        verbose_name_plural = 'Box ID Records'
+    verbose_name = 'BoxID Record'
+    boxid = models.CharField('BoxID', unique=True, max_length=6,
+                             validators=[MinLengthValidator(6)])
+
+    all_field_names = (
+            'boxid', 'parent_id', 'project', 'sample',
+            'nucleic_acid', 'seq_type', 'external_data', 'notes',
+            )
+
+    def save(self, force_insert=False, force_update=False):
+        self.boxid = self.boxid.upper()
+        super().save(force_insert, force_update)
+
+    def __str__(self):
+        return '{} ("{}", {})'.format(self.boxid, self.name, self.project)

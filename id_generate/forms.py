@@ -7,6 +7,7 @@ from django_select2.forms import Select2Widget
 
 from .models import (
         JAXIdDetail,
+        BoxId,
         SampleType,
         SequencingType,
         NucleicAcidType,
@@ -59,6 +60,19 @@ class JAXIdDetailForm(forms.ModelForm):
         model = JAXIdDetail
         # readonly_fields = ( 'jaxid' ),
         fields = ( ID_DETAIL_FIELDS )
+        widgets = {
+                   'project_code': Select2Widget,
+                   'notes': AutosizedTextarea,
+                  }
+
+class BoxIdForm(forms.ModelForm):
+    error_css_class = 'error'
+    required_css_class = 'required'
+    boxid = forms.CharField(disabled=True, max_length=6)
+    parent_id = widget=forms.TextInput()
+    class Meta:
+        model = BoxId
+        fields = BoxId.all_field_names
         widgets = {
                    'project_code': Select2Widget,
                    'notes': AutosizedTextarea,

@@ -25,6 +25,7 @@ from generator.utils import admin_changelist_link, funcname
 
 from .models import (
         JAXIdDetail,
+        BoxId,
         SampleType,
         SequencingType,
         NucleicAcidType,
@@ -32,6 +33,7 @@ from .models import (
         )
 from .forms import (
         JAXIdDetailForm,
+        BoxIdForm,
         SequencingForm,
         SampleForm,
         NucleicAcidTypeForm,
@@ -145,7 +147,8 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
             (None, {'fields': ['notes']}),
             (None, {'fields': ['creation_date']}),
         )
-    list_select_related = ('project_code', 'nucleic_acid_type', 'sequencing_type', 'sample_type',)
+    list_select_related = ('project_code', 'nucleic_acid_type',
+                           'sequencing_type', 'sample_type',)
     list_display = ( 'jaxid',
                      'parent_jaxid',
                      'project_code_code',
@@ -272,4 +275,123 @@ class IdChangeList(ChangeList):
         super().__init__(*args, **kwargs)
         # qs = self.get_queryset(request) #AttributeError
         # self.queryset = self.get_queryset(request) #NameError requeset not defined
+
+
+
+class BoxIdAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
+    resource_class = DetailResource
+
+    def has_delete_permission(self, request, obj=None):
+        """has_delete_permission removes 'delete' admin action"""
+        return False
+    def has_add_permission(self, request):
+        """has_add_permission removes the individual 'add' admin action"""
+        return False
+
+    form = BoxIdForm
+    actions_on_top = False
+    actions = None
+    readonly_fields = ( 'boxid', 'creation_date' )
+    fieldsets = (
+            (None, {'fields': ['boxid', 'name']}),
+            (None, {'fields': ['parent_id']}),
+            (None, {'fields': ['project']}),
+            (None, {'fields': ['sample', 'nucleic_acid', 'seq_type']}),
+            (None, {'fields': ['external_data']}),
+            (None, {'fields': ['notes']}),
+            (None, {'fields': ['creation_date']}),
+        )
+    list_select_related = ('project', 'nucleic_acid',
+                           'seq_type', 'sample',)
+    list_display = ( 'boxid',
+                     'name',
+                     'parent_id',
+                     'project',
+                     'sample',
+                     'nucleic_acid',
+                     'seq_type',
+                     'notes',
+                     )
+    search_fields = BoxId.all_field_names
+    list_filter = ('project', 'sample', 'nucleic_acid', 'seq_type',)
+
+    ordering = ['-creation_date']
+    formats = (base_formats.XLSX,)
+
+
+    # def export_imported_file(self, request, *args, **kwargs):
+        # try:
+            # print(f'DEBUG: {funcname()} beginning')
+            # input_format = request.POST.get('input_format')
+            # orig_filename = request.POST.get('original_file_name')
+            # new_name_prefix = 'generated'
+            # export_filename = '_'.join([new_name_prefix, orig_filename])
+            # export_filename, subnum = re.subn(' ', '_', export_filename)
+            # print(f'DEBUG: {funcname()} - format: {input_format}, export_name: {export_filename}')
+
+            # formats = self.get_export_formats()
+            # file_format = formats[int(input_format)]()
+            # # print(f'DEBUG: {funcname()} file_format: {file_format!s}')
+
+            # queryset = self.get_export_queryset(request)
+            # # print(f'DEBUG: {funcname()} queryset: {queryset!s}')
+
+            # export_data = self.get_export_data(file_format, queryset, request=request)
+            # # print(f'DEBUG: {funcname()} dataset length: {len(export_data)!s}')
+            # file_baseurl = settings.IMPORTED_FILE_PATH
+            # file_basepath = os.path.join(settings.HTML_DIR, settings.IMPORTED_FILE_PATH)
+            # filepath = os.path.join(file_basepath, export_filename)
+            # fileurl = os.path.join('/', file_baseurl, export_filename)
+            # # print(f'DEBUG: {funcname()} filepath: {filepath!s}')
+            # # print(f'DEBUG: {funcname()} fileurl: {fileurl!s}')
+            # with open(filepath, 'wb') as exp:
+                # exp.write(export_data)
+        # except Exception as e:
+            # print(f'ERROR: {funcname()}: {e.message!s}')
+            # # raise e
+        # finally:
+            # return fileurl
+
+
+    # def add_export_message(self, request, file_url=None):
+        # opts = self.model._meta
+        # if file_url:
+            # filename = os.path.basename(file_url)
+            # export_message = f'The ids imported into {opts.verbose_name_plural}, can <em>now</em> be ' \
+                             # f'downloaded with this link: <a href={file_url!s}>"{filename}"</a>'
+            # messages.info(request, export_message)
+
+
+    # def get_changelist(self, request, **kwargs):
+        # """ Returns the ChangeList class for use on the changelist page. """
+        # return IdChangeList  # override with local class
+
+
+    # # override import-export admin method to redirect to immediate export url post-import
+    # def process_result(self, result, request):
+        # print(f'DEBUG: entering overridden process_result')
+        # try:
+            # print(f'DEBUG: {funcname()} calling super process_result')
+            # sup = super().process_result(result, request)
+            # imported_ids = [row.object_id for row in result.rows]
+            # print(f'DEBUG: {funcname()} imported_ids: {imported_ids!s}')
+
+            # if request.method == 'POST' and request.POST:
+                # request.POST = request.POST.copy() # mutable via copy
+                # request.POST.setlist('imported_ids', imported_ids)
+                # # print(f'DEBUG: req POST: {request.POST!s}')
+
+            # export_file_url = self.export_imported_file(request)
+            # from django.contrib import messages
+            # self.add_export_message(request, file_url=export_file_url)
+        # except Exception as e:
+            # print(f'ERROR: {funcname()} request copy/mod/reinstate yuckiness: {e.message!s}')
+            # # raise e
+        # finally:
+            # return self.changelist_view(request, extra_context=None)
+
+idadmin.register(BoxId, BoxIdAdmin)
+
+
+
 
