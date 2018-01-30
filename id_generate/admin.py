@@ -39,7 +39,7 @@ from .forms import (
         NucleicAcidTypeForm,
         ProjectCodeForm
         )
-from .import_data import DetailResource
+from .import_data import DetailResource, BoxIdResource
 
 # implement and register databrowse for external read-only access
 import django_databrowse
@@ -279,7 +279,7 @@ class IdChangeList(ChangeList):
 
 
 class BoxIdAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
-    resource_class = DetailResource
+    resource_class = BoxIdResource
 
     def has_delete_permission(self, request, obj=None):
         """has_delete_permission removes 'delete' admin action"""

@@ -168,17 +168,11 @@ class BoxIdResource(resources.ModelResource):
     def import_data(self, dataset, **kwargs):
         """Overridden from import_action to lock table then call super().import_data()"""
         #TODO: implement table-locking from before until after import
-        tables_need_some_lockin = [models.BoxId,
-                                   models.SampleType,
-                                   models.SequencingType,
-                                   models.NucleicAcidType,
-                                   models.ProjectCode
-                                  ]
+        tables_need_some_lockin = [ models.BoxId ]
         return super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)    
 
     def before_import(self, dataset, using_transactions=True, dry_run=False, **kwargs):
         """ Overridden to generate new JAXid values for each row to be imported. """
-        #TODO: implement table-locking from before until after import
         num_rows = dataset.height
         print('DEBUG: num_rows in dataset: {}'.format(num_rows))
 
