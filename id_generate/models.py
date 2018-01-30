@@ -166,14 +166,14 @@ class BaseIdModel(models.Model):
                 verbose_name='Sample Type', to_field='code',)
     nucleic_acid = models.ForeignKey(NucleicAcidType,
                 verbose_name='Nucleic Acid Type', to_field='code')
-    seq_type = models.ForeignKey(SequencingType,
+    sequencing_type = models.ForeignKey(SequencingType,
                 verbose_name='Sequencing Type', to_field='code')
     notes = models.TextField('Notes', blank=True, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def all_field_names():
         return (
-                'parent_id', 'project', 'sample', 'nucleic_acid', 'seq_type', 'notes',
+                'parent_id', 'name', 'project', 'sample', 'nucleic_acid', 'sequencing_type', 'notes',
                )
 
     def save(self, force_insert=False, force_update=False):
@@ -191,8 +191,8 @@ class BoxId(BaseIdModel):
                              validators=[MinLengthValidator(6)])
 
     all_field_names = (
-            'boxid', 'parent_id', 'project', 'sample',
-            'nucleic_acid', 'seq_type', 'notes',
+            'boxid', 'parent_id', 'name', 'project', 'sample',
+            'nucleic_acid', 'sequencing_type', 'notes',
             )
 
     def save(self, force_insert=False, force_update=False):

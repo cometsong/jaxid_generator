@@ -296,23 +296,23 @@ class BoxIdAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
             (None, {'fields': ['boxid', 'name']}),
             (None, {'fields': ['parent_id']}),
             (None, {'fields': ['project']}),
-            (None, {'fields': ['sample', 'nucleic_acid', 'seq_type']}),
+            (None, {'fields': ['sample', 'nucleic_acid', 'sequencing_type']}),
             (None, {'fields': ['notes']}),
             (None, {'fields': ['creation_date']}),
         )
     list_select_related = ('project', 'nucleic_acid',
-                           'seq_type', 'sample',)
+                           'sequencing_type', 'sample',)
     list_display = ( 'boxid',
                      'name',
                      'parent_id',
                      'project',
                      'sample',
                      'nucleic_acid',
-                     'seq_type',
+                     'sequencing_type',
                      'notes',
                      )
     search_fields = BoxId.all_field_names
-    list_filter = ('project', 'sample', 'nucleic_acid', 'seq_type',)
+    list_filter = ('project', 'sample', 'nucleic_acid', 'sequencing_type',)
 
     ordering = ['-creation_date']
     formats = (base_formats.XLSX,)
