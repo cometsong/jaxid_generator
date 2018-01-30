@@ -297,7 +297,6 @@ class BoxIdAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
             (None, {'fields': ['parent_id']}),
             (None, {'fields': ['project']}),
             (None, {'fields': ['sample', 'nucleic_acid', 'seq_type']}),
-            (None, {'fields': ['external_data']}),
             (None, {'fields': ['notes']}),
             (None, {'fields': ['creation_date']}),
         )

@@ -168,15 +168,12 @@ class BaseIdModel(models.Model):
                 verbose_name='Nucleic Acid Type', to_field='code')
     seq_type = models.ForeignKey(SequencingType,
                 verbose_name='Sequencing Type', to_field='code')
-    external_data = models.NullBooleanField('External data', blank=True, null=True,
-                                        default=False, help_text='(not sequenced here.)')
     notes = models.TextField('Notes', blank=True, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def all_field_names():
         return (
-                'parent_id', 'project', 'sample', 'nucleic_acid', 'seq_type',
-                'external_data', 'notes',
+                'parent_id', 'project', 'sample', 'nucleic_acid', 'seq_type', 'notes',
                )
 
     def save(self, force_insert=False, force_update=False):
@@ -189,12 +186,13 @@ class BoxId(BaseIdModel):
     class Meta:
         verbose_name_plural = 'Box ID Records'
     verbose_name = 'BoxID Record'
+
     boxid = models.CharField('BoxID', unique=True, max_length=6,
                              validators=[MinLengthValidator(6)])
 
     all_field_names = (
             'boxid', 'parent_id', 'project', 'sample',
-            'nucleic_acid', 'seq_type', 'external_data', 'notes',
+            'nucleic_acid', 'seq_type', 'notes',
             )
 
     def save(self, force_insert=False, force_update=False):
