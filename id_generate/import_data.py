@@ -158,8 +158,6 @@ class BoxIdResource(resources.ModelResource):
             widget=widgets.ForeignKeyWidget(NucleicAcidType, 'code'),)
     seq_type = fields.Field(attribute='seq_type',
             widget=widgets.ForeignKeyWidget(SequencingType, 'code'),)
-    external_data = fields.Field(attribute='external_data',
-            widget=widgets.BooleanWidget(),)
     notes = fields.Field(attribute='notes',
             widget=widgets.CharWidget(),)
 
