@@ -20,14 +20,18 @@ class SuitConfig(DjangoSuitConfig):
     # header_time_format = 'H:i e'
 
     menu = (
-            ParentItem(
-                label='JAXid Record List',
-                url=f'/{APP_NAME}/manage/id_generate/jaxiddetail',
+            ParentItem('JAX Id Record Lists',
+                use_first_child_url=True,
+                url='',
+                children=[
+                    ChildItem(label='JAXid Record List',
+                        url=f'/{APP_NAME}/manage/id_generate/jaxiddetail',
+                        ),
+                    ChildItem(label='Box Id Record List',
+                        url=f'/{APP_NAME}/manage/id_generate/boxid',
+                        ),
+                    ],
                 icon='fa fa-list-ul'),
-            # ParentItem(
-            #     label='JAXid Record List model',
-            #     model='id_generate.jaxiddetail',
-            #     icon='fa th-list'),
             ParentItem('Reference Data',
                 use_first_child_url=True,
                 url='',
@@ -43,6 +47,11 @@ class SuitConfig(DjangoSuitConfig):
                 url=f'/{APP_NAME}/manage/id_generate/jaxiddetail/import/',
                 permissions='id_generate.change_jaxiddetail',
                 icon='fa fa-rocket'),
+            ParentItem(
+                label='Generate new Box ID''s',
+                url=f'/{APP_NAME}/manage/id_generate/boxid/import/',
+                permissions='id_generate.change_boxid',
+                icon='fa fa-cube'),
             ParentItem(
                 label='Authorization',
                 children=[
