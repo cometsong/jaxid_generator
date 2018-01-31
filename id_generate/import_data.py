@@ -40,7 +40,7 @@ def row_is_empty(row_dict={}):
     return True
 
 
-def before_the_import(dataset, id_prefix='J', id_field_name='jaxid', id_model=JAXIdDetail,**kwargs):
+def check_rows_before_the_import(dataset, id_prefix='J', id_field_name='jaxid', id_model=JAXIdDetail,**kwargs):
     """ Overridden to generate new JAXid values for each row to be imported. """
     PREFIXES = 'JBP'
 
@@ -233,16 +233,15 @@ class BoxIdResource(resources.ModelResource):
         return super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)
 
     def before_import(self, dataset, using_transactions=True, dry_run=False, **kwargs):
-        print('DEBUG: in BoxIdResource.before_import, about to call outer before_import')
-
+        print('DEBUG: in BoxIdResource.before_import, about to call outer check_rows_before_the_import')
         id_prefix = 'B'
         id_field_name = 'jaxid'
         id_model = BoxId
-        before_the_import(dataset,
-                        id_prefix=id_prefix,
-                        id_field_name=id_field_name,
-                        id_model=id_model,
-                        **kwargs)
+        check_rows_before_the_import(dataset,
+                                     id_prefix=id_prefix,
+                                     id_field_name=id_field_name,
+                                     id_model=id_model,
+                                     **kwargs)
 
 
     class Meta:
