@@ -69,7 +69,8 @@ class BoxIdForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     jaxid = forms.CharField(disabled=True, max_length=6)
-    parent_id = widget=forms.TextInput()
+    parent_jaxid = widget=forms.TextInput()
+    collab_id = forms.CharField(label='Name', widget=forms.TextInput())
     class Meta:
         model = BoxId
         fields = BoxId.all_field_names

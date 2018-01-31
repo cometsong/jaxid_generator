@@ -157,15 +157,13 @@ class BaseIdModel(models.Model):
     class Meta:
         abstract = True
 
-    jaxid = models.CharField('JAXid', unique=True, max_length=6,
-                             validators=[MinLengthValidator(6)])
     parent_jaxid = models.CharField('Parent ID', blank=True, null=True,
                                  max_length=6, default='', unique=False)
     collab_id = models.TextField('Name')
-    project_code = models.ForeignKey(ProjectCode, to_field='code')
-    sample_type = models.ForeignKey(SampleType, to_field='code',)
-    nucleic_acid_type = models.ForeignKey(NucleicAcidType, to_field='code', default='Z')
-    sequencing_type = models.ForeignKey(SequencingType, to_field='code', default='Z')
+    project_code = models.ForeignKey(ProjectCode, verbose_name="Project", to_field='code')
+    sample_type = models.ForeignKey(SampleType, verbose_name="Sample", to_field='code',)
+    nucleic_acid_type = models.ForeignKey(NucleicAcidType, verbose_name="Nucleic Acid", to_field='code',)
+    sequencing_type = models.ForeignKey(SequencingType, to_field='code',)
     notes = models.TextField('Notes', blank=True, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
@@ -175,18 +173,26 @@ class BaseIdModel(models.Model):
         )
 
     def save(self, force_insert=False, force_update=False):
-        self.jaxid = self.jaxid.upper()
         self.parent_jaxid = self.parent_jaxid.upper()
+        # if self.sequencing_type == '':
+        #     self.sequencing_type = 'Z'
         self.full_clean()
         super().save(force_insert, force_update)
 
     def __str__(self):
-        return '{} ("{}", {})'.format(self.jaxid, self.collab_id, self.project_code)
+        return '{} ("{}", {})'.format(self.jaxid, self.collab_id, self.project_code.code)
 
 
 class BoxId(BaseIdModel):
     class Meta:
         verbose_name_plural = 'Box ID Records'
     verbose_name = 'BoxID Record'
+
+    jaxid = models.CharField('Box ID', unique=True, max_length=6,
+                             validators=[MinLengthValidator(6)])
+
+    def save(self, force_insert=False, force_update=False):
+        self.jaxid = self.jaxid.upper()
+        super().save(force_insert, force_update)
 
 

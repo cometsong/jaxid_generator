@@ -1,5 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
-from .models import JAXIdDetail
+from .models import JAXIdDetail, BoxId
 
 import string
 import random
@@ -40,13 +40,14 @@ class RandomID(object):
 
 
 class JAXidGenerate(object):
-    def __init__(self, prefix='J', amount=0):
+    def __init__(self, prefix='J', amount=0, id_model=ID_MODEL, id_length=ID_LENGTH):
         self.prefix = prefix
         self.amount = amount
-        self.id_model = ID_MODEL
-        self.id_length = ID_LENGTH
+        self.id_model = id_model
+        self.id_length = id_length
         self.new_id_list = []
         self.id_alphanum = False
+        print(f'DEBUG: JAXidGenerate init, prefix: {self.prefix}, model: {self.id_model.__name__}, amount: {self.amount}')
 
     def generate_random(self):
         """Use id generator and add preceding 'J' character for the
@@ -76,7 +77,7 @@ class JAXidGenerate(object):
         #       then get elem['jaxid']
         #       then slice [1:] to remove Prefix letter on each ID
         return [ d['jaxid'][1:]
-                for d in ID_MODEL.objects.values('jaxid')
+                for d in self.id_model.objects.values('jaxid')
                 if not self.id_is_control(d['jaxid'][1:]) ]
 
     def get_max_id_used(self):
@@ -87,11 +88,11 @@ class JAXidGenerate(object):
                 id_is_type = lambda item: not self.id_is_numeric(item)
             else:
                 id_is_type = lambda item: True
-            # max_id = max( ids ) # = 99999
             max_id = max( [id for id in ids if id_is_type(id)] )
+            print(f'get_max_id_used; max_id == {max_id}')
         except ValueError as ve:
             print('ERROR: ValueError in "get_max_id_used"! ' + str(ve))
-            min_id = '0'*ID_LENGTH # if table Empty
+            min_id = '0'*self.id_length # if table Empty
             max_id = min_id
         # print(f'get_max_id_used max_id: {max_id}')
         return max_id
