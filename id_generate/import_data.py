@@ -27,7 +27,7 @@ def assign_new_id(new_ids, current_ids):
     # print("current_ids: {}".format(current_ids))
     next_id = next(new_ids)
     if next_id in current_ids:
-        return self.assign_new_id(new_ids, current_ids)
+        return assign_new_id(new_ids, current_ids)
     else:
         return next_id
 
@@ -77,7 +77,7 @@ def check_rows_before_the_import(dataset, id_prefix='J', id_field_name='jaxid', 
 
         # assign new id if empty or wrong format (prefix letter)
         elif field_is_empty(row[id_field_name]) \
-                or not re.match(self.id_prefix, row[id_field_name][0]):
+                or not re.match(id_prefix, row[id_field_name][0]):
             row[id_field_name] = assign_new_id(new_ids, dataset_ids)
 
         replace_row(row_index, row)
