@@ -307,7 +307,6 @@ class BoxIdAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
                      'project_code',
                      'sample_type',
                      'nucleic_acid_type',
-                     'sequencing_type',
                      'notes',
                      )
     search_fields = BoxId.all_field_names
