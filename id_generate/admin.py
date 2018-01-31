@@ -291,28 +291,27 @@ class BoxIdAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     form = BoxIdForm
     actions_on_top = False
     actions = None
-    readonly_fields = ( 'boxid', 'creation_date' )
+    readonly_fields = ( 'jaxid', 'creation_date' )
     fieldsets = (
-            (None, {'fields': ['boxid', 'name']}),
-            (None, {'fields': ['parent_id']}),
-            (None, {'fields': ['project']}),
-            (None, {'fields': ['sample', 'nucleic_acid', 'sequencing_type']}),
+            (None, {'fields': ['jaxid', 'collab_id']}),
+            (None, {'fields': ['project_code', 'parent_jaxid']}),
+            (None, {'fields': ['sample_type', 'nucleic_acid_type', 'sequencing_type']}),
             (None, {'fields': ['notes']}),
             (None, {'fields': ['creation_date']}),
         )
-    list_select_related = ('project', 'nucleic_acid',
-                           'sequencing_type', 'sample',)
-    list_display = ( 'boxid',
-                     'name',
-                     'parent_id',
-                     'project',
-                     'sample',
-                     'nucleic_acid',
+    list_select_related = ('project_code', 'nucleic_acid_type',
+                           'sequencing_type', 'sample_type',)
+    list_display = ( 'jaxid',
+                     'collab_id',
+                     'parent_jaxid',
+                     'project_code',
+                     'sample_type',
+                     'nucleic_acid_type',
                      'sequencing_type',
                      'notes',
                      )
     search_fields = BoxId.all_field_names
-    list_filter = ('project', 'sample', 'nucleic_acid', 'sequencing_type',)
+    list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
 
     ordering = ['-creation_date']
     formats = (base_formats.XLSX,)

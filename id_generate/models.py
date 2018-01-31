@@ -157,29 +157,31 @@ class BaseIdModel(models.Model):
     class Meta:
         abstract = True
 
-    parent_id = models.CharField('Parent id', blank=True, null=True,
+    jaxid = models.CharField('JAXid', unique=True, max_length=6,
+                             validators=[MinLengthValidator(6)])
+    parent_jaxid = models.CharField('Parent ID', blank=True, null=True,
                                  max_length=6, default='', unique=False)
-    name = models.TextField('Name')
-    project = models.ForeignKey(ProjectCode,
-                verbose_name='Project', to_field='code')
-    sample = models.ForeignKey(SampleType,
-                verbose_name='Sample Type', to_field='code',)
-    nucleic_acid = models.ForeignKey(NucleicAcidType,
-                verbose_name='Nucleic Acid Type', to_field='code')
-    sequencing_type = models.ForeignKey(SequencingType,
-                verbose_name='Sequencing Type', to_field='code')
+    collab_id = models.TextField('Name')
+    project_code = models.ForeignKey(ProjectCode, to_field='code')
+    sample_type = models.ForeignKey(SampleType, to_field='code',)
+    nucleic_acid_type = models.ForeignKey(NucleicAcidType, to_field='code', default='Z')
+    sequencing_type = models.ForeignKey(SequencingType, to_field='code', default='Z')
     notes = models.TextField('Notes', blank=True, null=True)
     creation_date = models.DateTimeField(auto_now_add=True)
 
-    def all_field_names():
-        return (
-                'parent_id', 'name', 'project', 'sample', 'nucleic_acid', 'sequencing_type', 'notes',
-               )
+    all_field_names = (
+        'jaxid', 'parent_jaxid', 'collab_id', 'project_code',
+        'sample_type', 'nucleic_acid_type', 'sequencing_type', 'notes',
+        )
 
     def save(self, force_insert=False, force_update=False):
-        self.parent_id = self.parent_id.upper()
+        self.jaxid = self.jaxid.upper()
+        self.parent_jaxid = self.parent_jaxid.upper()
         self.full_clean()
         super().save(force_insert, force_update)
+
+    def __str__(self):
+        return '{} ("{}", {})'.format(self.jaxid, self.collab_id, self.project_code)
 
 
 class BoxId(BaseIdModel):
@@ -187,17 +189,4 @@ class BoxId(BaseIdModel):
         verbose_name_plural = 'Box ID Records'
     verbose_name = 'BoxID Record'
 
-    boxid = models.CharField('BoxID', unique=True, max_length=6,
-                             validators=[MinLengthValidator(6)])
 
-    all_field_names = (
-            'boxid', 'parent_id', 'name', 'project', 'sample',
-            'nucleic_acid', 'sequencing_type', 'notes',
-            )
-
-    def save(self, force_insert=False, force_update=False):
-        self.boxid = self.boxid.upper()
-        super().save(force_insert, force_update)
-
-    def __str__(self):
-        return '{} ("{}", {})'.format(self.boxid, self.name, self.project)
