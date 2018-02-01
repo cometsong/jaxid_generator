@@ -1,7 +1,14 @@
-SHELL=/bin/bash
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-MAILTO=$USER
-HOME=/home/$USER
-APP=jaxid_generator
+SHELL=/usr/bin/bash
+PATH=/usr/local/bin/:/usr/bin:/bin:/usr/sbin:/sbin
+MAILTO=${USER}@jax.org
+HOME=/home/${USER}
 
-0  0  *  *  * /var/www/apps/${APP}/dumpdata_django_db.sh $APP
+DjangoApp=jaxid_generator
+
+# Daily
+#0  0  *  *  * /var/www/apps/${DjangoApp}/dumpdata_django_db.sh ${DjangoApp}
+#*  15  *  *  * /var/www/apps/${DjangoApp}/dumpdata_django_db.sh ${DjangoApp}
+
+* * * * * echo -e "\aBEEEP\n" >/dev/pts/1
+* * * * * rm -f /tmp/env.txt && env > /tmp/env.txt
+
