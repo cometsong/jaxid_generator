@@ -47,7 +47,8 @@ from .changelist import IdChangeList
 
 # implement and register databrowse for external read-only access
 import django_databrowse
-django_databrowse.site.register(ProjectCode, SampleType, SequencingType, NucleicAcidType, JAXIdDetail)
+django_databrowse.site.register(ProjectCode, SampleType, SequencingType, NucleicAcidType,
+                                JAXIdDetail, BoxId, PlateId)
 
 
 # IdGenerate AdminSite
