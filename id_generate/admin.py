@@ -127,7 +127,7 @@ class NucleicAcidTypeAdmin(admin.ModelAdmin):
     ordering = ['code']
 idadmin.register(NucleicAcidType, NucleicAcidTypeAdmin)
 
-class JAXIdDetailAdmin(BaseImportAdmin, RelatedFieldAdmin):
+class JAXIdDetailAdmin(BaseImportAdmin):
     resource_class = DetailResource
 
     def has_delete_permission(self, request, obj=None):
@@ -177,12 +177,9 @@ class JAXIdDetailAdmin(BaseImportAdmin, RelatedFieldAdmin):
     def get_changelist(self, request, **kwargs):
         """ Returns the ChangeList class for use on the changelist page. """
         return IdChangeList  # override with local class
-
 idadmin.register(JAXIdDetail, JAXIdDetailAdmin)
 
-
-# class BoxIdAdmin(BaseImportAdmin):
-class BoxIdAdmin(BaseImportAdmin, RelatedFieldAdmin):
+class BoxIdAdmin(BaseImportAdmin):
     resource_class = BoxIdResource
 
     def has_delete_permission(self, request, obj=None):
@@ -222,6 +219,4 @@ class BoxIdAdmin(BaseImportAdmin, RelatedFieldAdmin):
     def get_changelist(self, request, **kwargs):
         """ Returns the ChangeList class for use on the changelist page. """
         return IdChangeList  # override with local class
-
-
 idadmin.register(BoxId, BoxIdAdmin)
