@@ -1,4 +1,5 @@
 import os
+import re
 import pprint
 
 from django.conf import settings
@@ -24,6 +25,8 @@ from generator.utils import admin_changelist_link, funcname
 
 from .models import (
         JAXIdDetail,
+        BoxId,
+        PlateId,
         SampleType,
         SequencingType,
         NucleicAcidType,
@@ -31,19 +34,26 @@ from .models import (
         )
 from .forms import (
         JAXIdDetailForm,
+        BoxIdForm,
+        PlateIdForm,
         SequencingForm,
         SampleForm,
         NucleicAcidTypeForm,
         ProjectCodeForm
         )
-from .import_data import DetailResource
+from .import_data import DetailResource, BoxIdResource, PlateIdResource
+from .admin_import_mixin import BaseImportAdmin
+from .changelist import IdChangeList
 
 # implement and register databrowse for external read-only access
 import django_databrowse
-django_databrowse.site.register(ProjectCode, SampleType, SequencingType, NucleicAcidType, JAXIdDetail)
+django_databrowse.site.register(ProjectCode, SampleType, SequencingType, NucleicAcidType,
+                                JAXIdDetail, BoxId, PlateId)
 
 
 # IdGenerate AdminSite
+from django.utils.text import capfirst
+from django.urls import NoReverseMatch, reverse
 class IdGenAdminSite(AdminSite):
     site_header = 'Mbiome Core JAXid Tracking Administration'
     site_title = 'Mbiome Core JAXid Tracking'
@@ -51,22 +61,112 @@ class IdGenAdminSite(AdminSite):
     index_title = 'JAXid Generator'
     site_url = None
 
+    def _build_app_dict(self, request, label=None):
+        """
+        Overridden to use 'display_order for both Apps and Models'
+
+        Builds the app dictionary. Takes an optional label parameters to filter
+        models of a specific app.
+        """
+        app_dict = {}
+
+        if label:
+            models = {
+                m: m_a for m, m_a in self._registry.items()
+                if m._meta.app_label == label
+            }
+        else:
+            models = self._registry
+
+        for model, model_admin in models.items():
+            app_label = model._meta.app_label
+
+            has_module_perms = model_admin.has_module_permission(request)
+            if not has_module_perms:
+                continue
+
+            perms = model_admin.get_model_perms(request)
+
+            # Check whether user has any perm for this module.
+            # If so, add the module to the model_list.
+            if True not in perms.values():
+                continue
+
+            info = (app_label, model._meta.model_name)
+            model_dict = {
+                'name': capfirst(model._meta.verbose_name_plural),
+                'display_order': model.display_order,
+                'object_name': model._meta.object_name,
+                'perms': perms,
+            }
+            if perms.get('change'):
+                try:
+                    model_dict['admin_url'] = reverse('admin:%s_%s_changelist' % info, current_app=self.name)
+                except NoReverseMatch:
+                    pass
+            if perms.get('add'):
+                try:
+                    model_dict['add_url'] = reverse('admin:%s_%s_add' % info, current_app=self.name)
+                except NoReverseMatch:
+                    pass
+
+            if app_label in app_dict:
+                app_dict[app_label]['models'].append(model_dict)
+            else:
+                app_dict[app_label] = {
+                    'name': apps.get_app_config(app_label).verbose_name,
+                    'app_label': app_label,
+                    'display_order': model.display_order,
+                    'app_url': reverse(
+                        'admin:app_list',
+                        kwargs={'app_label': app_label},
+                        current_app=self.name,
+                    ),
+                    'has_module_perms': has_module_perms,
+                    'models': [model_dict],
+                }
+
+        if label:
+            return app_dict.get(label)
+        return app_dict
+
+    def get_app_list(self, request):
+        """
+        Returns a sorted list of all the installed apps that have been
+        registered in this site.
+        """
+        app_dict = self._build_app_dict(request)
+
+        # Sort the apps alphabetically.
+        app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
+
+        # Sort the models by display_order within each app.
+        for app in app_list:
+            app['models'].sort(key=lambda x: x['display_order'])
+
+        return app_list
+
 idadmin = IdGenAdminSite()
 
 admin.site.unregister(User)
-admin.site.unregister(Group)
-# UserAdmin.list_filter = ['is_staff'] #TODO: redefine list_filter to make default is_staff=Yes
-# UserAdmin.verbose_name = 'Staff' #TODO: mod breadcrumbs and url of 'users' to 'staff'
+User.display_order = 1
+User._meta.verbose_name = 'Staff'
+User._meta.verbose_name_plural = 'Staff Members'
 UserAdmin.list_display = ('username', 'first_name', 'last_name',
                           'is_active', 'is_superuser',)
 idadmin.register(User, UserAdmin)
+
+admin.site.unregister(Group)
+Group.display_order = 2
 idadmin.register(Group, GroupAdmin)
 
+LogEntry.display_order = 3
 idadmin.register(LogEntry, LogEntryAdmin)
 
 # from django.contrib.auth.models import Permission
 # idadmin.register(Permission)
 
+Session.display_order = 1
 class SessionAdmin(admin.ModelAdmin):
     def _session_data(self, obj):
         return pprint.pformat(obj.get_decoded()).replace('\n', '<br>\n')
@@ -122,7 +222,7 @@ class NucleicAcidTypeAdmin(admin.ModelAdmin):
     ordering = ['code']
 idadmin.register(NucleicAcidType, NucleicAcidTypeAdmin)
 
-class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
+class JAXIdDetailAdmin(BaseImportAdmin):
     resource_class = DetailResource
 
     def has_delete_permission(self, request, obj=None):
@@ -144,10 +244,11 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
             (None, {'fields': ['notes']}),
             (None, {'fields': ['creation_date']}),
         )
-    list_select_related = ('project_code', 'nucleic_acid_type', 'sequencing_type', 'sample_type',)
+    list_select_related = ('project_code', 'nucleic_acid_type',
+                           'sequencing_type', 'sample_type',)
     list_display = ( 'jaxid',
                      'parent_jaxid',
-                     'project_code_subset',
+                     'project_code_code',
                      'collab_id',
                      'sample_type_code',
                      'nucleic_acid_type_code',
@@ -163,116 +264,96 @@ class JAXIdDetailAdmin(ImportExportModelAdmin, RelatedFieldAdmin):
     ordering = ['-creation_date']
     formats = (base_formats.XLSX,)
 
-    @admin_changelist_link('project_code', 'Project',
-            query_string=lambda j: 'project_code__exact={}'.format(j.project_code.code))
-    def project_code_subset(self, project_code):
-        return project_code.code
-
     JAXIdDetail.project_code_code.admin_order_field = 'project_code'
     JAXIdDetail.nucleic_acid_type_code.admin_order_field = 'nucleic_acid_type'
     JAXIdDetail.sequencing_type_code.admin_order_field = 'sequencing_type'
     JAXIdDetail.sample_type_code.admin_order_field = 'sample_type'
 
+    def get_changelist(self, request, **kwargs):
+        """ Returns the ChangeList class for use on the changelist page. """
+        return IdChangeList  # override with local class
+idadmin.register(JAXIdDetail, JAXIdDetailAdmin)
 
-    def export_imported_file(self, request, *args, **kwargs):
-        try:
-            print(f'DEBUG: {funcname()} beginning')
-            input_format = request.POST.get('input_format')
-            orig_filename = request.POST.get('original_file_name')
-            new_name_prefix = 'generated'
-            export_filename = '_'.join([new_name_prefix, orig_filename])
-            print(f'DEBUG: {funcname()} - format: {input_format}, export_name: {export_filename}')
+class BoxIdAdmin(BaseImportAdmin):
+    resource_class = BoxIdResource
 
-            formats = self.get_export_formats()
-            file_format = formats[int(input_format)]()
-            # print(f'DEBUG: {funcname()} file_format: {file_format!s}')
+    def has_delete_permission(self, request, obj=None):
+        """has_delete_permission removes 'delete' admin action"""
+        return False
+    def has_add_permission(self, request):
+        """has_add_permission removes the individual 'add' admin action"""
+        return False
 
-            queryset = self.get_export_queryset(request)
-            # print(f'DEBUG: {funcname()} queryset: {queryset!s}')
+    form = BoxIdForm
+    actions_on_top = False
+    actions = None
+    readonly_fields = ( 'jaxid', 'creation_date' )
+    fieldsets = (
+            (None, {'fields': ['jaxid', 'collab_id']}),
+            (None, {'fields': ['project_code', 'parent_jaxid']}),
+            (None, {'fields': ['sample_type', 'nucleic_acid_type', 'sequencing_type']}),
+            (None, {'fields': ['notes']}),
+            (None, {'fields': ['creation_date']}),
+        )
+    list_select_related = ('project_code', 'nucleic_acid_type',
+                           'sequencing_type', 'sample_type',)
+    list_display = ( 'jaxid',
+                     'collab_id',
+                     'parent_jaxid',
+                     'project_code',
+                     'sample_type',
+                     'nucleic_acid_type',
+                     'notes',
+                     )
+    search_fields = BoxId.all_field_names
+    list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
 
-            export_data = self.get_export_data(file_format, queryset, request=request)
-            # print(f'DEBUG: {funcname()} dataset length: {len(export_data)!s}')
-            file_baseurl = settings.IMPORTED_FILE_PATH
-            file_basepath = os.path.join(settings.HTML_DIR, settings.IMPORTED_FILE_PATH)
-            filepath = os.path.join(file_basepath, export_filename)
-            fileurl = os.path.join('/', file_baseurl, export_filename)
-            # print(f'DEBUG: {funcname()} filepath: {filepath!s}')
-            # print(f'DEBUG: {funcname()} fileurl: {fileurl!s}')
-            with open(filepath, 'wb') as exp:
-                exp.write(export_data)
-        except Exception as e:
-            print(f'ERROR: {funcname()}: {e.message!s}')
-            # raise e
-        finally:
-            return fileurl
-
-
-    def add_export_message(self, request, file_url=None):
-        opts = self.model._meta
-        if file_url:
-            filename = os.path.basename(file_url)
-            export_message = f'The ids imported into {opts.verbose_name_plural}, can <em>now</em> be ' \
-                             f'downloaded with this link: <a href={file_url!s}>"{filename}"</a>'
-            messages.info(request, export_message)
-
+    ordering = ['-creation_date']
+    formats = (base_formats.XLSX,)
 
     def get_changelist(self, request, **kwargs):
         """ Returns the ChangeList class for use on the changelist page. """
         return IdChangeList  # override with local class
+idadmin.register(BoxId, BoxIdAdmin)
 
+class PlateIdAdmin(BaseImportAdmin):
+    resource_class = PlateIdResource
 
-    # override import-export admin method to redirect to immediate export url post-import
-    def process_result(self, result, request):
-        print(f'DEBUG: entering overridden process_result')
-        try:
-            print(f'DEBUG: {funcname()} calling super process_result')
-            sup = super().process_result(result, request)
-            imported_ids = [row.object_id for row in result.rows]
-            print(f'DEBUG: {funcname()} imported_ids: {imported_ids!s}')
+    def has_delete_permission(self, request, obj=None):
+        """has_delete_permission removes 'delete' admin action"""
+        return False
+    def has_add_permission(self, request):
+        """has_add_permission removes the individual 'add' admin action"""
+        return False
 
-            if request.method == 'POST' and request.POST:
-                request.POST = request.POST.copy() # mutable via copy
-                request.POST.setlist('imported_ids', imported_ids)
-                # print(f'DEBUG: req POST: {request.POST!s}')
+    form = PlateIdForm
+    actions_on_top = False
+    actions = None
+    readonly_fields = ( 'jaxid', 'creation_date' )
+    fieldsets = (
+            (None, {'fields': ['jaxid', 'collab_id']}),
+            (None, {'fields': ['project_code', 'parent_jaxid']}),
+            (None, {'fields': ['sample_type', 'nucleic_acid_type', 'sequencing_type']}),
+            (None, {'fields': ['notes']}),
+            (None, {'fields': ['creation_date']}),
+        )
+    list_select_related = ('project_code', 'nucleic_acid_type',
+                           'sequencing_type', 'sample_type',)
+    list_display = ( 'jaxid',
+                     'collab_id',
+                     'parent_jaxid',
+                     'project_code',
+                     'sample_type',
+                     'nucleic_acid_type',
+                     'notes',
+                     )
+    search_fields = PlateId.all_field_names
+    list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
 
-            export_file_url = self.export_imported_file(request)
-            from django.contrib import messages
-            self.add_export_message(request, file_url=export_file_url)
-        except Exception as e:
-            print(f'ERROR: {funcname()} request copy/mod/reinstate yuckiness: {e.message!s}')
-            # raise e
-        finally:
-            return self.changelist_view(request, extra_context=None)
+    ordering = ['-creation_date']
+    formats = (base_formats.XLSX,)
 
-idadmin.register(JAXIdDetail, JAXIdDetailAdmin)
-
-
-
-class IdChangeList(ChangeList):
-    """ Override default Changelist to check for request attr 'imported_ids' """
-
-    def get_queryset(self, request):
-        """ Returns queryset. Default implementation respects applied search and filters.
-        This override returns request attr 'imported_queryset' if exists
-        """
-        try:
-            qs = super().get_queryset(request)
-            # print(f'DEBUG: {settings.APP_NAME}: qs - super_qset length: {qs.count()}')
-            # print(f'DEBUG: {funcname()} - getting qset_attr')
-            pks_attr = request.POST.getlist('imported_ids')
-            if pks_attr:
-                print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
-                print(f'DEBUG: {funcname()} - filtering qset super')
-                qs = qs.filter(pk__in=pks_attr).reverse()
-        except Exception as e:
-            print(f'ERROR: {funcname()} - Exception: {e.response}')
-        finally:
-            # print(f'DEBUG: {funcname()} - qset length: {qs.count()}')
-            return qs
-
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        # qs = self.get_queryset(request) #AttributeError
-        # self.queryset = self.get_queryset(request) #NameError requeset not defined
-
+    def get_changelist(self, request, **kwargs):
+        """ Returns the ChangeList class for use on the changelist page. """
+        return IdChangeList  # override with local class
+idadmin.register(PlateId, PlateIdAdmin)

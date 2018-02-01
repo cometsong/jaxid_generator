@@ -1,4 +1,7 @@
 from django.db import models
+from django.core.validators import MinLengthValidator
+
+display_order = 1
 
 class BaseRefModel(models.Model):
     code = models.CharField(max_length=1, blank=False, unique=True,)
@@ -25,19 +28,9 @@ class BaseRefModel(models.Model):
         super().save(force_insert, force_update)
 
 
-class SequencingType(BaseRefModel):
-    code = models.CharField(
-            max_length=1, blank=False,
-            help_text="Sequence type identifiying code (1 char).",
-            unique=True,
-            )
-    details = models.TextField(blank=False,
-            help_text="Sequencing type detailed name."
-            )
-
-
 class ProjectCode(BaseRefModel):
     verbose_name = 'Project'
+    display_order = 4
     code = models.CharField(
             max_length=4, blank=False,
             help_text="Project ID code (4 chars).",
@@ -51,6 +44,7 @@ class ProjectCode(BaseRefModel):
 
 
 class SampleType(BaseRefModel):
+    display_order = 5
     code = models.CharField(
             max_length=2, blank=False,
             help_text="Sample type identifiying code (2 chars).",
@@ -62,6 +56,7 @@ class SampleType(BaseRefModel):
 
 
 class NucleicAcidType(BaseRefModel):
+    display_order = 6
     code = models.CharField(
             max_length=20, blank=False,
             help_text="Nucleic acid type identifiying code.",
@@ -76,13 +71,26 @@ class NucleicAcidType(BaseRefModel):
         super().save(force_insert, force_update)
 
 
+class SequencingType(BaseRefModel):
+    display_order = 7
+    code = models.CharField(
+            max_length=1, blank=False,
+            help_text="Sequence type identifiying code (1 char).",
+            unique=True,
+            )
+    details = models.TextField(blank=False,
+            help_text="Sequencing type detailed name."
+            )
+
+
 class JAXIdDetail(models.Model):
     class Meta:
         verbose_name_plural = 'JAXid Detail Records'
     verbose_name = 'JAXid Detail'
+    display_order = 1
 
-    jaxid = models.CharField('JAXid',
-            max_length=6, unique=True,
+    jaxid = models.CharField('JAXid', max_length=6,
+            unique=True, validators=[MinLengthValidator(6)],
             # help_text="A unique ID string for every sample.",
             )
     parent_jaxid = models.CharField('Parent JAXid',
@@ -150,3 +158,63 @@ class JAXIdDetail(models.Model):
 
     def __str__(self):
         return '{} ({}, {})'.format(self.jaxid, self.project_code_code(), self.collab_id)
+
+
+class BaseIdModel(models.Model):
+    class Meta:
+        abstract = True
+
+    parent_jaxid = models.CharField('Parent ID', blank=True, null=True,
+                                 max_length=6, default='', unique=False)
+    collab_id = models.TextField('Name')
+    project_code = models.ForeignKey(ProjectCode, verbose_name="Project", to_field='code')
+    sample_type = models.ForeignKey(SampleType, verbose_name="Sample", to_field='code',)
+    nucleic_acid_type = models.ForeignKey(NucleicAcidType, verbose_name="Nucleic Acid", to_field='code',)
+    sequencing_type = models.ForeignKey(SequencingType, to_field='code',)
+    notes = models.TextField('Notes', blank=True, null=True)
+    creation_date = models.DateTimeField(auto_now_add=True)
+
+    all_field_names = (
+        'jaxid', 'parent_jaxid', 'collab_id', 'project_code',
+        'sample_type', 'nucleic_acid_type', 'sequencing_type', 'notes',
+        )
+
+    def save(self, force_insert=False, force_update=False):
+        self.parent_jaxid = self.parent_jaxid.upper()
+        # if self.sequencing_type == '':
+        #     self.sequencing_type = 'Z'
+        self.full_clean()
+        super().save(force_insert, force_update)
+
+    def __str__(self):
+        return '{} ("{}", {})'.format(self.jaxid, self.collab_id, self.project_code.code)
+
+
+class BoxId(BaseIdModel):
+    class Meta(BaseIdModel.Meta):
+        verbose_name_plural = 'Box ID Records'
+    verbose_name = 'BoxID Record'
+    display_order = 2
+
+    jaxid = models.CharField('Box ID', unique=True, max_length=6,
+                             validators=[MinLengthValidator(6)])
+
+    def save(self, force_insert=False, force_update=False):
+        self.jaxid = self.jaxid.upper()
+        super().save(force_insert, force_update)
+
+
+class PlateId(BaseIdModel):
+    class Meta(BaseIdModel.Meta):
+        verbose_name_plural = 'Plate ID Records'
+    verbose_name = 'PlateID Record'
+    display_order = 3
+
+    jaxid = models.CharField('Plate ID', unique=True, max_length=6,
+                             validators=[MinLengthValidator(6)])
+
+    def save(self, force_insert=False, force_update=False):
+        self.jaxid = self.jaxid.upper()
+        super().save(force_insert, force_update)
+
+
