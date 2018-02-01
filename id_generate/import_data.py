@@ -112,21 +112,9 @@ class BaseImportExportResource(resources.ModelResource):
     skip_unchanged = True
     report_skipped = True
 
-    def import_data(self, dataset, **kwargs):
-        """Overridden from import_action to lock table then call super().import_data()"""
-        tables_need_some_lockin = []
-        return super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)
-
-    def before_import(self, dataset, using_transactions=True, dry_run=False, **kwargs):
-        return False # Must be overriden in child classes
-
     class Meta:
-        model = JAXIdDetail
-        import_id_fields = ( 'jaxid', )
-        fields = model.all_field_names()
-        export_order = fields
-        all_fields = ( fields, )
-        import_format = None
+        abstract = True
+
 
 """ImportExport Resource"""
 class DetailResource(BaseImportExportResource):
