@@ -94,8 +94,10 @@ def used_indexes(query, using=DEFAULT_DB_ALIAS):
     """
     Given SQL 'query', run EXPLAIN and return the names of the indexes used
     """
-    with connections[using].cursor() as cursor:
+    connection = connections[using]
+    with connection.cursor() as cursor:
         cursor.execute("EXPLAIN " + query)
+
         return {row['key'] for row in fetchall_dicts(cursor)
                 if row['key'] is not None}
 
