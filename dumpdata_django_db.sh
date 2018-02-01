@@ -84,14 +84,14 @@ else
     File=""
 fi
 
-print Emailing the backup results or error msg....
+print "Emailing the backup results or error msg...."
 
-echo "${Msg}" | \
-mail ${File}    \
--s "${Subj}"    \
-${EmailTo}
+echo "${Msg}" |  \
+    mail ${File} \
+    -s "${Subj}" \
+    ${EmailTo}
 
-print DB Backup Script completed
+print "DB Backup Script completed"
 
 
 # vim: ft=sh fdm=marker:
