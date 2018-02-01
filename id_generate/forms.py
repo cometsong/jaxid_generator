@@ -14,7 +14,6 @@ from .models import (
         ProjectCode
         )
 
-ID_DETAIL_FIELDS = JAXIdDetail.all_field_names()
 
 class SampleForm(forms.ModelForm):
     class Meta:
@@ -50,31 +49,25 @@ class NucleicAcidTypeForm(forms.ModelForm):
             'details': forms.TextInput(attrs={'size':'100'})
             }
 
-class JAXIdDetailForm(forms.ModelForm):
+class BaseIdForm(forms.ModelForm):
     error_css_class = 'error'
     required_css_class = 'required'
     jaxid = forms.CharField(disabled=True, max_length=6)
     parent_jaxid = widget=forms.TextInput()
-    collab_id = forms.CharField(label='Collaborator ID', widget=forms.TextInput())
     class Meta:
-        model = JAXIdDetail
-        # readonly_fields = ( 'jaxid' ),
-        fields = ( ID_DETAIL_FIELDS )
+        abstract = True
+        fields = '__all__'
         widgets = {
                    'project_code': Select2Widget,
                    'notes': AutosizedTextarea,
                   }
 
+class JAXIdDetailForm(forms.ModelForm):
+    collab_id = forms.CharField(label='Collaborator ID', widget=forms.TextInput())
+    class Meta(BaseIdForm.Meta):
+        model = JAXIdDetail
+
 class BoxIdForm(forms.ModelForm):
-    error_css_class = 'error'
-    required_css_class = 'required'
-    jaxid = forms.CharField(disabled=True, max_length=6)
-    parent_jaxid = widget=forms.TextInput()
     collab_id = forms.CharField(label='Name', widget=forms.TextInput())
-    class Meta:
+    class Meta(BaseIdForm.Meta):
         model = BoxId
-        fields = BoxId.all_field_names
-        widgets = {
-                   'project_code': Select2Widget,
-                   'notes': AutosizedTextarea,
-                  }
