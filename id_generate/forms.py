@@ -8,6 +8,7 @@ from django_select2.forms import Select2Widget
 from .models import (
         JAXIdDetail,
         BoxId,
+        PlateId,
         SampleType,
         SequencingType,
         NucleicAcidType,
@@ -71,3 +72,9 @@ class BoxIdForm(forms.ModelForm):
     collab_id = forms.CharField(label='Name', widget=forms.TextInput())
     class Meta(BaseIdForm.Meta):
         model = BoxId
+
+class PlateIdForm(forms.ModelForm):
+    collab_id = forms.CharField(label='Name', widget=forms.TextInput())
+    class Meta(BaseIdForm.Meta):
+        model = PlateId
+

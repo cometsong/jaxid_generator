@@ -10,6 +10,7 @@ from . import models
 from .models import (
         JAXIdDetail,
         BoxId,
+        PlateId,
         SampleType,
         SequencingType,
         NucleicAcidType,
@@ -183,6 +184,35 @@ class BoxIdResource(BaseImportExportResource):
 
     class Meta:
         model = BoxId
+        import_id_fields = ( 'jaxid', )
+        fields = model.all_field_names
+        export_order = list(fields)
+        all_fields = fields,
+        import_format = None
+
+
+"""ImportExport Resource"""
+class PlateIdResource(BaseImportExportResource):
+
+    def import_data(self, dataset, **kwargs):
+        """Overridden from import_action to lock table then call super().import_data()"""
+        print(f'DEBUG: in PlateIdResource.{funcname()}, about to do table locking super')
+        tables_need_some_lockin = [ models.PlateId ]
+        return super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)
+
+    def before_import(self, dataset, using_transactions=True, dry_run=False, **kwargs):
+        print('DEBUG: in PlateIdResource.before_import, about to call outer check_rows_before_the_import')
+        id_prefix = 'P'
+        id_field_name = 'jaxid'
+        id_model = PlateId
+        check_rows_before_the_import(dataset,
+                                     id_prefix=id_prefix,
+                                     id_field_name=id_field_name,
+                                     id_model=id_model,
+                                     **kwargs)
+
+    class Meta:
+        model = PlateId
         import_id_fields = ( 'jaxid', )
         fields = model.all_field_names
         export_order = list(fields)

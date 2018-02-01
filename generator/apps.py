@@ -30,6 +30,9 @@ class SuitConfig(DjangoSuitConfig):
                     ChildItem(label='Box Id Record List',
                         url=f'/{APP_NAME}/manage/id_generate/boxid',
                         ),
+                    ChildItem(label='Plate Id Record List',
+                        url=f'/{APP_NAME}/manage/id_generate/plateid',
+                        ),
                     ],
                 icon='fa fa-list-ul'),
             ParentItem('Reference Data',
@@ -52,6 +55,11 @@ class SuitConfig(DjangoSuitConfig):
                 url=f'/{APP_NAME}/manage/id_generate/boxid/import/',
                 permissions='id_generate.change_boxid',
                 icon='fa fa-cube'),
+            ParentItem(
+                label='Generate new Plate ID''s',
+                url=f'/{APP_NAME}/manage/id_generate/plateid/import/',
+                permissions='id_generate.change_plateid',
+                icon='fa fa-circle-o-notch'),
             ParentItem(
                 label='Authorization',
                 children=[

@@ -26,6 +26,7 @@ from generator.utils import admin_changelist_link, funcname
 from .models import (
         JAXIdDetail,
         BoxId,
+        PlateId,
         SampleType,
         SequencingType,
         NucleicAcidType,
@@ -34,12 +35,13 @@ from .models import (
 from .forms import (
         JAXIdDetailForm,
         BoxIdForm,
+        PlateIdForm,
         SequencingForm,
         SampleForm,
         NucleicAcidTypeForm,
         ProjectCodeForm
         )
-from .import_data import DetailResource, BoxIdResource
+from .import_data import DetailResource, BoxIdResource, PlateIdResource
 from .admin_import_mixin import BaseImportAdmin
 from .changelist import IdChangeList
 
@@ -220,3 +222,45 @@ class BoxIdAdmin(BaseImportAdmin):
         """ Returns the ChangeList class for use on the changelist page. """
         return IdChangeList  # override with local class
 idadmin.register(BoxId, BoxIdAdmin)
+
+class PlateIdAdmin(BaseImportAdmin):
+    resource_class = PlateIdResource
+
+    def has_delete_permission(self, request, obj=None):
+        """has_delete_permission removes 'delete' admin action"""
+        return False
+    def has_add_permission(self, request):
+        """has_add_permission removes the individual 'add' admin action"""
+        return False
+
+    form = PlateIdForm
+    actions_on_top = False
+    actions = None
+    readonly_fields = ( 'jaxid', 'creation_date' )
+    fieldsets = (
+            (None, {'fields': ['jaxid', 'collab_id']}),
+            (None, {'fields': ['project_code', 'parent_jaxid']}),
+            (None, {'fields': ['sample_type', 'nucleic_acid_type', 'sequencing_type']}),
+            (None, {'fields': ['notes']}),
+            (None, {'fields': ['creation_date']}),
+        )
+    list_select_related = ('project_code', 'nucleic_acid_type',
+                           'sequencing_type', 'sample_type',)
+    list_display = ( 'jaxid',
+                     'collab_id',
+                     'parent_jaxid',
+                     'project_code',
+                     'sample_type',
+                     'nucleic_acid_type',
+                     'notes',
+                     )
+    search_fields = PlateId.all_field_names
+    list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
+
+    ordering = ['-creation_date']
+    formats = (base_formats.XLSX,)
+
+    def get_changelist(self, request, **kwargs):
+        """ Returns the ChangeList class for use on the changelist page. """
+        return IdChangeList  # override with local class
+idadmin.register(PlateId, PlateIdAdmin)

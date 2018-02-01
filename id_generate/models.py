@@ -184,11 +184,24 @@ class BaseIdModel(models.Model):
 
 
 class BoxId(BaseIdModel):
-    class Meta:
+    class Meta(BaseIdModel.Meta):
         verbose_name_plural = 'Box ID Records'
     verbose_name = 'BoxID Record'
 
     jaxid = models.CharField('Box ID', unique=True, max_length=6,
+                             validators=[MinLengthValidator(6)])
+
+    def save(self, force_insert=False, force_update=False):
+        self.jaxid = self.jaxid.upper()
+        super().save(force_insert, force_update)
+
+
+class PlateId(BaseIdModel):
+    class Meta(BaseIdModel.Meta):
+        verbose_name_plural = 'Plate ID Records'
+    verbose_name = 'PlateID Record'
+
+    jaxid = models.CharField('Plate ID', unique=True, max_length=6,
                              validators=[MinLengthValidator(6)])
 
     def save(self, force_insert=False, force_update=False):
