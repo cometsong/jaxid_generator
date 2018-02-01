@@ -52,6 +52,8 @@ django_databrowse.site.register(ProjectCode, SampleType, SequencingType, Nucleic
 
 
 # IdGenerate AdminSite
+from django.utils.text import capfirst
+from django.urls import NoReverseMatch, reverse
 class IdGenAdminSite(AdminSite):
     site_header = 'Mbiome Core JAXid Tracking Administration'
     site_title = 'Mbiome Core JAXid Tracking'
@@ -59,22 +61,112 @@ class IdGenAdminSite(AdminSite):
     index_title = 'JAXid Generator'
     site_url = None
 
+    def _build_app_dict(self, request, label=None):
+        """
+        Overridden to use 'display_order for both Apps and Models'
+
+        Builds the app dictionary. Takes an optional label parameters to filter
+        models of a specific app.
+        """
+        app_dict = {}
+
+        if label:
+            models = {
+                m: m_a for m, m_a in self._registry.items()
+                if m._meta.app_label == label
+            }
+        else:
+            models = self._registry
+
+        for model, model_admin in models.items():
+            app_label = model._meta.app_label
+
+            has_module_perms = model_admin.has_module_permission(request)
+            if not has_module_perms:
+                continue
+
+            perms = model_admin.get_model_perms(request)
+
+            # Check whether user has any perm for this module.
+            # If so, add the module to the model_list.
+            if True not in perms.values():
+                continue
+
+            info = (app_label, model._meta.model_name)
+            model_dict = {
+                'name': capfirst(model._meta.verbose_name_plural),
+                'display_order': model.display_order,
+                'object_name': model._meta.object_name,
+                'perms': perms,
+            }
+            if perms.get('change'):
+                try:
+                    model_dict['admin_url'] = reverse('admin:%s_%s_changelist' % info, current_app=self.name)
+                except NoReverseMatch:
+                    pass
+            if perms.get('add'):
+                try:
+                    model_dict['add_url'] = reverse('admin:%s_%s_add' % info, current_app=self.name)
+                except NoReverseMatch:
+                    pass
+
+            if app_label in app_dict:
+                app_dict[app_label]['models'].append(model_dict)
+            else:
+                app_dict[app_label] = {
+                    'name': apps.get_app_config(app_label).verbose_name,
+                    'app_label': app_label,
+                    'display_order': model.display_order,
+                    'app_url': reverse(
+                        'admin:app_list',
+                        kwargs={'app_label': app_label},
+                        current_app=self.name,
+                    ),
+                    'has_module_perms': has_module_perms,
+                    'models': [model_dict],
+                }
+
+        if label:
+            return app_dict.get(label)
+        return app_dict
+
+    def get_app_list(self, request):
+        """
+        Returns a sorted list of all the installed apps that have been
+        registered in this site.
+        """
+        app_dict = self._build_app_dict(request)
+
+        # Sort the apps alphabetically.
+        app_list = sorted(app_dict.values(), key=lambda x: x['name'].lower())
+
+        # Sort the models by display_order within each app.
+        for app in app_list:
+            app['models'].sort(key=lambda x: x['display_order'])
+
+        return app_list
+
 idadmin = IdGenAdminSite()
 
 admin.site.unregister(User)
-admin.site.unregister(Group)
-# UserAdmin.list_filter = ['is_staff'] #TODO: redefine list_filter to make default is_staff=Yes
-# UserAdmin.verbose_name = 'Staff' #TODO: mod breadcrumbs and url of 'users' to 'staff'
+User.display_order = 1
+User._meta.verbose_name = 'Staff'
+User._meta.verbose_name_plural = 'Staff Members'
 UserAdmin.list_display = ('username', 'first_name', 'last_name',
                           'is_active', 'is_superuser',)
 idadmin.register(User, UserAdmin)
+
+admin.site.unregister(Group)
+Group.display_order = 2
 idadmin.register(Group, GroupAdmin)
 
+LogEntry.display_order = 3
 idadmin.register(LogEntry, LogEntryAdmin)
 
 # from django.contrib.auth.models import Permission
 # idadmin.register(Permission)
 
+Session.display_order = 1
 class SessionAdmin(admin.ModelAdmin):
     def _session_data(self, obj):
         return pprint.pformat(obj.get_decoded()).replace('\n', '<br>\n')

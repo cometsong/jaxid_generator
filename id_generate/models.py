@@ -1,6 +1,8 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
 
+display_order = 1
+
 class BaseRefModel(models.Model):
     code = models.CharField(max_length=1, blank=False, unique=True,)
     details = models.TextField(blank=False,)
@@ -26,19 +28,9 @@ class BaseRefModel(models.Model):
         super().save(force_insert, force_update)
 
 
-class SequencingType(BaseRefModel):
-    code = models.CharField(
-            max_length=1, blank=False,
-            help_text="Sequence type identifiying code (1 char).",
-            unique=True,
-            )
-    details = models.TextField(blank=False,
-            help_text="Sequencing type detailed name."
-            )
-
-
 class ProjectCode(BaseRefModel):
     verbose_name = 'Project'
+    display_order = 4
     code = models.CharField(
             max_length=4, blank=False,
             help_text="Project ID code (4 chars).",
@@ -52,6 +44,7 @@ class ProjectCode(BaseRefModel):
 
 
 class SampleType(BaseRefModel):
+    display_order = 5
     code = models.CharField(
             max_length=2, blank=False,
             help_text="Sample type identifiying code (2 chars).",
@@ -63,6 +56,7 @@ class SampleType(BaseRefModel):
 
 
 class NucleicAcidType(BaseRefModel):
+    display_order = 6
     code = models.CharField(
             max_length=20, blank=False,
             help_text="Nucleic acid type identifiying code.",
@@ -77,10 +71,23 @@ class NucleicAcidType(BaseRefModel):
         super().save(force_insert, force_update)
 
 
+class SequencingType(BaseRefModel):
+    display_order = 7
+    code = models.CharField(
+            max_length=1, blank=False,
+            help_text="Sequence type identifiying code (1 char).",
+            unique=True,
+            )
+    details = models.TextField(blank=False,
+            help_text="Sequencing type detailed name."
+            )
+
+
 class JAXIdDetail(models.Model):
     class Meta:
         verbose_name_plural = 'JAXid Detail Records'
     verbose_name = 'JAXid Detail'
+    display_order = 1
 
     jaxid = models.CharField('JAXid', max_length=6,
             unique=True, validators=[MinLengthValidator(6)],
@@ -187,6 +194,7 @@ class BoxId(BaseIdModel):
     class Meta(BaseIdModel.Meta):
         verbose_name_plural = 'Box ID Records'
     verbose_name = 'BoxID Record'
+    display_order = 2
 
     jaxid = models.CharField('Box ID', unique=True, max_length=6,
                              validators=[MinLengthValidator(6)])
@@ -200,6 +208,7 @@ class PlateId(BaseIdModel):
     class Meta(BaseIdModel.Meta):
         verbose_name_plural = 'Plate ID Records'
     verbose_name = 'PlateID Record'
+    display_order = 3
 
     jaxid = models.CharField('Plate ID', unique=True, max_length=6,
                              validators=[MinLengthValidator(6)])
