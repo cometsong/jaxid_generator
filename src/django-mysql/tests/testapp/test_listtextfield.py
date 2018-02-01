@@ -246,23 +246,23 @@ class TestValidation(SimpleTestCase):
 class TestCheck(SimpleTestCase):
 
     def test_field_checks(self):
-        class InvalidListTextModel(TemporaryModel):
+        class InvalidListTextModel1(TemporaryModel):
             field = ListTextField(models.CharField(), max_length=32)
 
-        errors = InvalidListTextModel.check(actually_check=True)
+        errors = InvalidListTextModel1.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E004'
         assert 'Base field for list has errors' in errors[0].msg
         assert 'max_length' in errors[0].msg
 
     def test_invalid_base_fields(self):
-        class InvalidListTextModel(TemporaryModel):
+        class InvalidListTextModel2(TemporaryModel):
             field = ListTextField(
-                models.ForeignKey('testapp.Author'),
+                models.ForeignKey('testapp.Author', on_delete=models.CASCADE),
                 max_length=32
             )
 
-        errors = InvalidListTextModel.check(actually_check=True)
+        errors = InvalidListTextModel2.check(actually_check=True)
         assert len(errors) == 1
         assert errors[0].id == 'django_mysql.E005'
         assert 'Base field for list must be' in errors[0].msg
@@ -371,6 +371,13 @@ class TestSerialization(SimpleTestCase):
         objs = list(serializers.deserialize('json', test_data))
         instance = objs[0].object
         assert instance.field == ["big", "leather", "comfy"]
+
+    def test_dumping_loading_empty(self):
+        instance = BigCharListModel(field=[])
+        data = serializers.serialize('json', [instance])
+        objs = list(serializers.deserialize('json', data))
+        instance = objs[0].object
+        assert instance.field == []
 
 
 class TestDescription(SimpleTestCase):

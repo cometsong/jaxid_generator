@@ -13,7 +13,7 @@ import django
 import pytest
 from django.core.cache import CacheKeyWarning, cache, caches
 from django.core.management import CommandError, call_command
-from django.db import OperationalError, connection
+from django.db import IntegrityError, OperationalError, connection
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import (
@@ -23,7 +23,7 @@ from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.test.utils import override_settings
 from django.utils import six
 from django.utils.six.moves import StringIO
-from nose_parameterized import parameterized
+from parameterized import parameterized
 
 from django_mysql.cache import BIGINT_SIGNED_MAX, BIGINT_SIGNED_MIN, MySQLCache
 from testapp.models import Poll, expensive_calculation
@@ -103,7 +103,7 @@ def caches_setting_for_tests(options=None, **params):
     # base config for the tests.
     # This results in the following search order:
     # params -> _caches_setting_base -> base
-    setting = dict((k, {}) for k in _caches_setting_base.keys())
+    setting = {k: {} for k in _caches_setting_base.keys()}
     for key, cache_params in setting.items():
         cache_params.update(_caches_setting_base[key])
         cache_params.update(params)
@@ -846,11 +846,16 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         caches['no_cull'].get('nonexistent')
 
         with self.assertNumQueries(1):
-            caches['no_cull'].set_many({"key1": "spam"})
+            result = caches['no_cull'].set_many({"key1": "spam"})
+        assert result == []
 
         # Multiple keys can be set using set_many
         with self.assertNumQueries(1):
-            caches['no_cull'].set_many({"key1": "spam", "key2": "eggs"})
+            result = caches['no_cull'].set_many({
+                'key1': 'spam',
+                'key2': 'eggs',
+            })
+        assert result == []
         assert cache.get("key1") == "spam"
         assert cache.get("key2") == "eggs"
 
@@ -913,6 +918,11 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
             cache.key_func = old_func
 
     # Original tests
+
+    def test_base_set_bad_value(self):
+        with pytest.raises(ValueError) as excinfo:
+            cache._base_set('foo', 'key', 'value')
+        assert "'mode' should be" in str(excinfo.value)
 
     def test_add_with_expired(self):
         cache.add("mykey", "value", 0.3)
@@ -1005,13 +1015,23 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
     def test_incr_range(self):
         cache.set('overwhelm', BIGINT_SIGNED_MAX - 1)
         cache.incr('overwhelm')
-        with pytest.raises(OperationalError):
+        if django.VERSION >= (2, 0):
+            expected = IntegrityError
+        else:
+            expected = OperationalError
+        with pytest.raises(expected):
             cache.incr('overwhelm')
 
     def test_decr_range(self):
         cache.set('underwhelm', BIGINT_SIGNED_MIN + 1)
         cache.decr('underwhelm')
-        with pytest.raises(OperationalError):
+        if django.VERSION >= (2, 0):
+            # IntegrityError on MySQL 5.7+ and MariaDB,
+            # OperationalError on MySQL 5.6...
+            expected = (IntegrityError, OperationalError)
+        else:
+            expected = OperationalError
+        with pytest.raises(expected):
             cache.decr('underwhelm')
 
     def test_cant_incr_decimals(self):

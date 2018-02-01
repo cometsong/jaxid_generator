@@ -8,10 +8,20 @@ Pending
 
 .. Insert new release notes below this line
 
+2.2.0 (2017-12-04)
+------------------
+
+* Add ``output_field`` argument to ``JSONExtract`` function.
+* Improved DB version checks for ``JSONField`` and ``DynamicField`` so you can
+  have just one connection that supports them.
+* Django 2.0 compatibility.
+
 2.1.1 (2017-10-10)
 ------------------
 
 * Changed subprocess imports for compatibility with Google App Engine.
+* (Insert new release notes below this line)
+* Made ``MySQLCache.set_many`` return a list as per Django 2.0.
 
 2.1.0 (2017-06-11)
 ------------------
