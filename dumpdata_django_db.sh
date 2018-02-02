@@ -49,7 +49,7 @@ DjangoAppPath="/var/www/apps/${App}"
 BackupFile="${DjangoAppPath}/backups/${Today}.db.${App}.${Format}"
 
 #Exclusions=$(prepend_items '-e ' sessions contenttypes auth admin.logentry)
-Exclusions=$(prepend_items '-e ' sessions contenttypes auth)
+Exclusions=$(prepend_items '-e ' sessions contenttypes)
 
 EmailTo=${USER}@jax.org
 
