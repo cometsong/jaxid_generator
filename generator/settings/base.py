@@ -29,6 +29,8 @@ ALLOWED_HOSTS = [
 APP_NAME = 'jaxid_generator'
 ROOT_URLCONF = 'generator.urls'
 WSGI_APPLICATION = 'generator.wsgi.application'
+import generator
+APP_VERSION = generator.version()
 # }}}
 
 ### Database {{{

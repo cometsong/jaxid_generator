@@ -1,5 +1,5 @@
 {% extends "admin/base.html" %}
-{% load suit_tags admin_urls %}
+{% load settings suit_tags admin_urls %}
 {% block breadcrumbs %}
 {% endblock %}
 
@@ -29,6 +29,7 @@
                             {% block copyright %}
                                 Copyright &copy; <span class="hidden-md-down">2015-</span>{% now "Y" %} Microbiome Core at JAXGM
                             {% endblock %}
+                            <br>({% settings_value "APP_NAME" %} v{% settings_value "APP_VERSION" %})
                         </div>
 
                         <div class="col-xs-12 col-sm-3 text-sm-right footer-version">
