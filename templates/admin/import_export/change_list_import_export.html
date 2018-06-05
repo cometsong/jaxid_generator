@@ -1,0 +1,9 @@
+{% extends "admin/import_export/change_list.html" %}
+
+{% block object-tools-items %}
+  {% if not cl.import_results %}
+    {% include "admin/import_export/change_list_import_item.html" %}
+    {% include "admin/import_export/change_list_export_item.html" %}
+  {% endif %}
+  {{ block.super }}
+{% endblock %}

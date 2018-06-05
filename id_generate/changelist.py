@@ -18,6 +18,8 @@ class IdChangeList(ChangeList):
                 print(f'DEBUG: {funcname()} - pks_attr: {pks_attr!s}')
                 print(f'DEBUG: {funcname()} - filtering qset super')
                 qs = qs.filter(pk__in=pks_attr).reverse()
+                # flag this qs as results from most recent import
+                self.import_results = True
         except Exception as e:
             print(f'ERROR: {funcname()} - Exception: {e.response}')
         finally:
