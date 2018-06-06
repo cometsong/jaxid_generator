@@ -40,7 +40,8 @@ function prepend_items() { #{{{
 } #}}}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Variables ~~~~~
-App=${1:="jaxid_dev"}
+App=${1:="jaxid_generator"}
+DjangoAdmin=${2:-"bleopold"}
 
 Today=$(get_datestamp_ymd)
 
@@ -51,7 +52,7 @@ BackupFile="${DjangoAppPath}/backups/${Today}.db.${App}.${Format}"
 #Exclusions=$(prepend_items '-e ' sessions contenttypes auth admin.logentry)
 Exclusions=$(prepend_items '-e ' sessions contenttypes)
 
-EmailTo=${USER}@jax.org
+EmailTo=${DjangoAdmin}@jax.org
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Back Me Up! Dump Me Out! ~~~~~
 

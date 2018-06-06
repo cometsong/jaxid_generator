@@ -9,7 +9,7 @@ DjangoApp=jaxid_generator
 
 # Daily
 0  0  *  *  * /var/www/apps/${DjangoApp}/dumpdata_django_db.sh ${DjangoApp}
-#*  15  *  *  * /var/www/apps/${DjangoApp}/dumpdata_django_db.sh ${DjangoApp}
+*  15  *  *  * /var/www/apps/${DjangoApp}/dumpdata_django_db.sh ${DjangoApp}
 
 #* * * * * echo -e "\aBEEEP\n" >/dev/pts/1
 #* * * * * rm -f /tmp/env.txt && env > /tmp/env.txt
