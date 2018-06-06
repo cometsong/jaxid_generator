@@ -7,6 +7,7 @@ from django.contrib import messages
 from import_export.admin import ImportExportModelAdmin
 
 from generator.utils import funcname
+from .changelist import IdChangeList
 
 class BaseImportAdmin(ImportExportModelAdmin):
     """Abstract Base Admin mixin for generic import/export methods """
@@ -81,3 +82,7 @@ class BaseImportAdmin(ImportExportModelAdmin):
         finally:
             print(f'DEBUG: {funcname()} finally: return changelist_view')
             return self.changelist_view(request, extra_context=None)
+
+    def get_changelist(self, request, **kwargs):
+        """ Returns the ChangeList class for use on the changelist page. """
+        return IdChangeList  # override with local class

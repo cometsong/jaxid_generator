@@ -144,8 +144,10 @@ class JAXIdDetail(models.Model):
 
     def save(self, force_insert=False, force_update=False):
         self.full_clean()
-        self.jaxid = self.jaxid.upper()
-        self.parent_jaxid = self.parent_jaxid.upper()
+        if self.jaxid:
+            self.jaxid = self.jaxid.upper()
+        if self.parent_jaxid:
+            self.parent_jaxid = self.parent_jaxid.upper()
         super().save(force_insert, force_update)
 
     def all_field_names():
@@ -180,7 +182,10 @@ class BaseIdModel(models.Model):
         )
 
     def save(self, force_insert=False, force_update=False):
-        self.parent_jaxid = self.parent_jaxid.upper()
+        if self.jaxid:
+            self.jaxid = self.jaxid.upper()
+        if self.parent_jaxid:
+            self.parent_jaxid = self.parent_jaxid.upper()
         # if self.sequencing_type == '':
         #     self.sequencing_type = 'Z'
         self.full_clean()
@@ -199,10 +204,6 @@ class BoxId(BaseIdModel):
     jaxid = models.CharField('Box ID', unique=True, max_length=6,
                              validators=[MinLengthValidator(6)])
 
-    def save(self, force_insert=False, force_update=False):
-        self.jaxid = self.jaxid.upper()
-        super().save(force_insert, force_update)
-
 
 class PlateId(BaseIdModel):
     class Meta(BaseIdModel.Meta):
@@ -212,9 +213,5 @@ class PlateId(BaseIdModel):
 
     jaxid = models.CharField('Plate ID', unique=True, max_length=6,
                              validators=[MinLengthValidator(6)])
-
-    def save(self, force_insert=False, force_update=False):
-        self.jaxid = self.jaxid.upper()
-        super().save(force_insert, force_update)
 
 
