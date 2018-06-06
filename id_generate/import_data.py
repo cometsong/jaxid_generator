@@ -125,7 +125,7 @@ class DetailResource(BaseImportExportResource):
 
     def import_data(self, dataset, **kwargs):
         """Overridden from import_action to lock table then call super().import_data()"""
-        print(f'DEBUG: in BoxIdResource.{funcname()}, about to do table locking super')
+        print(f'DEBUG: in DetailResource.{funcname()}, about to do table locking super')
         tables_need_some_lockin = [ models.JAXIdDetail ]
         return super().import_data(dataset, table_locks=tables_need_some_lockin, **kwargs)
 
