@@ -40,8 +40,9 @@ function prepend_items() { #{{{
 } #}}}
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Variables ~~~~~
-App=${1:="jaxid_generator"}
+App=${1:-"jaxid_generator"}
 DjangoAdmin=${2:-"bleopold"}
+FromEmail='db_backup@mbiomecore'
 
 Today=$(get_datestamp_ymd)
 
@@ -69,11 +70,13 @@ manage.py dumpdata \
     -o ${BackupFile} \
     \
     && gzip -vf9N ${BackupFile}
+    #&& zip -m9 ${BackupFile}.zip ${BackupFile} 
 fi
 
 if [[ -f "${BackupFile}.gz" ]]; then
     print "Database dump now at: ${BackupFile}.gz"
-    Msg="Database dump attached: ${BackupFile}.gz"
+    Msg="Database dump attached:
+    ${BackupFile}.gz"
     Subj="'$App' database backup completed on ${Today}"
     File="-a ${BackupFile}.gz"
 else
@@ -85,11 +88,12 @@ else
     File=""
 fi
 
-print "Emailing the backup results or error msg...."
+print "Emailing the backup results."
 
-echo "${Msg}" |  \
-    mail ${File} \
-    -s "${Subj}" \
+echo "${Msg}" |     \
+    mail ${File}    \
+    -r ${FromEmail} \
+    -s "${Subj}"    \
     ${EmailTo}
 
 print "DB Backup Script completed"
