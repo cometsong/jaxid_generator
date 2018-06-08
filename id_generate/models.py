@@ -10,6 +10,14 @@ PARENT_ID_EXTRAS = ['RECD', 'POOL']
 
 display_order = 1
 
+class UpperCharField(models.CharField):
+    def __init__(*args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def get_prep_value(self, value):
+        return str(value).upper()
+
+
 class BaseRefModel(models.Model):
     code = models.CharField(max_length=1, blank=False, unique=True,)
     details = models.TextField(blank=False,)
