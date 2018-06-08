@@ -1,5 +1,12 @@
 from django.db import models
 from django.core.validators import MinLengthValidator
+from django.core.exceptions import ValidationError
+
+from generator.utils import funcname
+
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Global Vars ~~~~~
+# define PARENT_ID_EXTRAS list for alternative values not pre-existing JAXids
+PARENT_ID_EXTRAS = ['RECD', 'POOL']
 
 display_order = 1
 
@@ -142,13 +149,96 @@ class JAXIdDetail(models.Model):
                 'sample_type__code', 'nucleic_acid_type__code', 'sequencing_type__code',
                 )
 
+
+    def validate_parent_id(self):
+        """tests to check parent_id and corresponding parent record
+        Valid requirements:
+            - in 'extras' list OR pre-existing jaxid in db
+            - if in db:
+                - identical values in parent fields to current record
+                    (project_code, collab_id, sample_type)
+                - correct id 'type', e.g. id for library had parent extraction
+        """
+        fld = 'parent_jaxid'
+        errors = {}
+        fld_errs = []
+
+        if self.parent_jaxid:
+            print(f'DEBUG: {funcname()} - checking "{fld}"')
+            self.parent_jaxid = self.parent_jaxid.upper()
+
+            print(f'DEBUG: {funcname()} - checking "{fld}" in extras')
+            if self.parent_jaxid not in PARENT_ID_EXTRAS:
+                # fld_errs.append('{fld} not a valid known exception (RECD or POOL).')
+                try:
+                    print(f'DEBUG: {funcname()} - checking "{fld}" in db')
+                    parent_record = self.__class__.objects.values_list('jaxid').get(jaxid=self.parent_jaxid)
+                    print(f'DEBUG: {funcname()} - "{fld}" in db')
+                except self.DoesNotExist as e:
+                    print(f'DEBUG: {funcname()} - "{fld}" exception: {e}')
+                    fld_errs.append('ID not found existing in database and not RECD or POOL.')
+                else:
+                    try:
+                        print(f'DEBUG: {funcname()} - TODO "{fld}" matches data?')
+                        # check_parent_matching_data(parent_record)
+                        # fld_errs.append('Parent record does not match fields: {fields!s}')
+                        print(f'DEBUG: {funcname()} - TODO "{fld}" correct type?')
+                        # check_parent_correct_type(parent_record)
+                        # fld_errs.append('Parent record is not the correct type!')
+                        pass #TODO: other checks
+                    except Exception as e:
+                        raise e
+
+        if len(fld_errs):
+            print(f'DEBUG: {funcname()} - "{fld}" has errors')
+            errors[fld] = fld_errs
+
+        return errors
+
+
+    def clean(self):
+        """Check all id-specific fields with sanity checks
+        Make any changes (e.g. .upper) and raise ValidationError's if found.
+        """
+        errors = {}
+
+        if self.jaxid:
+            print(f'DEBUG: {funcname()} - checking "jaxid"')
+            self.jaxid = self.jaxid.upper()
+
+        if self.parent_jaxid:
+            errors.update(self.validate_parent_id())
+
+        print(f'DEBUG: {funcname()} - checking "sequencing_type" and "nucleic_acid_type"')
+        if self.sequencing_type_id != 'Z' and self.nucleic_acid_type_id == 'Z':
+            fld = 'nucleic_acid_type'
+            errors[fld] = 'Nucleic acid type must be specified if Sequencing type is known.'
+
+        print(f'DEBUG: {funcname()} - checking "external_data"')
+        if self.external_data:
+            ext_err = False
+            if self.sequencing_type_id == 'Z':
+                fld = 'sequencing_type'
+                errors[fld] = 'This is external data, seq type must be defined.'
+                ext_err = True
+            if self.nucleic_acid_type_id == 'Z':
+                fld = 'nucleic_acid_type'
+                errors[fld] = 'This is external data, nuc acid type must be defined.'
+                ext_err = True
+            if ext_err:
+                fld = 'external_data'
+                errors[fld] = 'This is external data, seq type and nuc acid type must be defined.'
+
+        # self.errors = errors #TODO: need attr self.errors for other uses?
+        if errors:
+            print(f'DEBUG: {funcname()} - errors: {errors!s}')
+            raise ValidationError(errors)
+
+
     def save(self, force_insert=False, force_update=False):
         self.full_clean()
-        if self.jaxid:
-            self.jaxid = self.jaxid.upper()
-        if self.parent_jaxid:
-            self.parent_jaxid = self.parent_jaxid.upper()
         super().save(force_insert, force_update)
+
 
     def all_field_names():
         names = (
@@ -181,15 +271,30 @@ class BaseIdModel(models.Model):
         'sample_type', 'nucleic_acid_type', 'sequencing_type', 'notes',
         )
 
-    def save(self, force_insert=False, force_update=False):
+
+    def clean(self):
+        """Check all id-specific fields.
+        Make any changes (e.g. .upper) and raise ValidationError's if found.
+        """
+        errors = {}
+
         if self.jaxid:
+            print(f'DEBUG: {funcname()} - checking "jaxid"')
             self.jaxid = self.jaxid.upper()
-        if self.parent_jaxid:
-            self.parent_jaxid = self.parent_jaxid.upper()
-        # if self.sequencing_type == '':
-        #     self.sequencing_type = 'Z'
+
+        print(f'DEBUG: {funcname()} - checking "sequencing_type" and "nucleic_acid_type"')
+        if self.sequencing_type_id != 'Z' and self.nucleic_acid_type_id == 'Z':
+            fld = 'nucleic_acid_type'
+            errors[fld] = 'Nucleic acid type must be specified if Sequencing type is known.'
+
+        if errors:
+            raise ValidationError(errors)
+
+
+    def save(self, force_insert=False, force_update=False):
         self.full_clean()
         super().save(force_insert, force_update)
+
 
     def __str__(self):
         return '{} ("{}", {})'.format(self.jaxid, self.collab_id, self.project_code.code)
@@ -213,5 +318,4 @@ class PlateId(BaseIdModel):
 
     jaxid = models.CharField('Plate ID', unique=True, max_length=6,
                              validators=[MinLengthValidator(6)])
-
 
