@@ -1,3 +1,5 @@
+import re
+
 from django.db import models
 from django.core.validators import MinLengthValidator
 from django.core.exceptions import ValidationError
@@ -7,6 +9,7 @@ from generator.utils import funcname
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Global Vars ~~~~~
 # define PARENT_ID_EXTRAS list for alternative values not pre-existing JAXids
 PARENT_ID_EXTRAS = ['RECD', 'POOL']
+ID_TYPES = ( 'specimen', 'extraction', 'library', ) # 'pool' )
 
 display_order = 1
 
@@ -158,6 +161,57 @@ class JAXIdDetail(models.Model):
                 )
 
 
+    def check_id_type(self, row=None):
+        """Determine which type of id this record holds.
+        Varying on specific field values and lack thereof.
+        Results: 'specimen', 'extraction', 'library', 'pool', 'Invalid'
+        """
+        # print(f'DEBUG: {funcname()} - assign "row"')
+        if not row:
+            row = self
+            
+        # print(f'DEBUG: {funcname()} - now get.values')
+        jaxid = row.jaxid
+        parent = row.parent_jaxid
+        sample = row.sample_type_id
+        nucleic = row.nucleic_acid_type_id
+        seqtype = row.sequencing_type_id
+        print(f'DEBUG: {funcname()} - {jaxid}, {parent}, {sample}, {nucleic}, {seqtype}')
+
+        ic = re.IGNORECASE
+        pool = re.compile('pool', flags=ic)
+        recd = re.compile('recd', flags=ic)
+        zero = re.compile('^Z$')
+
+        # print(f'DEBUG: {funcname()} - now check type options')
+        if pool.match(parent):
+            print(f'DEBUG: {funcname()} - pool')
+            return 'pool'
+        elif recd.match(parent):
+            print(f'DEBUG: {funcname()} - specimen')
+            return 'specimen'
+        elif zero.match(sample) and zero.match(nucleic) and zero.match(seqtype):
+            print(f'DEBUG: {funcname()} - invalid')
+            typ_str = 'Invalid (sample, nucleic acid and sequencing type can ' \
+                'not all be unknown as Z. At least sample must be specified.)'
+            return typ_str
+        elif zero.match(nucleic) and zero.match(seqtype):
+            print(f'DEBUG: {funcname()} - specimen')
+            return 'specimen'
+        elif zero.match(seqtype):
+            print(f'DEBUG: {funcname()} - extraction')
+            return 'extraction'
+        else: # none == 'Z'
+            print(f'DEBUG: {funcname()} - library')
+            return 'library'
+
+
+    def id_hierarchy_is_correct(self, parent_type, child_type):
+        """check parent has correct type, one up the ladder from the child type"""
+        types = ID_TYPES
+        return types.index(parent_type) == types.index(child_type) - 1
+
+
     def validate_parent_id(self):
         """tests to check parent_id and corresponding parent record
         Valid requirements:
@@ -175,25 +229,40 @@ class JAXIdDetail(models.Model):
             print(f'DEBUG: {funcname()} - checking "{fld}"')
             self.parent_jaxid = self.parent_jaxid.upper()
 
-            print(f'DEBUG: {funcname()} - checking "{fld}" in extras')
+            print(f'DEBUG: {funcname()} - checking "{fld}" in id_extras')
             if self.parent_jaxid not in PARENT_ID_EXTRAS:
-                # fld_errs.append('{fld} not a valid known exception (RECD or POOL).')
                 try:
-                    print(f'DEBUG: {funcname()} - checking "{fld}" in db')
-                    parent_record = self.__class__.objects.values_list('jaxid').get(jaxid=self.parent_jaxid)
-                    print(f'DEBUG: {funcname()} - "{fld}" in db')
+                    print(f'DEBUG: {funcname()} - checking "{fld}" is in db')
+                    parent_record = self.__class__.objects.get(jaxid=self.parent_jaxid)
+                    print(f'DEBUG: {funcname()} - "{fld}" in db: {parent_record}')
                 except self.DoesNotExist as e:
-                    print(f'DEBUG: {funcname()} - "{fld}" exception: {e}')
+                    print(f'DEBUG: {funcname()} - "{fld}" exception: {e!s}')
                     fld_errs.append('ID not found existing in database and not RECD or POOL.')
                 else:
                     try:
-                        print(f'DEBUG: {funcname()} - TODO "{fld}" matches data?')
+                        match_check_flds = ('collab_id', 'sample_type_id', 'project_code_id')
+                        mismatches = {}
+                        print(f'DEBUG: {funcname()} - "{fld}" matches data?')
                         # check_parent_matching_data(parent_record)
-                        # fld_errs.append('Parent record does not match fields: {fields!s}')
-                        print(f'DEBUG: {funcname()} - TODO "{fld}" correct type?')
-                        # check_parent_correct_type(parent_record)
-                        # fld_errs.append('Parent record is not the correct type!')
-                        pass #TODO: other checks
+                        for match_fld in match_check_flds:
+                            print(f'DEBUG: {funcname()} - get match fld attrs')
+                            this_value = str(getattr(self, match_fld, 'missing'))
+                            parent_val = str(getattr(parent_record, match_fld, 'missing'))
+                            print(f'DEBUG: {funcname()} - compare attr vals')
+                            if this_value != parent_val:
+                                fld_name = match_fld.rsplit('_id',1)[0]
+                                mismatches[fld_name] = (this_value, parent_val)
+                                # errors[fld_name] = f'Parent value ({parent_val}) does not match.'
+                        if len(mismatches):
+                            fld_errs.append(f'Parent record does not match fields: {mismatches!s}')
+
+                        print(f'DEBUG: {funcname()} - is "{fld}" correct type?')
+                        jax_id_type = self.check_id_type()
+                        parent_type = self.check_id_type(row=parent_record)
+                        if not self.id_hierarchy_is_correct(parent_type, jax_id_type):
+                            fld_errs.append('Parent record is not the correct type! '\
+                                            f'parent: {parent_type}, this one: {jax_id_type}')
+                        #TODO: other sanity checks?
                     except Exception as e:
                         raise e
 
@@ -237,7 +306,6 @@ class JAXIdDetail(models.Model):
                 fld = 'external_data'
                 errors[fld] = 'This is external data, seq type and nuc acid type must be defined.'
 
-        # self.errors = errors #TODO: need attr self.errors for other uses?
         if errors:
             print(f'DEBUG: {funcname()} - errors: {errors!s}')
             raise ValidationError(errors)
