@@ -28,6 +28,9 @@ class BaseRefModel(models.Model):
     class Meta:
         ordering = ['code']
         abstract = True
+        indexes = [
+            models.Index(fields=['code'], name='code_idx'),
+        ]
 
     def get_code(self):
         """why do i have this a separate method???"""
@@ -104,6 +107,12 @@ class SequencingType(BaseRefModel):
 class JAXIdDetail(models.Model):
     class Meta:
         verbose_name_plural = 'JAXid Detail Records'
+        indexes = [
+            models.Index(fields=['jaxid', 'parent_jaxid'], name='id_idx'),
+            models.Index(fields=['project_code', 'collab_id'], name='proj_collab_idx'),
+            models.Index(fields=['sample_type', 'sequencing_type', 'nucleic_acid_type'],
+                         name='sample_seq_nucacid_idx'),
+        ]
     verbose_name = 'JAXid Detail'
     display_order = 1
 
