@@ -278,6 +278,12 @@ class JAXIdDetail(models.Model):
         Make any changes (e.g. .upper) and raise ValidationError's if found.
         """
         errors = {}
+        def add_err(errors:dict, fld:str, err:str):
+            """append or create new err_msg for 'fld'"""
+            try:
+                errors[fld].append(err_msg)
+            except KeyError:
+                errors[fld] = [err_msg]
 
         if self.jaxid:
             print(f'DEBUG: {funcname()} - checking "jaxid"')
@@ -287,25 +293,37 @@ class JAXIdDetail(models.Model):
             errors.update(self.validate_parent_id())
 
         print(f'DEBUG: {funcname()} - checking "sequencing_type" and "nucleic_acid_type"')
-        if self.sequencing_type_id != 'Z' and self.nucleic_acid_type_id == 'Z':
-            fld = 'nucleic_acid_type'
-            errors[fld] = 'Nucleic acid type must be specified if Sequencing type is known.'
+        try:
+            seqtype = self.sequencing_type_id
+            nucacid = self.nucleic_acid_type_id
+            if seqtype != 'Z' and nucacid == 'Z':
+                fld = 'nucleic_acid_type'
+                err_msg = 'NucleicAcid type must be specified if Seq type is known.'
+                add_err(errors, fld, err_msg)
+
+            if seqtype == 'R' and nucacid == 'gDNA' or \
+              (seqtype in ['1', 'M', 'W', '8', 'I'] and \
+               nucacid in ['Total RNA', 'Rib Depleted RNA']):
+                fld = 'nucleic_acid_type'
+                err_msg = (f'A Nucleic Acid type of "{nucacid}" does not go '
+                           f'with Sequencing type of "{seqtype}"')
+                add_err(errors, fld, err_msg)
+
+                fld = 'sequencing_type'
+                err_msg = (f'A "Sequencing type of "{seqtype}" does not go '
+                           f'with Nucleic Acid type of "{nucacid}')
+                add_err(errors, fld, err_msg)
+        except Exception as e:
+            raise e
 
         print(f'DEBUG: {funcname()} - checking "external_data"')
         if self.external_data:
             try:
-                ext_err = False
-                if self.sequencing_type_id == 'Z':
-                    fld = 'sequencing_type'
-                    errors[fld].append('If external data, seq type must be defined.')
-                    ext_err = True
-                if self.nucleic_acid_type_id == 'Z':
-                    fld = 'nucleic_acid_type'
-                    errors[fld].append('If external data, nuc acid type must be defined.')
-                    ext_err = True
-                if ext_err:
+                if self.sequencing_type_id == 'Z' or \
+                   self.nucleic_acid_type_id == 'Z':
                     fld = 'external_data'
-                    errors[fld].append('If external, seq type and nuc acid type must be defined.')
+                    err_msg = 'If external, sequencing type and nucleic acid type must be defined.'
+                    add_err(errors, fld, err_msg)
             except Exception as e:
                 raise e
 
