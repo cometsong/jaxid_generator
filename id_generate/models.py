@@ -245,10 +245,10 @@ class JAXIdDetail(models.Model):
                         print(f'DEBUG: {funcname()} - "{fld}" matches data?')
                         # check_parent_matching_data(parent_record)
                         for match_fld in match_check_flds:
-                            print(f'DEBUG: {funcname()} - get match fld attrs')
+                            # print(f'DEBUG: {funcname()} - get match fld attrs')
                             this_value = str(getattr(self, match_fld, 'missing'))
                             parent_val = str(getattr(parent_record, match_fld, 'missing'))
-                            print(f'DEBUG: {funcname()} - compare attr vals')
+                            # print(f'DEBUG: {funcname()} - compare attr vals')
                             if this_value != parent_val:
                                 fld_name = match_fld.rsplit('_id',1)[0]
                                 mismatches[fld_name] = (this_value, parent_val)
@@ -293,18 +293,21 @@ class JAXIdDetail(models.Model):
 
         print(f'DEBUG: {funcname()} - checking "external_data"')
         if self.external_data:
-            ext_err = False
-            if self.sequencing_type_id == 'Z':
-                fld = 'sequencing_type'
-                errors[fld] = 'This is external data, seq type must be defined.'
-                ext_err = True
-            if self.nucleic_acid_type_id == 'Z':
-                fld = 'nucleic_acid_type'
-                errors[fld] = 'This is external data, nuc acid type must be defined.'
-                ext_err = True
-            if ext_err:
-                fld = 'external_data'
-                errors[fld] = 'This is external data, seq type and nuc acid type must be defined.'
+            try:
+                ext_err = False
+                if self.sequencing_type_id == 'Z':
+                    fld = 'sequencing_type'
+                    errors[fld].append('If external data, seq type must be defined.')
+                    ext_err = True
+                if self.nucleic_acid_type_id == 'Z':
+                    fld = 'nucleic_acid_type'
+                    errors[fld].append('If external data, nuc acid type must be defined.')
+                    ext_err = True
+                if ext_err:
+                    fld = 'external_data'
+                    errors[fld].append('If external, seq type and nuc acid type must be defined.')
+            except Exception as e:
+                raise e
 
         if errors:
             print(f'DEBUG: {funcname()} - errors: {errors!s}')
