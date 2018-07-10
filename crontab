@@ -1,7 +1,0 @@
-SHELL=/bin/bash
-PATH=/sbin:/bin:/usr/sbin:/usr/bin
-MAILTO=$USER
-HOME=/home/$USER
-APP=jaxid_generator
-
-0  0  *  *  * /var/www/apps/${APP}/dumpdata_django_db.sh $APP

@@ -6,10 +6,10 @@ django-admin-tools==0.8.1
 django-adminlogentries==0.1.0
 django-appconf==1.0.2
 django-compressor==2.2
--e git+git@github.com:cometsong/django-databrowse.git@4ce44aa82a8a4fff088fe6347227c553f415f525#egg=django_databrowse
+-e git+git@github.com:cometsong/django-databrowse.git@7594426d6dda64c8d85f156a91fba915382522fc#egg=django_databrowse
 django-debug-toolbar==1.9.1
--e git+git@github.com:cometsong/django-import-export.git@555c23c3edb956a077fecbdb9b66d7fe2eb5fdba#egg=django_import_export
--e git+git@github.com:cometsong/django-mysql.git@037d4a01665f12801353318ceb497e79e30d1e29#egg=django_mysql
+-e git+git@github.com:cometsong/django-import-export.git@555c23c3edb956a077fecbdb9b66d7fe2eb5fdba#egg=django_import_export&subdirectory=../../../src/django-import-export
+-e git+git@github.com:cometsong/django-mysql.git@e43c244af960d13493649c93a83edb6e3afce9d6#egg=django_mysql
 django-polymorphic==1.3
 django-select2==6.0.0
 -e git+git@github.com:darklow/django-suit.git@613c84cba6f8fb6a23b771da96ab8c05808fb5dc#egg=django_suit

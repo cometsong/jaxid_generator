@@ -1,0 +1,11 @@
+BEGIN;
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE `id_generate_boxid`;
+TRUNCATE `id_generate_plateid`;
+TRUNCATE `id_generate_jaxiddetail`;
+TRUNCATE `id_generate_nucleicacidtype`;
+TRUNCATE `id_generate_projectcode`;
+TRUNCATE `id_generate_sequencingtype`;
+TRUNCATE `id_generate_sampletype`;
+SET FOREIGN_KEY_CHECKS = 1;
+COMMIT;

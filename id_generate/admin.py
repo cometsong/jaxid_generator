@@ -43,7 +43,6 @@ from .forms import (
         )
 from .import_data import DetailResource, BoxIdResource, PlateIdResource
 from .admin_import_mixin import BaseImportAdmin
-from .changelist import IdChangeList
 
 # implement and register databrowse for external read-only access
 import django_databrowse
@@ -268,10 +267,6 @@ class JAXIdDetailAdmin(BaseImportAdmin):
     JAXIdDetail.nucleic_acid_type_code.admin_order_field = 'nucleic_acid_type'
     JAXIdDetail.sequencing_type_code.admin_order_field = 'sequencing_type'
     JAXIdDetail.sample_type_code.admin_order_field = 'sample_type'
-
-    def get_changelist(self, request, **kwargs):
-        """ Returns the ChangeList class for use on the changelist page. """
-        return IdChangeList  # override with local class
 idadmin.register(JAXIdDetail, JAXIdDetailAdmin)
 
 class BoxIdAdmin(BaseImportAdmin):
@@ -310,10 +305,6 @@ class BoxIdAdmin(BaseImportAdmin):
 
     ordering = ['-creation_date']
     formats = (base_formats.XLSX,)
-
-    def get_changelist(self, request, **kwargs):
-        """ Returns the ChangeList class for use on the changelist page. """
-        return IdChangeList  # override with local class
 idadmin.register(BoxId, BoxIdAdmin)
 
 class PlateIdAdmin(BaseImportAdmin):
@@ -352,8 +343,4 @@ class PlateIdAdmin(BaseImportAdmin):
 
     ordering = ['-creation_date']
     formats = (base_formats.XLSX,)
-
-    def get_changelist(self, request, **kwargs):
-        """ Returns the ChangeList class for use on the changelist page. """
-        return IdChangeList  # override with local class
 idadmin.register(PlateId, PlateIdAdmin)
