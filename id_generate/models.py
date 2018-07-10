@@ -79,7 +79,7 @@ class SampleType(BaseRefModel):
 class NucleicAcidType(BaseRefModel):
     display_order = 6
     code = models.CharField(
-            max_length=20, blank=False,
+            max_length=25, blank=False,
             help_text="Nucleic acid type identifiying code.",
             unique=True,
             )
