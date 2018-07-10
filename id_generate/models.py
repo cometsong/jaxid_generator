@@ -196,9 +196,9 @@ class JAXIdDetail(models.Model):
         if pool.match(parent):
             print(f'DEBUG: {funcname()} - pool')
             return 'pool'
-        elif recd.match(parent):
-            print(f'DEBUG: {funcname()} - specimen')
-            return 'specimen'
+        # elif recd.match(parent):
+        #     print(f'DEBUG: {funcname()} - specimen')
+        #     return 'specimen'
         elif zero.match(sample) and zero.match(nucleic) and zero.match(seqtype):
             print(f'DEBUG: {funcname()} - invalid')
             typ_str = 'Invalid (sample, nucleic acid and sequencing type can ' \
