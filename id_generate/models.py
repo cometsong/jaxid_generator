@@ -218,6 +218,9 @@ class JAXIdDetail(models.Model):
     def id_hierarchy_is_correct(self, parent_type, child_type):
         """check parent has correct type, one up the ladder from the child type"""
         types = ID_TYPES
+        if parent_type == child_type == 'specimen':
+            print(f'DEBUG: {funcname()} - specimen child match; special case')
+            return True
         return types.index(parent_type) == types.index(child_type) - 1
 
 
