@@ -64,8 +64,15 @@ class SuitConfig(DjangoSuitConfig):
                 icon='fa fa-user-circle'),
 
             ParentItem(
-                label='Latest Request Template.xlsx',
-                url='/jaxid_generated_files/JAX ID Request Template Sample Sheet.xlsx',
+                label='SOP and Request Template:',
+                use_first_child_url=False,
+                url='',
+                children=[
+                    ChildItem('View JAX ID Request SOP',
+                              url='https://teams-p.jax.org/sites/Microbiome_Core/SOPs/JAX%20ID%20Request%20SOP.docx'),
+                    ChildItem('Download JAX ID Request Template Sheet',
+                              url='https://teams-p.jax.org/sites/Microbiome_Core/Sample%20Sheet%20Templates/JAX%20ID%20Request%20Template%20Sample%20Sheet.xlsx'),
+                    ],
                 icon='fa fa-file'),
            )
     # menu_handler = None
