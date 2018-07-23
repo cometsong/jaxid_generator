@@ -28,6 +28,9 @@ class BaseRefModel(models.Model):
     class Meta:
         ordering = ['code']
         abstract = True
+        indexes = [
+            models.Index(fields=['code'], name='code_idx'),
+        ]
 
     def get_code(self):
         """why do i have this a separate method???"""
@@ -76,7 +79,7 @@ class SampleType(BaseRefModel):
 class NucleicAcidType(BaseRefModel):
     display_order = 6
     code = models.CharField(
-            max_length=20, blank=False,
+            max_length=25, blank=False,
             help_text="Nucleic acid type identifiying code.",
             unique=True,
             )
@@ -104,6 +107,12 @@ class SequencingType(BaseRefModel):
 class JAXIdDetail(models.Model):
     class Meta:
         verbose_name_plural = 'JAXid Detail Records'
+        indexes = [
+            models.Index(fields=['jaxid', 'parent_jaxid'], name='id_idx'),
+            models.Index(fields=['project_code', 'collab_id'], name='proj_collab_idx'),
+            models.Index(fields=['sample_type', 'sequencing_type', 'nucleic_acid_type'],
+                         name='sample_seq_nucacid_idx'),
+        ]
     verbose_name = 'JAXid Detail'
     display_order = 1
 
@@ -209,6 +218,9 @@ class JAXIdDetail(models.Model):
     def id_hierarchy_is_correct(self, parent_type, child_type):
         """check parent has correct type, one up the ladder from the child type"""
         types = ID_TYPES
+        if parent_type == child_type == 'specimen':
+            print(f'DEBUG: {funcname()} - specimen child match; special case')
+            return True
         return types.index(parent_type) == types.index(child_type) - 1
 
 
@@ -245,10 +257,10 @@ class JAXIdDetail(models.Model):
                         print(f'DEBUG: {funcname()} - "{fld}" matches data?')
                         # check_parent_matching_data(parent_record)
                         for match_fld in match_check_flds:
-                            print(f'DEBUG: {funcname()} - get match fld attrs')
+                            # print(f'DEBUG: {funcname()} - get match fld attrs')
                             this_value = str(getattr(self, match_fld, 'missing'))
                             parent_val = str(getattr(parent_record, match_fld, 'missing'))
-                            print(f'DEBUG: {funcname()} - compare attr vals')
+                            # print(f'DEBUG: {funcname()} - compare attr vals')
                             if this_value != parent_val:
                                 fld_name = match_fld.rsplit('_id',1)[0]
                                 mismatches[fld_name] = (this_value, parent_val)
@@ -278,6 +290,12 @@ class JAXIdDetail(models.Model):
         Make any changes (e.g. .upper) and raise ValidationError's if found.
         """
         errors = {}
+        def add_err(errors:dict, fld:str, err:str):
+            """append or create new err_msg for 'fld'"""
+            try:
+                errors[fld].append(err_msg)
+            except KeyError:
+                errors[fld] = [err_msg]
 
         if self.jaxid:
             print(f'DEBUG: {funcname()} - checking "jaxid"')
@@ -287,24 +305,39 @@ class JAXIdDetail(models.Model):
             errors.update(self.validate_parent_id())
 
         print(f'DEBUG: {funcname()} - checking "sequencing_type" and "nucleic_acid_type"')
-        if self.sequencing_type_id != 'Z' and self.nucleic_acid_type_id == 'Z':
-            fld = 'nucleic_acid_type'
-            errors[fld] = 'Nucleic acid type must be specified if Sequencing type is known.'
+        try:
+            seqtype = self.sequencing_type_id
+            nucacid = self.nucleic_acid_type_id
+            if seqtype != 'Z' and nucacid == 'Z':
+                fld = 'nucleic_acid_type'
+                err_msg = 'NucleicAcid type must be specified if Seq type is known.'
+                add_err(errors, fld, err_msg)
+
+            if seqtype == 'R' and nucacid == 'gDNA' or \
+              (seqtype in ['1', 'M', 'W', '8', 'I'] and \
+               nucacid in ['Total RNA', 'Rib Depleted RNA']):
+                fld = 'nucleic_acid_type'
+                err_msg = (f'A Nucleic Acid type of "{nucacid}" does not go '
+                           f'with Sequencing type of "{seqtype}"')
+                add_err(errors, fld, err_msg)
+
+                fld = 'sequencing_type'
+                err_msg = (f'A "Sequencing type of "{seqtype}" does not go '
+                           f'with Nucleic Acid type of "{nucacid}')
+                add_err(errors, fld, err_msg)
+        except Exception as e:
+            raise e
 
         print(f'DEBUG: {funcname()} - checking "external_data"')
         if self.external_data:
-            ext_err = False
-            if self.sequencing_type_id == 'Z':
-                fld = 'sequencing_type'
-                errors[fld] = 'This is external data, seq type must be defined.'
-                ext_err = True
-            if self.nucleic_acid_type_id == 'Z':
-                fld = 'nucleic_acid_type'
-                errors[fld] = 'This is external data, nuc acid type must be defined.'
-                ext_err = True
-            if ext_err:
-                fld = 'external_data'
-                errors[fld] = 'This is external data, seq type and nuc acid type must be defined.'
+            try:
+                if self.sequencing_type_id == 'Z' or \
+                   self.nucleic_acid_type_id == 'Z':
+                    fld = 'external_data'
+                    err_msg = 'If external, sequencing type and nucleic acid type must be defined.'
+                    add_err(errors, fld, err_msg)
+            except Exception as e:
+                raise e
 
         if errors:
             print(f'DEBUG: {funcname()} - errors: {errors!s}')

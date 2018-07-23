@@ -24,15 +24,9 @@ class SuitConfig(DjangoSuitConfig):
                 use_first_child_url=True,
                 url='',
                 children=[
-                    ChildItem(label='JAXid Record List',
-                        url=f'/{APP_NAME}/manage/id_generate/jaxiddetail',
-                        ),
-                    ChildItem(label='Box Id Record List',
-                        url=f'/{APP_NAME}/manage/id_generate/boxid',
-                        ),
-                    ChildItem(label='Plate Id Record List',
-                        url=f'/{APP_NAME}/manage/id_generate/plateid',
-                        ),
+                    ChildItem('JAXid Records', model='id_generate.jaxiddetail'),
+                    ChildItem(model='id_generate.boxid'),
+                    ChildItem(model='id_generate.plateid'),
                     ],
                 icon='fa fa-list-ul'),
             ParentItem('Reference Data',
@@ -68,6 +62,11 @@ class SuitConfig(DjangoSuitConfig):
                     ChildItem(model='admin.logentry'),
                     ],
                 icon='fa fa-user-circle'),
+
+            ParentItem(
+                label='Latest Request Template.xlsx',
+                url='/jaxid_generated_files/JAX ID Request Template Sample Sheet.xlsx',
+                icon='fa fa-file'),
            )
     # menu_handler = None
     menu_show_home = False

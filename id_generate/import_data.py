@@ -68,7 +68,7 @@ def check_rows_before_the_import(dataset, id_prefix='J', id_field_name='jaxid', 
     rows_to_delete = []
     for row_index, row_values in enumerate(dataset):
         row = dict(zip(dataset.headers, row_values))
-        print('DEBUG: dataset row: {} {}'.format(row_index, row_values))
+        # print('DEBUG: dataset row: {} {}'.format(row_index, row_values))
 
         # check if row is all empty fields (plus with no space or newlines)
         # make list of empty rows to delete post-for-loop
