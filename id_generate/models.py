@@ -349,9 +349,16 @@ class JAXIdDetail(models.Model):
             print(f'DEBUG: {funcname()} - checking "jaxid"')
             self.jaxid = self.jaxid.upper()
 
-        if self.parent_jaxid:
+        try:
+            fld = 'jaxid'
+            print(f'DEBUG: {funcname()} - checking record is in db')
+            update_record = self.__class__.objects.get(jaxid=self.jaxid)
+            print(f'DEBUG: {funcname()} - record in db to be updated')
+        except self.DoesNotExist as e:
             if self.parent_jaxid == 'RECD':
                 errors.update(self.check_duplicate_recd())
+
+        if self.parent_jaxid:
             errors.update(self.validate_parent_id())
 
         print(f'DEBUG: {funcname()} - checking "sequencing_type" and "nucleic_acid_type"')
