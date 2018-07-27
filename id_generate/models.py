@@ -285,6 +285,54 @@ class JAXIdDetail(models.Model):
         return errors
 
 
+    def check_duplicate_recd(self, row=None):
+        """Is there an exact copy of this sample already submitted for this project?
+        Check db for match of row on: project, sample_type, collab_id, nucleic_acid, seqtype
+        """
+        # print(f'DEBUG: {funcname()} - assign "row"')
+        if not row:
+            row = self
+            
+        fld = 'project'
+        errors = {}
+        fld_errs = []
+
+        try:
+            # print(f'DEBUG: {funcname()} - now get.values')
+            project = row.project_code
+            collab = row.collab_id
+            sample = row.sample_type_id
+            nucleic = row.nucleic_acid_type_id
+            seqtype = row.sequencing_type_id
+            print(f'DEBUG: {funcname()} - {project}, {collab}, {sample}, {nucleic}, {seqtype}')
+
+            try:
+                print(f'DEBUG: {funcname()} - checking for duplicate in db ')
+                other_record = self.__class__.objects.get(
+                    project_code=project,
+                    collab_id=collab,
+                    sample_type_id=sample,
+                    nucleic_acid_type_id=nucleic,
+                    sequencing_type_id=seqtype,
+                )
+                print(f'DEBUG: {funcname()} - duplicate found in db: {other_record!s}')
+                fld_errs.append(f'Duplicate record matching this one, with id: {other_record.jaxid}')
+            except self.MultipleObjectsReturned as e:
+                print(f'DEBUG: {funcname()} - duplicateS found in db: {other_record!s}')
+                fld_errs.append('More than one duplicate record found matching this one.')
+            except self.DoesNotExist as e:
+                print(f'DEBUG: {funcname()} - exception: no duplicate found in db')
+
+        except Exception as e:
+            print(f'DEBUG: {funcname()} - exception querying db for match')
+            raise e
+
+        if len(fld_errs):
+            print(f'DEBUG: {funcname()} - "{fld}" has errors')
+            errors[fld] = fld_errs
+        return errors
+
+
     def clean(self):
         """Check all id-specific fields with sanity checks
         Make any changes (e.g. .upper) and raise ValidationError's if found.
@@ -302,6 +350,8 @@ class JAXIdDetail(models.Model):
             self.jaxid = self.jaxid.upper()
 
         if self.parent_jaxid:
+            if self.parent_jaxid == 'RECD':
+                errors.update(self.check_duplicate_recd())
             errors.update(self.validate_parent_id())
 
         print(f'DEBUG: {funcname()} - checking "sequencing_type" and "nucleic_acid_type"')
