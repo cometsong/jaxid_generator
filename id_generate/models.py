@@ -253,27 +253,22 @@ class JAXIdDetail(models.Model):
                 else:
                     try:
                         match_check_flds = ('collab_id', 'sample_type_id', 'project_code_id')
-                        mismatches = {}
                         print(f'DEBUG: {funcname()} - "{fld}" matches data?')
                         # check_parent_matching_data(parent_record)
                         for match_fld in match_check_flds:
-                            # print(f'DEBUG: {funcname()} - get match fld attrs')
                             this_value = str(getattr(self, match_fld, 'missing'))
                             parent_val = str(getattr(parent_record, match_fld, 'missing'))
-                            # print(f'DEBUG: {funcname()} - compare attr vals')
                             if this_value != parent_val:
                                 fld_name = match_fld.rsplit('_id',1)[0]
-                                mismatches[fld_name] = (this_value, parent_val)
-                                # errors[fld_name] = f'Parent value ({parent_val}) does not match.'
-                        if len(mismatches):
-                            fld_errs.append(f'Parent record does not match fields: {mismatches!s}')
+                                # FIXME: currently this is the only check on these fields, thus not appended!
+                                errors[fld_name] = f'Parent value ({parent_val}) does not match.'
 
                         print(f'DEBUG: {funcname()} - is "{fld}" correct type?')
                         jax_id_type = self.check_id_type()
                         parent_type = self.check_id_type(row=parent_record)
                         if not self.id_hierarchy_is_correct(parent_type, jax_id_type):
-                            fld_errs.append('Parent record is not the correct type! '\
-                                            f'parent: {parent_type}, this one: {jax_id_type}')
+                            fld_errs.append('Parent record is not the correct type: '\
+                                            f'{jax_id_type} is not made from {parent_type}')
                         #TODO: other sanity checks?
                     except Exception as e:
                         raise e
