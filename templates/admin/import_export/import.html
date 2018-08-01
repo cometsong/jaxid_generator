@@ -2,6 +2,7 @@
 {% load i18n %}
 {% load admin_urls %}
 {% load import_export_tags %}
+{% load splits %}
 
 {% block breadcrumbs %}
 {% endblock %}
@@ -80,10 +81,19 @@
       {% endfor %}
       {% for line, errors in result.row_errors %}
         {% for error in errors %}
-          <li>
-            {% trans "Line number" %}: {{ line }} - {{ error.error }}
-            <div><code>{{ error.row.values|join:", " }}</code></div>
-            <!--<div class="traceback">{{ error.traceback|linebreaks }}</div>-->
+          <li>{% trans "Line" %} {{ line }}:
+            <div><code>&nbsp;&nbsp;{{ error.row.values|join:", " }}</code></div>
+            <ol>
+              {% if "," not in error.error|make_list %}
+                <li>{{ error.error|cut:"{"|cut:"}"|cut:"["|cut:"]"|cut:"'" }}</li>
+              {% else %}
+                {% for fld,err in error.error %}</li>
+                  {% with errstr=err|cut:"{"|cut:"}"|cut:"["|cut:"]"|cut:"\""|cut:"'" %}
+                    <li>{{ fld }}: {{ errstr }}</li>
+                  {% endwith %}
+                {% endfor %}
+              {% endif %}
+            </ol>
           </li>
         {% endfor %}
       {% endfor %}

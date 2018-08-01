@@ -1,4 +1,4 @@
-__version__ = (2, 2, '10a')
+__version__ = (2, 3, 0)
 
 def version():
     """display version with dots"""

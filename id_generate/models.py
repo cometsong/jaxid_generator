@@ -253,27 +253,32 @@ class JAXIdDetail(models.Model):
                 else:
                     try:
                         match_check_flds = ('collab_id', 'sample_type_id', 'project_code_id')
-                        mismatches = {}
-                        print(f'DEBUG: {funcname()} - "{fld}" matches data?')
-                        # check_parent_matching_data(parent_record)
                         for match_fld in match_check_flds:
-                            # print(f'DEBUG: {funcname()} - get match fld attrs')
+                            print(f'DEBUG: {funcname()} - "{match_fld}" matches data?')
                             this_value = str(getattr(self, match_fld, 'missing'))
                             parent_val = str(getattr(parent_record, match_fld, 'missing'))
-                            # print(f'DEBUG: {funcname()} - compare attr vals')
+
+                            # check samples except specific situations:
+                            if match_fld == 'sample_type_id' and \
+                                (
+                                this_value in ['PB', 'MB', 'PF']
+                                or
+                                (parent_val == 'BD' and this_value == 'SR')
+                                ):
+                                continue
+
                             if this_value != parent_val:
-                                fld_name = match_fld.rsplit('_id',1)[0]
-                                mismatches[fld_name] = (this_value, parent_val)
-                                # errors[fld_name] = f'Parent value ({parent_val}) does not match.'
-                        if len(mismatches):
-                            fld_errs.append(f'Parent record does not match fields: {mismatches!s}')
+                                if match_fld.endswith('_id'):
+                                    match_fld = match_fld.rsplit('_id',1)[0]
+                                # FIXME: currently this is the only check on these fields, thus not appended!
+                                errors[match_fld] = f'Parent value ({parent_val}) does not match.'
 
                         print(f'DEBUG: {funcname()} - is "{fld}" correct type?')
                         jax_id_type = self.check_id_type()
                         parent_type = self.check_id_type(row=parent_record)
                         if not self.id_hierarchy_is_correct(parent_type, jax_id_type):
-                            fld_errs.append('Parent record is not the correct type! '\
-                                            f'parent: {parent_type}, this one: {jax_id_type}')
+                            fld_errs.append('Parent record is not the correct type: '\
+                                            f'{jax_id_type} is not made from {parent_type}')
                         #TODO: other sanity checks?
                     except Exception as e:
                         raise e
@@ -282,6 +287,54 @@ class JAXIdDetail(models.Model):
             print(f'DEBUG: {funcname()} - "{fld}" has errors')
             errors[fld] = fld_errs
 
+        return errors
+
+
+    def check_duplicate_recd(self, row=None):
+        """Is there an exact copy of this sample already submitted for this project?
+        Check db for match of row on: project, sample_type, collab_id, nucleic_acid, seqtype
+        """
+        # print(f'DEBUG: {funcname()} - assign "row"')
+        if not row:
+            row = self
+            
+        fld = 'project'
+        errors = {}
+        fld_errs = []
+
+        try:
+            # print(f'DEBUG: {funcname()} - now get.values')
+            project = row.project_code
+            collab = row.collab_id
+            sample = row.sample_type_id
+            nucleic = row.nucleic_acid_type_id
+            seqtype = row.sequencing_type_id
+            print(f'DEBUG: {funcname()} - {project}, {collab}, {sample}, {nucleic}, {seqtype}')
+
+            try:
+                print(f'DEBUG: {funcname()} - checking for duplicate in db ')
+                other_record = self.__class__.objects.get(
+                    project_code=project,
+                    collab_id=collab,
+                    sample_type_id=sample,
+                    nucleic_acid_type_id=nucleic,
+                    sequencing_type_id=seqtype,
+                )
+                print(f'DEBUG: {funcname()} - duplicate found in db: {other_record!s}')
+                fld_errs.append(f'Duplicate record matching this one, with id: {other_record.jaxid}')
+            except self.MultipleObjectsReturned as e:
+                print(f'DEBUG: {funcname()} - duplicateS found in db: {other_record!s}')
+                fld_errs.append('More than one duplicate record found matching this one.')
+            except self.DoesNotExist as e:
+                print(f'DEBUG: {funcname()} - exception: no duplicate found in db')
+
+        except Exception as e:
+            print(f'DEBUG: {funcname()} - exception querying db for match')
+            raise e
+
+        if len(fld_errs):
+            print(f'DEBUG: {funcname()} - "{fld}" has errors')
+            errors[fld] = fld_errs
         return errors
 
 
@@ -300,6 +353,14 @@ class JAXIdDetail(models.Model):
         if self.jaxid:
             print(f'DEBUG: {funcname()} - checking "jaxid"')
             self.jaxid = self.jaxid.upper()
+
+        try:
+            print(f'DEBUG: {funcname()} - checking record is in db')
+            update_record = self.__class__.objects.get(jaxid=self.jaxid)
+            print(f'DEBUG: {funcname()} - record in db to be updated')
+        except self.DoesNotExist as e:
+            if self.parent_jaxid == 'RECD':
+                errors.update(self.check_duplicate_recd())
 
         if self.parent_jaxid:
             errors.update(self.validate_parent_id())
