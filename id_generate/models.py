@@ -253,15 +253,25 @@ class JAXIdDetail(models.Model):
                 else:
                     try:
                         match_check_flds = ('collab_id', 'sample_type_id', 'project_code_id')
-                        print(f'DEBUG: {funcname()} - "{fld}" matches data?')
-                        # check_parent_matching_data(parent_record)
                         for match_fld in match_check_flds:
+                            print(f'DEBUG: {funcname()} - "{match_fld}" matches data?')
                             this_value = str(getattr(self, match_fld, 'missing'))
                             parent_val = str(getattr(parent_record, match_fld, 'missing'))
+
+                            # check samples except specific situations:
+                            if match_fld == 'sample_type_id' and \
+                                (
+                                this_value in ['PB', 'MB', 'PF']
+                                or
+                                (parent_val == 'BD' and this_value == 'SR')
+                                ):
+                                continue
+
                             if this_value != parent_val:
-                                fld_name = match_fld.rsplit('_id',1)[0]
+                                if match_fld.endswith('_id'):
+                                    match_fld = match_fld.rsplit('_id',1)[0]
                                 # FIXME: currently this is the only check on these fields, thus not appended!
-                                errors[fld_name] = f'Parent value ({parent_val}) does not match.'
+                                errors[match_fld] = f'Parent value ({parent_val}) does not match.'
 
                         print(f'DEBUG: {funcname()} - is "{fld}" correct type?')
                         jax_id_type = self.check_id_type()
@@ -345,7 +355,6 @@ class JAXIdDetail(models.Model):
             self.jaxid = self.jaxid.upper()
 
         try:
-            fld = 'jaxid'
             print(f'DEBUG: {funcname()} - checking record is in db')
             update_record = self.__class__.objects.get(jaxid=self.jaxid)
             print(f'DEBUG: {funcname()} - record in db to be updated')
