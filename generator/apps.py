@@ -69,6 +69,7 @@ class SuitConfig(DjangoSuitConfig):
                 url='',
                 children=[
                     ChildItem('View JAX ID Request SOP',
+                              target_blank=True,
                               url='https://teams-p.jax.org/sites/Microbiome_Core/SOPs/JAX%20ID%20Request%20SOP.docx?Web=1'),
                     ChildItem('Download JAX ID Request Template Sheet',
                               url='https://teams-p.jax.org/sites/Microbiome_Core/Sample%20Sheet%20Templates/JAX%20ID%20Request%20Template%20Sample%20Sheet.xlsx'),
