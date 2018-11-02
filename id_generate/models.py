@@ -264,7 +264,7 @@ class JAXIdDetail(models.Model):
                                 continue
 
                             if this_value != parent_val:
-                                if match_fld.endswith('_id'):
+                                if match_fld.endswith('_id') and match_fld != 'collab_id':
                                     match_fld = match_fld.rsplit('_id',1)[0]
                                 # FIXME: currently this is the only check on these fields, thus not appended!
                                 errors[match_fld] = f'Parent value ({parent_val}) does not match.'
