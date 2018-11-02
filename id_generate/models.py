@@ -217,11 +217,7 @@ class JAXIdDetail(models.Model):
 
     def id_hierarchy_is_correct(self, parent_type, child_type):
         """check parent has correct type, one up the ladder from the child type"""
-        types = ID_TYPES
-        if parent_type == child_type == 'specimen':
-            print(f'DEBUG: {funcname()} - specimen child match; special case')
-            return True
-        return types.index(parent_type) == types.index(child_type) - 1
+        return ID_TYPES.index(parent_type) == ID_TYPES.index(child_type) - 1
 
 
     def validate_parent_id(self):
@@ -277,8 +273,17 @@ class JAXIdDetail(models.Model):
                         jax_id_type = self.check_id_type()
                         parent_type = self.check_id_type(row=parent_record)
                         if not self.id_hierarchy_is_correct(parent_type, jax_id_type):
-                            fld_errs.append('Parent record is not the correct type: '\
-                                            f'{jax_id_type} is not made from {parent_type}')
+                            """special case exceptions to the type hierarchy rule"""
+                            if parent_type == jax_id_type == 'specimen':
+                                print(f'DEBUG: {funcname()} - specimen child match; special case')
+                            elif jax_id_type == parent_type == 'library' \
+                                and parent_record.sequencing_type_id == 'F' \
+                                and self.sequencing_type_id == 'B':
+                                    """PacBio Full Length Amplicons libraries become Barcoded"""
+                                    print(f'DEBUG: {funcname()} - special case: PacBio F->B libraries')
+                            else:
+                                fld_errs.append('Parent record is not the correct type: '\
+                                                f'{jax_id_type} is not made from {parent_type}')
                         #TODO: other sanity checks?
                     except Exception as e:
                         raise e
