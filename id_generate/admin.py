@@ -295,9 +295,10 @@ class BoxIdAdmin(BaseImportAdmin):
     list_display = ( 'jaxid',
                      'collab_id',
                      'parent_jaxid',
-                     'project_code',
-                     'sample_type',
-                     'nucleic_acid_type',
+                     'project_code_code',
+                     'sample_type_code',
+                     'nucleic_acid_type_code',
+                     'sequencing_type_code',
                      'notes',
                      )
     search_fields = BoxId.all_field_names
@@ -333,9 +334,10 @@ class PlateIdAdmin(BaseImportAdmin):
     list_display = ( 'jaxid',
                      'collab_id',
                      'parent_jaxid',
-                     'project_code',
-                     'sample_type',
-                     'nucleic_acid_type',
+                     'project_code_code',
+                     'sample_type_code',
+                     'nucleic_acid_type_code',
+                     'sequencing_type_code',
                      'notes',
                      )
     search_fields = PlateId.all_field_names
