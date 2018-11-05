@@ -32,15 +32,6 @@ class BaseRefModel(models.Model):
             models.Index(fields=['code'], name='code_idx'),
         ]
 
-    def get_code(self):
-        """why do i have this a separate method???"""
-        # return self.__dict__.getattr(self.code)
-        # return self.__dict__.get(self.code)
-        # return __dict__.get(self.code)
-        # return self.get(self.code)
-        # return get(self.code)
-        return self.code
-
     def __str__(self):
         return '{} ({})'.format(self.code, self.details)
 
@@ -148,19 +139,19 @@ class JAXIdDetail(models.Model):
     creation_date = models.DateTimeField(auto_now_add=True)
 
     def project_code_code(self):
-        return self.project_code.get_code()
+        return self.project_code.code
     project_code_code.short_description = 'Project'
 
     def sample_type_code(self):
-        return self.sample_type.get_code()
+        return self.sample_type.code
     sample_type_code.short_description = 'Sample'
 
     def sequencing_type_code(self):
-        return self.sequencing_type.get_code()
+        return self.sequencing_type.code
     sequencing_type_code.short_description = 'Sequencing Type'
 
     def nucleic_acid_type_code(self):
-        return self.nucleic_acid_type.get_code()
+        return self.nucleic_acid_type.code
     nucleic_acid_type_code.short_description = 'Nucleic Acid'
 
     def search_fields():
@@ -445,6 +436,23 @@ class BaseIdModel(models.Model):
         'jaxid', 'parent_jaxid', 'collab_id', 'project_code',
         'sample_type', 'nucleic_acid_type', 'sequencing_type', 'notes',
         )
+
+    def project_code_code(self):
+        return self.project_code.code
+    project_code_code.short_description = 'Project'
+
+    def sample_type_code(self):
+        return self.sample_type.code
+    sample_type_code.short_description = 'Sample'
+
+    def sequencing_type_code(self):
+        return self.sequencing_type.code
+    sequencing_type_code.short_description = 'Sequencing Type'
+
+    def nucleic_acid_type_code(self):
+        return self.nucleic_acid_type.code
+    nucleic_acid_type_code.short_description = 'Nucleic Acid'
+
 
 
     def clean(self):
