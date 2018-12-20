@@ -5,11 +5,6 @@ DEBUG = True
 APP_NAME = 'jaxid_dev'
 WSGI_APPLICATION = 'generator.wsgi_dev.application'
 
-ALLOWED_HOSTS.extend([
-    'mbiomedevel',
-    'mbiomedevel.jax.org',
-])
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
