@@ -21,8 +21,8 @@ ALLOWED_HOSTS = [
     'localhost',
     'mbiomecore',
     'mbiomecore.jax.org',
-    # 'ctmbioc01ld',
-    # 'ctmbioc01ld.jax.org',
+    'mbiomedevel',
+    'mbiomedevel.jax.org',
 ] # }}}
 
 ### Application definition {{{
