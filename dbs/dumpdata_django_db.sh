@@ -7,28 +7,28 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Functional! ~~~~~
-function get_datestamp () { #{{{ ### from cometsong_util_functions.sh ###
+get_datestamp () { #{{{ ### from cometsong_util_functions.sh ###
     FORMAT=${*:-"%Y-%m-%d %H:%M:%S"}
     DATESTAMP=$(date +"$FORMAT")
     echo $DATESTAMP
 } #}}}
-function get_datestamp_ymd () { #{{{ ### from cometsong_util_functions.sh ###
+get_datestamp_ymd () { #{{{ ### from cometsong_util_functions.sh ###
     FORMAT="%Y%m%d"
     echo $(get_datestamp $FORMAT)
 } #}}}
 
 ### print/err/die funcs from cometsong_util_functions.sh ### #{{{
 # print: echoes all args to stdout
-    function print() { printf '%b\n' "$@"; }
+    print() { printf '%b\n' "$@"; }
 # err: echoes all args to stderr
-    function err()   { print "$*" >&2; }
+    err()   { print "$*" >&2; }
 # debug: calls `err`
-    function debug() { err "$@"; }
+    debug() { err "$@"; }
 # die: sends all args to `err` then exits >0
-    function die()   { err "$@" && exit 11; }
+    die()   { err "$@" && exit 11; }
 # }}}
 
-function prepend_items() { #{{{
+prepend_items() { #{{{
     # Usage: prepend_items 'delimiter' "list of args to prepend w/ delimiter"
     #        Include single-quoted <space> in delimiter if desired.
     Delim=${1} && shift || echo "ERROR in 'joined' delimiter missing." >2
