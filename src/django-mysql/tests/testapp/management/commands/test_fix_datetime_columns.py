@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from textwrap import dedent
-from unittest import SkipTest, mock, skipIf
+from unittest import SkipTest, skipIf
 
 import django
 import pytest
@@ -15,9 +15,14 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from django.utils.six.moves import StringIO
 
 from django_mysql.management.commands.fix_datetime_columns import (
-    parse_create_table
+    parse_create_table,
 )
 from django_mysql.utils import connection_is_mariadb
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
 # a new ConnectionHandler into the command module
@@ -27,7 +32,7 @@ command_connections = (
 )
 
 sqlite = ConnectionHandler({
-    'default': {'ENGINE': 'django.db.backends.sqlite3'}
+    'default': {'ENGINE': 'django.db.backends.sqlite3'},
 })
 
 
@@ -49,16 +54,18 @@ class Datetime6TestMixin(object):
     @classmethod
     def setUpClass(cls):
         if (
-            connection_is_mariadb(connection) or
-            connection.mysql_version[:2] < (5, 6)
+            connection_is_mariadb(connection)
+            or connection.mysql_version[:2] < (5, 6)
         ):
             raise SkipTest(
-                "Django only uses datetime(6) columns on MySQL 5.6+"
+                "Django only uses datetime(6) columns on MySQL 5.6+",
             )
         super(Datetime6TestMixin, cls).setUpClass()
 
 
 class FixDatetimeColumnsTests(Datetime6TestMixin, TestCase):
+
+    multi_db = True
 
     def test_nothing_by_default(self):
         assert run_it() == ''
@@ -161,5 +168,5 @@ class ParseCreateTableTests(SimpleTestCase):
         """)  # noqa
 
         assert parse_create_table(sql) == {
-            'the_data': 'longtext COLLATE utf8mb4_unicode_ci NOT NULL'
+            'the_data': 'longtext COLLATE utf8mb4_unicode_ci NOT NULL',
         }

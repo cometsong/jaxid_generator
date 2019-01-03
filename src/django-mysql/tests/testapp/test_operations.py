@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from unittest import SkipTest
@@ -12,7 +12,7 @@ from django.test import TransactionTestCase
 from django.test.utils import CaptureQueriesContext
 
 from django_mysql.operations import (
-    AlterStorageEngine, InstallPlugin, InstallSOName
+    AlterStorageEngine, InstallPlugin, InstallSOName,
 )
 from django_mysql.test.utils import override_mysql_variables
 from django_mysql.utils import connection_is_mariadb
@@ -23,7 +23,7 @@ def plugin_exists(plugin_name):
         cursor.execute(
             """SELECT COUNT(*) FROM INFORMATION_SCHEMA.PLUGINS
                WHERE PLUGIN_NAME = %s""",
-            (plugin_name,)
+            (plugin_name,),
         )
         return (cursor.fetchone()[0] > 0)
 
@@ -33,7 +33,7 @@ def table_storage_engine(table_name):
         cursor.execute(
             """SELECT ENGINE FROM INFORMATION_SCHEMA.TABLES
                WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s""",
-            (table_name,)
+            (table_name,),
         )
         return cursor.fetchone()[0]
 
@@ -44,8 +44,8 @@ class PluginOperationTests(TransactionTestCase):
     def setUpClass(cls):
         super(PluginOperationTests, cls).setUpClass()
         has_metadata_lock_plugin = (
-            connection_is_mariadb(connection) and
-            connection.mysql_version >= (10, 0, 7)
+            connection_is_mariadb(connection)
+            and connection.mysql_version >= (10, 0, 7)
         )
         if not has_metadata_lock_plugin:
             raise SkipTest("The metadata_lock_info plugin is required")
@@ -61,8 +61,8 @@ class PluginOperationTests(TransactionTestCase):
         operation = InstallPlugin("metadata_lock_info",
                                   "metadata_lock_info.so")
         assert (
-            operation.describe() ==
-            "Installs plugin metadata_lock_info from metadata_lock_info.so"
+            operation.describe()
+            == "Installs plugin metadata_lock_info from metadata_lock_info.so"
         )
         new_state = state.clone()
         with connection.schema_editor() as editor:
@@ -119,14 +119,18 @@ class AlterStorageEngineTests(TransactionTestCase):
 
     def test_describe_without_from(self):
         operation = AlterStorageEngine("Pony", "InnoDB")
-        assert (operation.describe() ==
-                "Alter storage engine for Pony to InnoDB")
+        assert (
+            operation.describe()
+            == "Alter storage engine for Pony to InnoDB"
+        )
 
     def test_describe_with_from(self):
         operation = AlterStorageEngine("Pony", from_engine="MyISAM",
                                        to_engine="InnoDB")
-        assert (operation.describe() ==
-                "Alter storage engine for Pony from MyISAM to InnoDB")
+        assert (
+            operation.describe()
+            == "Alter storage engine for Pony from MyISAM to InnoDB"
+        )
 
     def test_references_model(self):
         operation = AlterStorageEngine("Pony", "InnoDB")
@@ -239,14 +243,14 @@ class AlterStorageEngineTests(TransactionTestCase):
                 "Stable",
                 [
                     ("id", models.AutoField(primary_key=True)),
-                ]
+                ],
             ))
         if third_model:
             operations.append(migrations.CreateModel(
                 "Van",
                 [
                     ("id", models.AutoField(primary_key=True)),
-                ]
+                ],
             ))
         if related_model:
             operations.append(migrations.CreateModel(
@@ -254,7 +258,7 @@ class AlterStorageEngineTests(TransactionTestCase):
                 [
                     ("id", models.AutoField(primary_key=True)),
                     ("pony", models.ForeignKey("Pony")),
-                    ("friend", models.ForeignKey("self"))
+                    ("friend", models.ForeignKey("self")),
                 ],
             ))
         if mti_model:

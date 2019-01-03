@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.core.checks import Tags, Warning, register
@@ -17,7 +17,7 @@ def check_variables(app_configs, **kwargs):
     errors = []
 
     for alias, connection in mysql_connections():
-        with connection.cursor() as cursor:
+        with connection.temporary_connection() as cursor:
             cursor.execute("""SELECT @@sql_mode,
                                      @@innodb_strict_mode,
                                      @@character_set_connection""")
@@ -86,7 +86,7 @@ def utf8mb4_warning(alias):
 
 def mysql_connections():
     conn_names = [DEFAULT_DB_ALIAS] + list(
-        set(connections) - {DEFAULT_DB_ALIAS}
+        set(connections) - {DEFAULT_DB_ALIAS},
     )
     for alias in conn_names:
         connection = connections[alias]

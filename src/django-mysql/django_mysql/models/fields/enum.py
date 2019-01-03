@@ -1,13 +1,12 @@
 # -*- encoding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.db.models import CharField
 from django.utils import six
+from django.utils.encoding import force_text
 from django.utils.translation import ugettext_lazy as _
-
-from _mysql import escape_string  # isort:skip
 
 
 class EnumField(CharField):
@@ -16,7 +15,7 @@ class EnumField(CharField):
     def __init__(self, *args, **kwargs):
         if 'choices' not in kwargs or len(kwargs['choices']) == 0:
             raise ValueError(
-                '"choices" argument must be be a non-empty list'
+                '"choices" argument must be be a non-empty list',
             )
 
         choices = []
@@ -30,7 +29,7 @@ class EnumField(CharField):
                     'Invalid choice "{choice}". '
                     'Expected string or tuple as elements in choices'.format(
                         choice=choice,
-                    )
+                    ),
                 )
 
         kwargs['choices'] = choices
@@ -45,12 +44,13 @@ class EnumField(CharField):
 
     def deconstruct(self):
         name, path, args, kwargs = super(EnumField, self).deconstruct()
+
         bad_paths = (
-            'django_mysql.models.fields.enum.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.enum.EnumField',
+            'django_mysql.models.fields.EnumField',
         )
         if path in bad_paths:
-            path = 'django_mysql.models.' + self.__class__.__name__
+            path = 'django_mysql.models.EnumField'
 
         kwargs['choices'] = self.choices
         del kwargs['max_length']
@@ -58,7 +58,14 @@ class EnumField(CharField):
         return name, path, args, kwargs
 
     def db_type(self, connection):
-        values = [escape_string(c) for c, _ in self.flatchoices]
+        connection.ensure_connection()
+        values = [
+            connection.connection.escape_string(c)
+            for c, _ in self.flatchoices
+        ]
+        # Use force_text because MySQLdb escape_string() returns bytes, but
+        # pymysql returns str
         return 'enum(%s)' % ','.join(
-            "'%s'" % v.decode('utf8') for v in values
+            "'%s'" % force_text(v)
+            for v in values
         )

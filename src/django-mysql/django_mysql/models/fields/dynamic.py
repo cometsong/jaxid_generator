@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
@@ -9,14 +9,14 @@ from datetime import date, datetime, time
 
 import django
 from django.core import checks
-from django.db import connections
 from django.db.models import (
     DateField, DateTimeField, Field, FloatField, IntegerField, TextField,
-    TimeField, Transform
+    TimeField, Transform,
 )
 from django.utils import six
 from django.utils.translation import ugettext_lazy as _
 
+from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import DynColHasKey
 from django_mysql.utils import connection_is_mariadb
 
@@ -35,7 +35,7 @@ class DynamicField(Field):
             kwargs['default'] = dict
         if 'blank' not in kwargs:
             kwargs['blank'] = True
-        self.spec = kwargs.pop('spec', None)
+        self.spec = kwargs.pop('spec', {})
         super(DynamicField, self).__init__(*args, **kwargs)
 
     def check(self, **kwargs):
@@ -43,9 +43,7 @@ class DynamicField(Field):
         errors.extend(self._check_mariadb_dyncol())
         errors.extend(self._check_mariadb_version())
         errors.extend(self._check_character_set())
-
-        if self.spec is not None:
-            errors.extend(self._check_spec_recursively(self.spec))
+        errors.extend(self._check_spec_recursively(self.spec))
         return errors
 
     def _check_mariadb_dyncol(self):
@@ -56,8 +54,8 @@ class DynamicField(Field):
                     "'mariadb_dyncol' is required to use DynamicField",
                     hint="Install the 'mariadb_dyncol' library from 'pip'",
                     obj=self,
-                    id='django_mysql.E012'
-                )
+                    id='django_mysql.E012',
+                ),
             )
         return errors
 
@@ -65,13 +63,11 @@ class DynamicField(Field):
         errors = []
 
         any_conn_works = False
-        conn_names = ['default'] + list(set(connections) - {'default'})
-        for db in conn_names:
-            conn = connections[db]
+        for alias, conn in mysql_connections():
             if (
-                hasattr(conn, 'mysql_version') and
-                connection_is_mariadb(conn) and
-                conn.mysql_version >= (10, 0, 1)
+                hasattr(conn, 'mysql_version')
+                and connection_is_mariadb(conn)
+                and conn.mysql_version >= (10, 0, 1)
             ):
                 any_conn_works = True
 
@@ -82,8 +78,8 @@ class DynamicField(Field):
                     hint='At least one of your DB connections should be to '
                          'MariaDB 10.0.1+',
                     obj=self,
-                    id='django_mysql.E013'
-                )
+                    id='django_mysql.E013',
+                ),
             )
         return errors
 
@@ -91,14 +87,13 @@ class DynamicField(Field):
         errors = []
 
         conn = None
-        conn_names = ['default'] + list(set(connections) - {'default'})
-        for db in conn_names:
+        for alias, check_conn in mysql_connections():
             if (
-                hasattr(connections[db], 'mysql_version') and
-                connection_is_mariadb(connections[db]) and
-                connections[db].mysql_version >= (10, 0, 1)
+                hasattr(check_conn, 'mysql_version')
+                and connection_is_mariadb(check_conn)
+                and check_conn.mysql_version >= (10, 0, 1)
             ):
-                conn = connections[db]
+                conn = check_conn
                 break
 
         if conn is not None:
@@ -117,8 +112,8 @@ class DynamicField(Field):
                              "DATABASES setting to fix this"
                              .format(charset),
                         obj=self,
-                        id='django_mysql.E014'
-                    )
+                        id='django_mysql.E014',
+                    ),
                 )
 
         return errors
@@ -134,7 +129,7 @@ class DynamicField(Field):
                          .format(type(spec).__name__),
                     obj=self,
                     id='django_mysql.E009',
-                )
+                ),
             )
             return errors
 
@@ -151,7 +146,7 @@ class DynamicField(Field):
                                      type(key).__name__),
                         obj=self,
                         id='django_mysql.E010',
-                    )
+                    ),
                 )
                 continue
 
@@ -168,7 +163,7 @@ class DynamicField(Field):
                              .format(KeyTransform.SPEC_MAP_NAMES),
                         obj=self,
                         id='django_mysql.E011',
-                    )
+                    ),
                 )
 
         return errors
@@ -204,9 +199,14 @@ class DynamicField(Field):
             return json.loads(value)  # serialization framework
         return value
 
-    def from_db_value(self, value, expression, connection, context):
-        # Used to always convert a value from the database
-        return self.to_python(value)
+    if django.VERSION >= (2, 0):
+        def from_db_value(self, value, expression, connection):
+            # Used to always convert a value from the database
+            return self.to_python(value)
+    else:
+        def from_db_value(self, value, expression, connection, context):
+            # Used to always convert a value from the database
+            return self.to_python(value)
 
     def get_prep_value(self, value):
         value = super(DynamicField, self).get_prep_value(value)
@@ -234,7 +234,7 @@ class DynamicField(Field):
                         type_msg = ','.join(e.__name__ for e in expected_type)
                     raise TypeError(
                         "Key '{}{}' should be of type {}"
-                        .format(prefix, key, type_msg)
+                        .format(prefix, key, type_msg),
                     )
 
                 if isinstance(subspec, dict):
@@ -250,11 +250,11 @@ class DynamicField(Field):
         name, path, args, kwargs = super(DynamicField, self).deconstruct()
 
         bad_paths = (
-            'django_mysql.models.fields.dynamic.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.dynamic.DynamicField',
+            'django_mysql.models.fields.DynamicField',
         )
         if path in bad_paths:
-            path = 'django_mysql.models.' + self.__class__.__name__
+            path = 'django_mysql.models.DynamicField'
 
         # Remove defaults
         if 'default' in kwargs and kwargs['default'] is dict:
@@ -321,7 +321,7 @@ class KeyTransform(Transform):
         lhs, params = compiler.compile(self.lhs)
         return (
             "COLUMN_GET({}, %s AS {})".format(lhs, self.data_type),
-            params + [self.key_name]
+            params + [self.key_name],
         )
 
     if django.VERSION[:3] <= (1, 8, 2):  # pragma: no cover

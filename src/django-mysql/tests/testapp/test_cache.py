@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import imp
@@ -17,7 +17,7 @@ from django.db import IntegrityError, OperationalError, connection
 from django.db.migrations.state import ProjectState
 from django.http import HttpResponse
 from django.middleware.cache import (
-    FetchFromCacheMiddleware, UpdateCacheMiddleware
+    FetchFromCacheMiddleware, UpdateCacheMiddleware,
 )
 from django.test import RequestFactory, TestCase, TransactionTestCase
 from django.test.utils import override_settings
@@ -122,7 +122,7 @@ def override_cache_settings(BACKEND='django_mysql.cache.MySQLCache',
             BACKEND=BACKEND,
             LOCATION=LOCATION,
             **kwargs
-        )
+        ),
     )
 
 
@@ -305,7 +305,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
             'ascii': 'ascii_value',
             'unicode_ascii': 'Iñtërnâtiônàlizætiøn1',
             'Iñtërnâtiônàlizætiøn': 'Iñtërnâtiônàlizætiøn2',
-            'ascii2': {'x': 1}
+            'ascii2': {'x': 1},
         }
         # Test `set`
         for (key, value) in stuff.items():
@@ -356,6 +356,24 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         cache.clear()
         assert cache.get("key1") is None
         assert cache.get("key2") is None
+
+    def test_touch_without_timeout(self):
+        cache.set("key1", "spam", timeout=0.1)
+        cache.touch("key1", timeout=0.4)
+        time.sleep(0.2)
+        assert "key1" in cache
+
+    def test_touch_with_timeout(self):
+        cache.set("key1", "spam", timeout=0.1)
+        cache.touch("key1")
+        time.sleep(0.2)
+        assert "key1" in cache
+
+    def test_touch_already_expired(self):
+        cache.set("key1", "spam", timeout=0.1)
+        time.sleep(0.2)
+        cache.touch("key1", timeout=0.4)
+        assert "key1" not in cache
 
     def test_long_timeout(self):
         '''
@@ -572,19 +590,19 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         # set, using default version = 1
         cache.set_many({'ford1': 37, 'arthur1': 42})
         assert (
-            cache.get_many(['ford1', 'arthur1']) ==
-            {'ford1': 37, 'arthur1': 42}
+            cache.get_many(['ford1', 'arthur1'])
+            == {'ford1': 37, 'arthur1': 42}
         )
         assert (
-            cache.get_many(['ford1', 'arthur1'], version=1) ==
-            {'ford1': 37, 'arthur1': 42}
+            cache.get_many(['ford1', 'arthur1'], version=1)
+            == {'ford1': 37, 'arthur1': 42}
         )
         assert cache.get_many(['ford1', 'arthur1'], version=2) == {}
 
         assert caches['v2'].get_many(['ford1', 'arthur1']) == {}
         assert (
-            caches['v2'].get_many(['ford1', 'arthur1'], version=1) ==
-            {'ford1': 37, 'arthur1': 42}
+            caches['v2'].get_many(['ford1', 'arthur1'], version=1)
+            == {'ford1': 37, 'arthur1': 42}
         )
         assert caches['v2'].get_many(['ford1', 'arthur1'], version=2) == {}
 
@@ -593,18 +611,18 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.get_many(['ford2', 'arthur2']) == {}
         assert cache.get_many(['ford2', 'arthur2'], version=1) == {}
         assert (
-            cache.get_many(['ford2', 'arthur2'], version=2) ==
-            {'ford2': 37, 'arthur2': 42}
+            cache.get_many(['ford2', 'arthur2'], version=2)
+            == {'ford2': 37, 'arthur2': 42}
         )
 
         assert (
-            caches['v2'].get_many(['ford2', 'arthur2']) ==
-            {'ford2': 37, 'arthur2': 42}
+            caches['v2'].get_many(['ford2', 'arthur2'])
+            == {'ford2': 37, 'arthur2': 42}
         )
         assert caches['v2'].get_many(['ford2', 'arthur2'], version=1) == {}
         assert (
-            caches['v2'].get_many(['ford2', 'arthur2'], version=2) ==
-            {'ford2': 37, 'arthur2': 42}
+            caches['v2'].get_many(['ford2', 'arthur2'], version=2)
+            == {'ford2': 37, 'arthur2': 42}
         )
 
         # v2 set, using default version = 2
@@ -612,39 +630,39 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         assert cache.get_many(['ford3', 'arthur3']) == {}
         assert cache.get_many(['ford3', 'arthur3'], version=1) == {}
         assert (
-            cache.get_many(['ford3', 'arthur3'], version=2) ==
-            {'ford3': 37, 'arthur3': 42}
+            cache.get_many(['ford3', 'arthur3'], version=2)
+            == {'ford3': 37, 'arthur3': 42}
         )
 
         assert (
-            caches['v2'].get_many(['ford3', 'arthur3']) ==
-            {'ford3': 37, 'arthur3': 42}
+            caches['v2'].get_many(['ford3', 'arthur3'])
+            == {'ford3': 37, 'arthur3': 42}
         )
         assert (
-            caches['v2'].get_many(['ford3', 'arthur3'], version=1) ==
-            {}
+            caches['v2'].get_many(['ford3', 'arthur3'], version=1)
+            == {}
         )
         assert (
-            caches['v2'].get_many(['ford3', 'arthur3'], version=2) ==
-            {'ford3': 37, 'arthur3': 42}
+            caches['v2'].get_many(['ford3', 'arthur3'], version=2)
+            == {'ford3': 37, 'arthur3': 42}
         )
 
         # v2 set, default version = 2, but manually override version = 1
         caches['v2'].set_many({'ford4': 37, 'arthur4': 42}, version=1)
         assert (
-            cache.get_many(['ford4', 'arthur4']) ==
-            {'ford4': 37, 'arthur4': 42}
+            cache.get_many(['ford4', 'arthur4'])
+            == {'ford4': 37, 'arthur4': 42}
         )
         assert (
-            cache.get_many(['ford4', 'arthur4'], version=1) ==
-            {'ford4': 37, 'arthur4': 42}
+            cache.get_many(['ford4', 'arthur4'], version=1)
+            == {'ford4': 37, 'arthur4': 42}
         )
         assert cache.get_many(['ford4', 'arthur4'], version=2) == {}
 
         assert caches['v2'].get_many(['ford4', 'arthur4']) == {}
         assert (
-            caches['v2'].get_many(['ford4', 'arthur4'], version=1) ==
-            {'ford4': 37, 'arthur4': 42}
+            caches['v2'].get_many(['ford4', 'arthur4'], version=1)
+            == {'ford4': 37, 'arthur4': 42}
         )
         assert caches['v2'].get_many(['ford4', 'arthur4'], version=2) == {}
 
@@ -876,7 +894,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         with self.assertNumQueries(1):
             caches['no_cull'].set_many(
                 {"key1": "spam", "key2": "egg", "key3": "spam", "key4": "ham"},
-                1
+                1,
             )
         v = cache.get("key1")
         assert v == "spam"
@@ -1065,7 +1083,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         cache.set('mykey', 123)
         with connection.cursor() as cursor:
             cursor.execute(
-                "UPDATE `%s` SET value_type = '?'" % self.table_name
+                "UPDATE `%s` SET value_type = '?'" % self.table_name,
             )
 
         with pytest.raises(ValueError):
@@ -1157,12 +1175,12 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         cache.set('K99', ["Value", 99], 0.1)
         time.sleep(0.2)
         assert (
-            cache.get_with_prefix('') ==
-            {'A2': [True], 'K1': "Value1", 'K23': 2}
+            cache.get_with_prefix('')
+            == {'A2': [True], 'K1': "Value1", 'K23': 2}
         )
         assert (
-            cache.get_with_prefix('K') ==
-            {'K1': "Value1", 'K23': 2}
+            cache.get_with_prefix('K')
+            == {'K1': "Value1", 'K23': 2}
         )
 
         cache.delete('K1')
@@ -1262,7 +1280,7 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
             call_command('mysql_cache_migration', 'nonexistent', stdout=out)
 
     @override_cache_settings(
-        BACKEND='django.core.cache.backends.dummy.DummyCache'
+        BACKEND='django.core.cache.backends.dummy.DummyCache',
     )
     def test_mysql_cache_migration_no_mysql_caches(self):
         err = StringIO()
@@ -1306,8 +1324,8 @@ class MySQLCacheTests(MySQLCacheTableMixin, TestCase):
         call_command('cull_mysql_caches', 'default', verbosity=1, stdout=out)
         output = out.getvalue()
         assert (
-            output.strip() ==
-            "Deleting from cache 'default'... 1 entries deleted."
+            output.strip()
+            == "Deleting from cache 'default'... 1 entries deleted."
         )
         assert self.table_count() == 0
 
@@ -1369,6 +1387,6 @@ class MySQLCacheMigrationTests(MySQLCacheTableMixin, TransactionTestCase):
                 """SELECT COUNT(*) FROM INFORMATION_SCHEMA.TABLES
                    WHERE TABLE_SCHEMA = DATABASE() AND
                          TABLE_NAME = %s""",
-                (table_name,)
+                (table_name,),
             )
             return bool(cursor.fetchone()[0])
