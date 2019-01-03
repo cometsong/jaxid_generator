@@ -8,7 +8,7 @@ django-appconf==1.0.2
 django-compressor==2.2
 -e git+git@github.com:cometsong/django-databrowse.git@7594426d6dda64c8d85f156a91fba915382522fc#egg=django_databrowse
 django-debug-toolbar==1.9.1
--e git+git@github.com:cometsong/django-import-export.git@555c23c3edb956a077fecbdb9b66d7fe2eb5fdba#egg=django_import_export&subdirectory=../../../src/django-import-export
+-e git+git@github.com:cometsong/django-import-export.git@555c23c3edb956a077fecbdb9b66d7fe2eb5fdba#egg=django_import_export
 -e git+git@github.com:cometsong/django-mysql.git@e43c244af960d13493649c93a83edb6e3afce9d6#egg=django_mysql
 django-polymorphic==1.3
 django-select2==6.0.0
@@ -24,7 +24,7 @@ odfpy==1.3.6
 olefile==0.44
 openpyxl==2.4.9
 parso==0.1.1
-Pillow==4.3.0
+Pillow==5.4.0
 pluggy==0.6.0
 py==1.5.2
 pyflakes==1.6.0
