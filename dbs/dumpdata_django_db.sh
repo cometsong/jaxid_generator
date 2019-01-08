@@ -55,6 +55,18 @@ Exclusions=$(prepend_items '-e ' sessions contenttypes)
 
 EmailTo=${DjangoAdmin}@jax.org
 
+#~~~~~~~~~~~~~~~~~~~~~~ Rsync Vars ~~~~~ #{{{
+ArchiveHost='ctdtn02'
+ArchivePath='/tier2/mbiomecore/data/jaxid/database'
+
+SshOpts='-e "ssh -o StrictHostKeyChecking=no"'
+RsyncOpts='--quiet --times --links --compress'
+RsyncOpts+=' --no-group --chmod=Dg+sx,Fug=r,o-rwx'
+RsyncCmd="rsync ${RsyncOpts} ${SshOpts} ${BackupFile}.gz ${ArchiveHost}:${ArchivePath}"
+#debug "Rsync Backup Cmd: $RsyncCmd"
+#}}}
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Back Me Up! Dump Me Out! ~~~~~
 
 print "Beginning data dump of '$App' django database."
@@ -70,13 +82,19 @@ manage.py dumpdata \
     -o ${BackupFile} \
     \
     && gzip -vf9N ${BackupFile}
-    #&& zip -m9 ${BackupFile}.zip ${BackupFile} 
+
+    SuccessfulRsync=$(eval $RsyncCmd)
+    RsyncCheck=$(ssh ${ArchiveHost} "stat -t ${ArchivePath}/$(basename ${BackupFile}).gz")
 fi
 
 if [[ -f "${BackupFile}.gz" ]]; then
     print "Database dump now at: ${BackupFile}.gz"
     Msg="Database dump attached:
-    ${BackupFile}.gz"
+    ${BackupFile}.gz\n"
+    if [[ "$RsyncCheck" ]]; then
+      Msg+="\nDB backup is succesfully rsync'd to server:
+      ${ArchiveHost}:${ArchivePath}/${BackupFile}.gz"
+    fi
     Subj="'$App' database backup completed on ${Today}"
     File="-a ${BackupFile}.gz"
 else
@@ -90,7 +108,7 @@ fi
 
 print "Emailing the backup results."
 
-echo "${Msg}" |     \
+print "${Msg}" |     \
     mail ${File}    \
     -r ${FromEmail} \
     -s "${Subj}"    \
