@@ -8,6 +8,54 @@ Pending
 
 .. Insert new release notes below this line
 
+2.4.1 (2018-08-18)
+------------------
+
+* Django 2.1 compatibility - no code changes were required, releasing for PyPI
+  trove classifiers and documentation.
+
+2.4.0 (2018-07-31)
+------------------
+
+* Added ``JSONArrayAppend`` database function that wraps the respective
+  JSON-modifying function from MySQL 5.7.
+
+2.3.1 (2018-07-22)
+------------------
+
+* Made ``EnumField`` escape its arguments in a ``pymysql``-friendly fashion.
+
+2.3.0 (2018-06-19)
+------------------
+
+* Started testing with MariaDB 10.3.
+
+* Changed ``GlobalStatus.wait_until_load_low()`` to increase the default number
+  of allowed running threads from 5 to 10, to account for the new default
+  threads in MariaDB 10.3.
+
+* Added ``encoder`` and ``decoder`` arguments to ``JSONField`` for customizing
+  the way JSON is encoded and decoded from the database.
+
+* Added a ``touch`` method to the ``MySQLCache`` to refresh cache keys, as
+  added in Django 2.1.
+
+* Use a temporary database connection in system checks to avoid application
+  startup stalls.
+
+2.2.2 (2018-04-24)
+------------------
+
+* Fixed some crashes from ``DynamicField`` instances without explicit ``spec``
+  definitions.
+* Fixed a crash in system checks for ``ListCharField`` and ``SetCharField``
+  instances missing ``max_length``.
+
+2.2.1 (2018-04-14)
+------------------
+
+* Fixed ``JSONField.deconstruct()`` to not break the path for subclasses.
+
 2.2.0 (2017-12-04)
 ------------------
 

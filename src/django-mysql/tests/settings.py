@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import os
@@ -28,8 +28,8 @@ DATABASES = {
         },
         'TEST': {
             'COLLATION': "utf8mb4_general_ci",
-            'CHARSET': "utf8mb4"
-        }
+            'CHARSET': "utf8mb4",
+        },
     },
     'other': {
         'ENGINE': 'django.db.backends.mysql',
@@ -47,13 +47,13 @@ DATABASES = {
         },
         'TEST': {
             'COLLATION': "utf8mb4_general_ci",
-            'CHARSET': "utf8mb4"
-        }
+            'CHARSET': "utf8mb4",
+        },
     },
     'other2': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    },
 }
 
 DATABASE_ROUTERS = [
@@ -62,7 +62,7 @@ DATABASE_ROUTERS = [
 
 ALLOWED_HOSTS = []
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django.contrib.admin.apps.AdminConfig',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -70,33 +70,16 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_mysql',
-    'testapp'
-)
-
-MIDDLEWARE_CLASSES = (
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+    'testapp',
+]
 
 ROOT_URLCONF = 'urls'
-LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
-USE_L10N = True
-STATIC_URL = '/static/'
-
-try:
-    from local_settings import *  # noqa
-except ImportError:
-    pass
 
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 'django.contrib.auth.context_processors.auth',

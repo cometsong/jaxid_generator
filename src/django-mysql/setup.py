@@ -1,6 +1,6 @@
 # -*- encoding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import codecs
@@ -38,6 +38,7 @@ setup(
     install_requires=[
         'Django>=1.8',
     ],
+    python_requires='>=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*',
     license="BSD",
     zip_safe=False,
     keywords=['Django', 'MySQL', 'MariaDB'],
@@ -49,6 +50,7 @@ setup(
         'Framework :: Django :: 1.10',
         'Framework :: Django :: 1.11',
         'Framework :: Django :: 2.0',
+        'Framework :: Django :: 2.1',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',

@@ -1,9 +1,9 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
-from unittest import mock, skipIf
+from unittest import skipIf
 
 import django
 import pytest
@@ -12,12 +12,17 @@ from django.db.utils import ConnectionHandler
 from django.test import SimpleTestCase
 from django.utils.six.moves import StringIO
 
+try:
+    from unittest import mock
+except ImportError:
+    import mock
+
 # Can't use @override_settings to swap out DATABASES, instead just mock.patch
 # a new ConnectionHandler into the command module
 command_connections = 'django_mysql.management.commands.dbparams.connections'
 
 sqlite = ConnectionHandler({
-    'default': {'ENGINE': 'django.db.backends.sqlite3'}
+    'default': {'ENGINE': 'django.db.backends.sqlite3'},
 })
 
 full_db = ConnectionHandler({'default': {
@@ -29,8 +34,8 @@ full_db = ConnectionHandler({'default': {
     'PORT': '12345',
     'OPTIONS': {
         'read_default_file': '/tmp/defaults.cnf',
-        'ssl': {'ca': '/tmp/mysql.cert'}
-    }
+        'ssl': {'ca': '/tmp/mysql.cert'},
+    },
 }})
 
 socket_db = ConnectionHandler({'default': {
@@ -69,10 +74,12 @@ class DBParamsTests(SimpleTestCase):
         call_command('dbparams', stdout=out, skip_checks=True)
         output = out.getvalue()
         assert (
-            output ==
-            "--defaults-file=/tmp/defaults.cnf --user=ausername "
-            "--password=apassword --host=ahost.example.com --port=12345 "
-            "--ssl-ca=/tmp/mysql.cert mydatabase"
+            output
+            == (
+                "--defaults-file=/tmp/defaults.cnf --user=ausername "
+                + "--password=apassword --host=ahost.example.com --port=12345 "
+                + "--ssl-ca=/tmp/mysql.cert mydatabase"
+            )
         )
 
     @mock.patch(command_connections, socket_db)
@@ -90,9 +97,11 @@ class DBParamsTests(SimpleTestCase):
                      stdout=out, stderr=err, skip_checks=True)
         output = out.getvalue()
         assert (
-            output ==
-            "F=/tmp/defaults.cnf,u=ausername,p=apassword,h=ahost.example.com,"
-            "P=12345,D=mydatabase"
+            output
+            == (
+                "F=/tmp/defaults.cnf,u=ausername,p=apassword,"
+                + "h=ahost.example.com,P=12345,D=mydatabase"
+            )
         )
 
         errors = err.getvalue()

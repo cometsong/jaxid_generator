@@ -1,11 +1,11 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
 from datetime import date, datetime, time
-from unittest import SkipTest, mock
+from unittest import SkipTest
 
 import pytest
 from django.core import serializers
@@ -17,8 +17,13 @@ from django.utils import six
 
 from django_mysql.models import DynamicField
 from django_mysql.utils import connection_is_mariadb
-from testapp.models import DynamicModel, TemporaryModel
+from testapp.models import DynamicModel, SpeclessDynamicModel, TemporaryModel
 from testapp.utils import requiresPython2
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 try:
     import mariadb_dyncol
@@ -31,8 +36,8 @@ class DynColTestCase(TestCase):
     @classmethod
     def setUpClass(cls):
         if not (
-            connection_is_mariadb(connection) and
-            connection.mysql_version >= (10, 0, 1)
+            connection_is_mariadb(connection)
+            and connection.mysql_version >= (10, 0, 1)
         ):
             raise SkipTest("Dynamic Columns require MariaDB 10.0.1+")
         super(DynColTestCase, cls).setUpClass()
@@ -65,7 +70,7 @@ class TestSaveLoad(DynColTestCase):
 
     def test_create(self):
         DynamicModel.objects.create(attrs={
-            'a': 'value'
+            'a': 'value',
         })
         s = DynamicModel.objects.get()
         assert s.attrs == {'a': 'value'}
@@ -91,10 +96,13 @@ class TestSaveLoad(DynColTestCase):
 
 class SpecTests(DynColTestCase):
 
+    def test_spec_empty(self):
+        DynamicField.validate_spec({}, {})  # no errors
+
     def test_spec_dict_type(self):
         DynamicField.validate_spec(
             {'a': dict},
-            {'a': {'this': 'that'}}
+            {'a': {'this': 'that'}},
         )  # no errors
 
     def test_illegal_int(self):
@@ -128,9 +136,8 @@ class SpecTests(DynColTestCase):
 
 class DumbTransform(Transform):
     """
-    Used to test existing transform behaviour - by default in Django there are
-    no transforms on BinaryField.
-    Really dumb, returns the string 'dumb' always
+    Used to test existing transform behaviour. Really dumb, returns the string
+    'dumb' always.
     """
     lookup_name = 'dumb'
     output_field = CharField()
@@ -161,8 +168,8 @@ class QueryTests(DynColTestCase):
                 'str_underscorey': "strvalue2",
                 'timey': time(14, 15, 16),
                 'nesty': {
-                    'level2': 'chirp'
-                }
+                    'level2': 'chirp',
+                },
             }),
         ]
         DynamicModel.objects.bulk_create(self.objs)
@@ -170,157 +177,168 @@ class QueryTests(DynColTestCase):
 
     def test_equal(self):
         assert (
-            list(DynamicModel.objects.filter(attrs={'a': 'b'})) ==
-            self.objs[:1]
+            list(DynamicModel.objects.filter(attrs={'a': 'b'}))
+            == self.objs[:1]
         )
 
     def test_exact(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__exact={'a': 'b'})) ==
-            self.objs[:1]
+            list(DynamicModel.objects.filter(attrs__exact={'a': 'b'}))
+            == self.objs[:1]
         )
 
     def test_preexisting_transforms_work_fine(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__dumb='notdumb')) ==
-            []
-        )
+        assert list(DynamicModel.objects.filter(attrs__dumb='notdumb')) == []
 
     def test_has_key(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__has_key='c')) ==
-            self.objs[1:3]
+            list(DynamicModel.objects.filter(attrs__has_key='c'))
+            == self.objs[1:3]
         )
 
     def test_key_transform_datey(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__datey=date(2001, 1, 4))) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__datey=date(2001, 1, 4)))
+            == [self.objs[4]]
         )
 
     def test_key_transform_datey_DATE(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__datey_DATE=date(2001, 1, 4)
-            )) ==
-            [self.objs[4]]
+                attrs__datey_DATE=date(2001, 1, 4),
+            ))
+            == [self.objs[4]]
         )
 
     def test_key_transform_datetimey(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__datetimey=datetime(2001, 1, 4, 14, 15, 16)
-            )) ==
-            [self.objs[4]]
+                attrs__datetimey=datetime(2001, 1, 4, 14, 15, 16),
+            ))
+            == [self.objs[4]]
         )
 
     def test_key_transform_datetimey__year(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__datetimey__year=2001)) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__datetimey__year=2001))
+            == [self.objs[4]]
         )
 
     def test_key_transform_datetimey_DATETIME(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__datetimey_DATETIME=datetime(2001, 1, 4, 14, 15, 16)
-            )) ==
-            [self.objs[4]]
+                attrs__datetimey_DATETIME=datetime(2001, 1, 4, 14, 15, 16),
+            ))
+            == [self.objs[4]]
         )
 
     def test_key_transform_floaty(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__floaty__gte=128.0)) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__floaty__gte=128.0))
+            == [self.objs[4]]
         )
 
     def test_key_transform_floaty_DOUBLE(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__floaty_DOUBLE=128.5)) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__floaty_DOUBLE=128.5))
+            == [self.objs[4]]
         )
 
     def test_key_transform_inty(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__inty=9001)) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__inty=9001))
+            == [self.objs[4]]
         )
 
     def test_key_transform_inty_INTEGER(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__inty_INTEGER=9001)) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__inty_INTEGER=9001))
+            == [self.objs[4]]
         )
 
     def test_key_transform_inty_no_results(self):
-        assert (
-            list(DynamicModel.objects.filter(attrs__inty=12991)) ==
-            []
-        )
+        assert list(DynamicModel.objects.filter(attrs__inty=12991)) == []
 
     def test_key_transform_inty_in_subquery(self):
         assert (
             list(DynamicModel.objects.filter(
                 id__in=DynamicModel.objects.filter(attrs__inty=9001),
-            )) ==
-            [self.objs[4]]
+            ))
+            == [self.objs[4]]
         )
 
     def test_key_transform_miss_CHAR_isnull(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__miss_CHAR__isnull=True)) ==
-            self.objs
+            list(DynamicModel.objects.filter(attrs__miss_CHAR__isnull=True))
+            == self.objs
         )
 
     def test_key_transform_stry(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__stry="strvalue")) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__stry="strvalue"))
+            == [self.objs[4]]
         )
 
     def test_key_transform_stry_CHAR(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__stry_CHAR="strvalue")) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__stry_CHAR="strvalue"))
+            == [self.objs[4]]
         )
 
     def test_key_transform_str_underscorey_CHAR(self):
         # Check that underscores in key names are parsed fine
         assert (
             list(DynamicModel.objects.filter(
-                attrs__str_underscorey_CHAR="strvalue2"
-            )) ==
-            [self.objs[4]]
+                attrs__str_underscorey_CHAR="strvalue2",
+            ))
+            == [self.objs[4]]
         )
 
     def test_key_transform_timey(self):
         assert (
-            list(DynamicModel.objects.filter(attrs__timey=time(14, 15, 16))) ==
-            [self.objs[4]]
+            list(DynamicModel.objects.filter(attrs__timey=time(14, 15, 16)))
+            == [self.objs[4]]
         )
 
     def test_key_transform_timey_TIME(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__timey_TIME=time(14, 15, 16)
-            )) ==
-            [self.objs[4]]
+                attrs__timey_TIME=time(14, 15, 16),
+            ))
+            == [self.objs[4]]
         )
 
     def test_key_transform_nesty__level2(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__nesty__level2='chirp'
-            )) ==
-            [self.objs[4]]
+                attrs__nesty__level2='chirp',
+            ))
+            == [self.objs[4]]
         )
 
     def test_key_transform_nesty__level2__startswith(self):
         assert (
             list(DynamicModel.objects.filter(
-                attrs__nesty__level2__startswith='chi'
-            )) ==
-            [self.objs[4]]
+                attrs__nesty__level2__startswith='chi',
+            ))
+            == [self.objs[4]]
+        )
+
+
+class SpeclessQueryTests(DynColTestCase):
+    def setUp(self):
+        super(SpeclessQueryTests, self).setUp()
+        objs = [
+            SpeclessDynamicModel(attrs={'a': 'b'}),
+            SpeclessDynamicModel(attrs={'a': 'c'}),
+        ]
+        SpeclessDynamicModel.objects.bulk_create(objs)
+        self.objs = list(SpeclessDynamicModel.objects.all().order_by('id'))
+
+    def test_simple(self):
+        assert (
+            list(SpeclessDynamicModel.objects.filter(attrs__a_CHAR='b'))
+            == [self.objs[0]]
         )
 
 
@@ -394,7 +412,7 @@ class TestCheck(DynColTestCase):
     def test_spec_key_not_valid(self):
         class InvalidDynamicModel2(TemporaryModel):
             field = DynamicField(spec={
-                2.0: six.text_type
+                2.0: six.text_type,
             })
 
         errors = InvalidDynamicModel2.check(actually_check=True)
@@ -425,8 +443,8 @@ class TestCheck(DynColTestCase):
         class InvalidDynamicModel4(TemporaryModel):
             field = DynamicField(spec={
                 'l1': {
-                    'bad': tuple
-                }
+                    'bad': tuple,
+                },
             })
 
         errors = InvalidDynamicModel4.check(actually_check=True)

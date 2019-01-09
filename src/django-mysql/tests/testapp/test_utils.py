@@ -1,10 +1,10 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from time import sleep
-from unittest import mock, skipUnless
+from unittest import skipUnless
 
 import pytest
 from django.db import DEFAULT_DB_ALIAS, connection, connections
@@ -14,9 +14,14 @@ from django.utils import six
 from django_mysql.utils import (
     PTFingerprintThread, WeightedAverageRate, _is_mariadb_cache,
     connection_is_mariadb, format_duration, have_program, index_name,
-    pt_fingerprint
+    pt_fingerprint,
 )
 from testapp.models import Author, AuthorMultiIndex
+
+try:
+    from unittest import mock
+except ImportError:
+    import mock
 
 
 class ConnectionIsMariaDBTests(TestCase):
@@ -141,15 +146,18 @@ class PTFingerprintTests(SimpleTestCase):
                     CURRENT_DATE()
             LIMIT 5"""
         assert (
-            pt_fingerprint(query) ==
-            "select concat(customer.last_name, ?, customer.first_name) as "
-            "customer, address.phone, film.title from rental inner join "
-            "customer on rental.customer_id = customer.customer_id inner join "
-            "address on customer.address_id = address.address_id inner join "
-            "inventory on rental.inventory_id = inventory.inventory_id inner "
-            "join film on inventory.film_id = film.film_id where "
-            "rental.return_date is ? and rental_date ? interval "
-            "film.rental_duration day < current_date() limit ?"
+            pt_fingerprint(query)
+            == (
+                "select concat(customer.last_name, ?, customer.first_name) as "
+                + "customer, address.phone, film.title from rental inner join "
+                + "customer on rental.customer_id = customer.customer_id "
+                + "inner join address on customer.address_id = "
+                + "address.address_id inner join inventory on "
+                + "rental.inventory_id = inventory.inventory_id inner join "
+                + "film on inventory.film_id = film.film_id where "
+                + "rental.return_date is ? and rental_date ? interval "
+                + "film.rental_duration day < current_date() limit ?"
+            )
         )
 
     def test_the_thread_shuts_on_time_out(self):
@@ -161,6 +169,9 @@ class PTFingerprintTests(SimpleTestCase):
 
 
 class IndexNameTests(TestCase):
+
+    multi_db = True
+
     def test_requires_field_names(self):
         with pytest.raises(ValueError) as excinfo:
             index_name(Author)

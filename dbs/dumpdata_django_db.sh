@@ -7,28 +7,28 @@
 
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Functional! ~~~~~
-function get_datestamp () { #{{{ ### from cometsong_util_functions.sh ###
+get_datestamp () { #{{{ ### from cometsong_util_functions.sh ###
     FORMAT=${*:-"%Y-%m-%d %H:%M:%S"}
     DATESTAMP=$(date +"$FORMAT")
     echo $DATESTAMP
 } #}}}
-function get_datestamp_ymd () { #{{{ ### from cometsong_util_functions.sh ###
+get_datestamp_ymd () { #{{{ ### from cometsong_util_functions.sh ###
     FORMAT="%Y%m%d"
     echo $(get_datestamp $FORMAT)
 } #}}}
 
 ### print/err/die funcs from cometsong_util_functions.sh ### #{{{
 # print: echoes all args to stdout
-    function print() { printf '%b\n' "$@"; }
+    print() { printf '%b\n' "$@"; }
 # err: echoes all args to stderr
-    function err()   { print "$*" >&2; }
+    err()   { print "$*" >&2; }
 # debug: calls `err`
-    function debug() { err "$@"; }
+    debug() { err "$@"; }
 # die: sends all args to `err` then exits >0
-    function die()   { err "$@" && exit 11; }
+    die()   { err "$@" && exit 11; }
 # }}}
 
-function prepend_items() { #{{{
+prepend_items() { #{{{
     # Usage: prepend_items 'delimiter' "list of args to prepend w/ delimiter"
     #        Include single-quoted <space> in delimiter if desired.
     Delim=${1} && shift || echo "ERROR in 'joined' delimiter missing." >2
@@ -55,6 +55,18 @@ Exclusions=$(prepend_items '-e ' sessions contenttypes)
 
 EmailTo=${DjangoAdmin}@jax.org
 
+#~~~~~~~~~~~~~~~~~~~~~~ Rsync Vars ~~~~~ #{{{
+ArchiveHost='ctdtn02'
+ArchivePath='/tier2/mbiomecore/data/jaxid/database'
+
+SshOpts='-e "ssh -o StrictHostKeyChecking=no"'
+RsyncOpts='--quiet --times --links --compress'
+RsyncOpts+=' --no-group --chmod=Dg+sx,Fug=r,o-rwx'
+RsyncCmd="rsync ${RsyncOpts} ${SshOpts} ${BackupFile}.gz ${ArchiveHost}:${ArchivePath}"
+#debug "Rsync Backup Cmd: $RsyncCmd"
+#}}}
+
+
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ Back Me Up! Dump Me Out! ~~~~~
 
 print "Beginning data dump of '$App' django database."
@@ -70,13 +82,19 @@ manage.py dumpdata \
     -o ${BackupFile} \
     \
     && gzip -vf9N ${BackupFile}
-    #&& zip -m9 ${BackupFile}.zip ${BackupFile} 
+
+    SuccessfulRsync=$(eval $RsyncCmd)
+    RsyncCheck=$(ssh ${ArchiveHost} "stat -t ${ArchivePath}/$(basename ${BackupFile}).gz")
 fi
 
 if [[ -f "${BackupFile}.gz" ]]; then
     print "Database dump now at: ${BackupFile}.gz"
     Msg="Database dump attached:
-    ${BackupFile}.gz"
+    ${BackupFile}.gz\n"
+    if [[ "$RsyncCheck" ]]; then
+      Msg+="\nDB backup is succesfully rsync'd to server:
+      ${ArchiveHost}:${ArchivePath}/${BackupFile}.gz"
+    fi
     Subj="'$App' database backup completed on ${Today}"
     File="-a ${BackupFile}.gz"
 else
@@ -90,7 +108,7 @@ fi
 
 print "Emailing the backup results."
 
-echo "${Msg}" |     \
+print "${Msg}" |     \
     mail ${File}    \
     -r ${FromEmail} \
     -s "${Subj}"    \

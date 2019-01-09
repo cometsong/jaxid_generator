@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import time
@@ -89,7 +89,7 @@ class GlobalStatus(BaseStatus):
 
     def wait_until_load_low(self, thresholds=None, timeout=60.0, sleep=0.1):
         if thresholds is None:
-            thresholds = {'Threads_running': 5}
+            thresholds = {'Threads_running': 10}
 
         start = time.time()
         names = thresholds.keys()
@@ -107,11 +107,11 @@ class GlobalStatus(BaseStatus):
 
             if timeout and time.time() > start + timeout:
                 raise TimeoutError(
-                    "Span too long waiting for load to drop: " +
-                    ",".join(
+                    "Span too long waiting for load to drop: "
+                    + ",".join(
                         "{} > {}".format(name, thresholds[name])
                         for name in higher
-                    )
+                    ),
                 )
             time.sleep(sleep)
 

@@ -1,6 +1,6 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 from django.core import checks
@@ -20,8 +20,8 @@ class SizedBinaryField(BinaryField):
                     'size_class must be 1, 2, 3, or 4',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E007'
-                )
+                    id='django_mysql.E007',
+                ),
             )
         return errors
 
@@ -29,11 +29,11 @@ class SizedBinaryField(BinaryField):
         name, path, args, kwargs = super(SizedBinaryField, self).deconstruct()
 
         bad_paths = (
-            'django_mysql.models.fields.sizes.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.sizes.SizedBinaryField',
+            'django_mysql.models.fields.SizedBinaryField',
         )
         if path in bad_paths:
-            path = 'django_mysql.models.' + self.__class__.__name__
+            path = 'django_mysql.models.SizedBinaryField'
 
         kwargs['size_class'] = self.size_class
         return name, path, args, kwargs
@@ -62,8 +62,8 @@ class SizedTextField(TextField):
                     'size_class must be 1, 2, 3, or 4',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E008'
-                )
+                    id='django_mysql.E008',
+                ),
             )
         return errors
 
@@ -71,11 +71,11 @@ class SizedTextField(TextField):
         name, path, args, kwargs = super(SizedTextField, self).deconstruct()
 
         bad_paths = (
-            'django_mysql.models.fields.sizes.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.sizes.SizedTextField',
+            'django_mysql.models.fields.SizedTextField',
         )
         if path in bad_paths:
-            path = 'django_mysql.models.' + self.__class__.__name__
+            path = 'django_mysql.models.SizedTextField'
 
         kwargs['size_class'] = self.size_class
         return name, path, args, kwargs

@@ -1,21 +1,21 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
 
 import django
 from django.core import checks
-from django.db import connections
 from django.db.models import Field, IntegerField, Transform
 from django.utils import six
 
 from django_mysql import forms
+from django_mysql.checks import mysql_connections
 from django_mysql.models.lookups import (
     JSONContainedBy, JSONContains, JSONExact, JSONGreaterThan,
     JSONGreaterThanOrEqual, JSONHasAnyKeys, JSONHasKey, JSONHasKeys,
-    JSONLessThan, JSONLessThanOrEqual
+    JSONLessThan, JSONLessThanOrEqual,
 )
 from django_mysql.utils import collapse_spaces, connection_is_mariadb
 
@@ -23,16 +23,22 @@ __all__ = ('JSONField',)
 
 
 class JSONField(Field):
+
+    _default_json_encoder = json.JSONEncoder(allow_nan=False)
+    _default_json_decoder = json.JSONDecoder(strict=False)
+
     def __init__(self, *args, **kwargs):
         if 'default' not in kwargs:
             kwargs['default'] = dict
+        self.json_encoder = kwargs.pop('encoder', self._default_json_encoder)
+        self.json_decoder = kwargs.pop('decoder', self._default_json_decoder)
         super(JSONField, self).__init__(*args, **kwargs)
 
     def check(self, **kwargs):
         errors = super(JSONField, self).check(**kwargs)
         errors.extend(self._check_default())
         errors.extend(self._check_mysql_version())
-
+        errors.extend(self._check_json_encoder_decoder())
         return errors
 
     def _check_default(self):
@@ -51,7 +57,7 @@ class JSONField(Field):
                     '''.format(self.default)),
                     obj=self,
                     id='django_mysql.E017',
-                )
+                ),
             )
         return errors
 
@@ -59,13 +65,11 @@ class JSONField(Field):
         errors = []
 
         any_conn_works = False
-        conn_names = ['default'] + list(set(connections) - {'default'})
-        for db in conn_names:
-            conn = connections[db]
+        for alias, conn in mysql_connections():
             if (
-                hasattr(conn, 'mysql_version') and
-                not connection_is_mariadb(conn) and
-                conn.mysql_version >= (5, 7)
+                hasattr(conn, 'mysql_version')
+                and not connection_is_mariadb(conn)
+                and conn.mysql_version >= (5, 7)
             ):
                 any_conn_works = True
 
@@ -76,14 +80,46 @@ class JSONField(Field):
                     hint='At least one of your DB connections should be to '
                          'MySQL 5.7+',
                     obj=self,
-                    id='django_mysql.E016'
-                )
+                    id='django_mysql.E016',
+                ),
             )
+        return errors
+
+    def _check_json_encoder_decoder(self):
+        errors = []
+
+        if self.json_encoder.allow_nan:
+            errors.append(
+                checks.Error(
+                    'Custom JSON encoder should have allow_nan=False as MySQL '
+                    'does not support NaN/Infinity in JSON.',
+                    obj=self,
+                    id='django_mysql.E018',
+                ),
+            )
+
+        if self.json_decoder.strict:
+            errors.append(
+                checks.Error(
+                    'Custom JSON decoder should have strict=False to support '
+                    'all the characters that MySQL does.',
+                    obj=self,
+                    id='django_mysql.E019',
+                ),
+            )
+
         return errors
 
     def deconstruct(self):
         name, path, args, kwargs = super(JSONField, self).deconstruct()
-        path = 'django_mysql.models.%s' % self.__class__.__name__
+
+        bad_paths = (
+            'django_mysql.models.fields.json.JSONField',
+            'django_mysql.models.fields.JSONField',
+        )
+        if path in bad_paths:
+            path = 'django_mysql.models.JSONField'
+
         return name, path, args, kwargs
 
     def db_type(self, connection):
@@ -95,35 +131,39 @@ class JSONField(Field):
             return transform  # pragma: no cover
         return KeyTransformFactory(name)
 
-    def from_db_value(self, value, expression, connection, context):
-        # Similar to to_python, for Django 1.8+
-        if isinstance(value, six.string_types):
-            return json.loads(value, strict=False)
-        return value
+    if django.VERSION >= (2, 0):
+        def from_db_value(self, value, expression, connection):
+            if isinstance(value, six.string_types):
+                return self.json_decoder.decode(value)
+            return value
+    else:
+        def from_db_value(self, value, expression, connection, context):
+            if isinstance(value, six.string_types):
+                return self.json_decoder.decode(value)
+            return value
 
     def get_prep_value(self, value):
         if value is not None and not isinstance(value, six.string_types):
             # For some reason this value gets string quoted in Django's SQL
             # compiler...
-
-            # Although json.dumps could serialize NaN, MySQL doesn't.
-            return json.dumps(value, allow_nan=False)
+            return self.json_encoder.encode(value)
 
         return value
 
     def get_db_prep_value(self, value, connection, prepared=False):
         if not prepared and value is not None:
-            return json.dumps(value, allow_nan=False)
+            return self.json_encoder.encode(value)
         return value
 
     def get_lookup(self, lookup_name):
         # Have to 'unregister' some incompatible lookups
         if lookup_name in {
             'range', 'in', 'iexact', 'icontains', 'startswith',
-            'istartswith', 'endswith', 'iendswith', 'search', 'regex', 'iregex'
+            'istartswith', 'endswith', 'iendswith', 'search', 'regex',
+            'iregex',
         }:
             raise NotImplementedError(
-                "Lookup '{}' doesn't work with JSONField".format(lookup_name)
+                "Lookup '{}' doesn't work with JSONField".format(lookup_name),
             )
         return super(JSONField, self).get_lookup(lookup_name)
 

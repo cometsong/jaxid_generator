@@ -1,13 +1,14 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
 import json
 
 from django.db import DEFAULT_DB_ALIAS, connections
+from django.db.models import CharField
 from django.db.models import Field as DjangoField
-from django.db.models import CharField, Func, IntegerField, TextField, Value
+from django.db.models import Func, IntegerField, TextField, Value
 
 
 class SingleArgFunc(Func):
@@ -187,7 +188,7 @@ class SHA2(Func):
         if hash_len not in self.hash_lens:
             raise ValueError(
                 "hash_len must be one of {}"
-                .format(",".join(str(x) for x in self.hash_lens))
+                .format(",".join(str(x) for x in self.hash_lens)),
             )
         super(SHA2, self).__init__(expression, Value(hash_len))
 
@@ -232,14 +233,14 @@ class JSONExtract(Func):
         # kwarg validation - for Python 2 compat
         if list(kwargs.keys()) not in ([], ['output_field']):
             raise TypeError(
-                'Only supported keyword argument is "output_field"'
+                'Only supported keyword argument is "output_field"',
             )
 
         if 'output_field' in kwargs:
             if len(paths) > 1:
                 raise TypeError(
                     "output_field won't work with more than one path, as a "
-                    "JSON Array will be returned"
+                    "JSON Array will be returned",
                 )
             output_field = kwargs['output_field']
         else:
@@ -323,6 +324,10 @@ class JSONSet(BaseJSONModifyFunc):
     function = 'JSON_SET'
 
 
+class JSONArrayAppend(BaseJSONModifyFunc):
+    function = 'JSON_ARRAY_APPEND'
+
+
 # MariaDB Regexp Functions
 
 class RegexpInstr(Func):
@@ -398,7 +403,7 @@ class ColumnAdd(Func):
 
             if isinstance(value, dict):
                 raise ValueError(
-                    "ColumnAdd with nested values is not supported"
+                    "ColumnAdd with nested values is not supported",
                 )
             if not hasattr(value, 'resolve_expression'):
                 value = Value(value)

@@ -62,7 +62,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Django-MySQL'
-copyright = u'2017, Adam Johnson'
+copyright = u'2017-2019 Adam Johnson'
 
 # The version info for the project you're documenting, acts as replacement
 # for |version| and |release|, also used in various other places throughout
@@ -252,7 +252,7 @@ latex_documents = [
 man_pages = [
     ('index', 'django-mysql',
      u'Django-MySQL Documentation',
-     [u'Adam Johnson'], 1)
+     [u'Adam Johnson'], 1),
 ]
 
 # If true, show URL addresses after external links.

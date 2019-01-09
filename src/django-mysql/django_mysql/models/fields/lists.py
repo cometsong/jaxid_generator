@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
+import django
 from django.core import checks
 from django.db.models import CharField, IntegerField, Lookup, TextField
 from django.utils import six
@@ -40,8 +41,8 @@ class ListFieldMixin(object):
                     'Base field for list must be a CharField or IntegerField.',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E005'
-                )
+                    id='django_mysql.E005',
+                ),
             )
             return errors
 
@@ -57,15 +58,15 @@ class ListFieldMixin(object):
                     'Base field for list has errors:\n    %s' % messages,
                     hint=None,
                     obj=self,
-                    id='django_mysql.E004'
-                )
+                    id='django_mysql.E004',
+                ),
             )
         return errors
 
     @property
     def description(self):
         return _('List of %(base_description)s') % {
-            'base_description': self.base_field.description
+            'base_description': self.base_field.description,
         }
 
     def set_attributes_from_name(self, name):
@@ -77,7 +78,7 @@ class ListFieldMixin(object):
 
         bad_paths = (
             'django_mysql.models.fields.lists.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.' + self.__class__.__name__,
         )
         if path in bad_paths:
             path = 'django_mysql.models.' + self.__class__.__name__
@@ -95,15 +96,26 @@ class ListFieldMixin(object):
                          v in value.split(',')]
         return value
 
-    def from_db_value(self, value, expression, connection, context):
-        # Similar to to_python, for Django 1.8+
-        if isinstance(value, six.string_types):
-            if not len(value):
-                value = []
-            else:
-                value = [self.base_field.to_python(v) for
-                         v in value.split(',')]
-        return value
+    if django.VERSION >= (2, 0):
+        def from_db_value(self, value, expression, connection):
+            # Similar to to_python, for Django 1.8+
+            if isinstance(value, six.string_types):
+                if not len(value):
+                    value = []
+                else:
+                    value = [self.base_field.to_python(v) for
+                             v in value.split(',')]
+            return value
+    else:
+        def from_db_value(self, value, expression, connection, context):
+            # Similar to to_python, for Django 1.8+
+            if isinstance(value, six.string_types):
+                if not len(value):
+                    value = []
+                else:
+                    value = [self.base_field.to_python(v) for
+                             v in value.split(',')]
+            return value
 
     def get_prep_value(self, value):
         if isinstance(value, list):
@@ -116,13 +128,13 @@ class ListFieldMixin(object):
                     raise ValueError(
                         "List members in {klass} {name} cannot contain commas"
                         .format(klass=self.__class__.__name__,
-                                name=self.name)
+                                name=self.name),
                     )
                 elif not len(v):
                     raise ValueError(
                         "The empty string cannot be stored in {klass} {name}"
                         .format(klass=self.__class__.__name__,
-                                name=self.name)
+                                name=self.name),
                     )
             return ','.join(value)
         return value
@@ -171,15 +183,16 @@ class ListCharField(ListFieldMixin, CharField):
         # they have boundless length
         has_base_error = any(e.id == 'django_mysql.E004' for e in errors)
         if (
-            not has_base_error and
-            isinstance(self.base_field, CharField) and
-            self.size
+            not has_base_error
+            and self.max_length is not None
+            and isinstance(self.base_field, CharField)
+            and self.size
         ):
             max_size = (
                 # The chars used
-                (self.size * (self.base_field.max_length)) +
+                (self.size * (self.base_field.max_length))
                 # The commas
-                self.size - 1
+                + self.size - 1
             )
             if max_size > self.max_length:
                 errors.append(
@@ -192,8 +205,8 @@ class ListCharField(ListFieldMixin, CharField):
                             self.max_length),
                         hint=None,
                         obj=self,
-                        id='django_mysql.E006'
-                    )
+                        id='django_mysql.E006',
+                    ),
                 )
         return errors
 

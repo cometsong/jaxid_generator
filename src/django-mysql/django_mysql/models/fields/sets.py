@@ -1,8 +1,9 @@
 # -*- coding:utf-8 -*-
 from __future__ import (
-    absolute_import, division, print_function, unicode_literals
+    absolute_import, division, print_function, unicode_literals,
 )
 
+import django
 from django.core import checks
 from django.db.models import CharField, IntegerField, TextField
 from django.utils import six
@@ -39,8 +40,8 @@ class SetFieldMixin(object):
                     'Base field for set must be a CharField or IntegerField.',
                     hint=None,
                     obj=self,
-                    id='django_mysql.E002'
-                )
+                    id='django_mysql.E002',
+                ),
             )
             return errors
 
@@ -56,15 +57,15 @@ class SetFieldMixin(object):
                     'Base field for set has errors:\n    %s' % messages,
                     hint=None,
                     obj=self,
-                    id='django_mysql.E001'
-                )
+                    id='django_mysql.E001',
+                ),
             )
         return errors
 
     @property
     def description(self):
         return _('Set of %(base_description)s') % {
-            'base_description': self.base_field.description
+            'base_description': self.base_field.description,
         }
 
     def set_attributes_from_name(self, name):
@@ -76,7 +77,7 @@ class SetFieldMixin(object):
 
         bad_paths = (
             'django_mysql.models.fields.sets.' + self.__class__.__name__,
-            'django_mysql.models.fields.' + self.__class__.__name__
+            'django_mysql.models.fields.' + self.__class__.__name__,
         )
         if path in bad_paths:
             path = 'django_mysql.models.' + self.__class__.__name__
@@ -94,15 +95,26 @@ class SetFieldMixin(object):
                          v in value.split(',')}
         return value
 
-    def from_db_value(self, value, expression, connection, context):
-        # Similar to to_python, for Django 1.8+
-        if isinstance(value, six.string_types):
-            if not len(value):
-                value = set()
-            else:
-                value = {self.base_field.to_python(v) for
-                         v in value.split(',')}
-        return value
+    if django.VERSION >= (2, 0):
+        def from_db_value(self, value, expression, connection):
+            # Similar to to_python, for Django 1.8+
+            if isinstance(value, six.string_types):
+                if not len(value):
+                    value = set()
+                else:
+                    value = {self.base_field.to_python(v) for
+                             v in value.split(',')}
+            return value
+    else:
+        def from_db_value(self, value, expression, connection, context):
+            # Similar to to_python, for Django 1.8+
+            if isinstance(value, six.string_types):
+                if not len(value):
+                    value = set()
+                else:
+                    value = {self.base_field.to_python(v) for
+                             v in value.split(',')}
+            return value
 
     def get_prep_value(self, value):
         if isinstance(value, set):
@@ -115,13 +127,13 @@ class SetFieldMixin(object):
                     raise ValueError(
                         "Set members in {klass} {name} cannot contain commas"
                         .format(klass=self.__class__.__name__,
-                                name=self.name)
+                                name=self.name),
                     )
                 elif not len(v):
                     raise ValueError(
                         "The empty string cannot be stored in {klass} {name}"
                         .format(klass=self.__class__.__name__,
-                                name=self.name)
+                                name=self.name),
                     )
             return ','.join(value)
         return value
@@ -155,15 +167,16 @@ class SetCharField(SetFieldMixin, CharField):
         # they have boundless length
         has_base_error = any(e.id == 'django_mysql.E001' for e in errors)
         if (
-            not has_base_error and
-            isinstance(self.base_field, CharField) and
-            self.size
+            not has_base_error
+            and self.max_length is not None
+            and isinstance(self.base_field, CharField)
+            and self.size
         ):
             max_size = (
                 # The chars used
-                (self.size * (self.base_field.max_length)) +
+                (self.size * (self.base_field.max_length))
                 # The commas
-                self.size - 1
+                + self.size - 1
             )
             if max_size > self.max_length:
                 errors.append(
@@ -176,8 +189,8 @@ class SetCharField(SetFieldMixin, CharField):
                             self.max_length),
                         hint=None,
                         obj=self,
-                        id='django_mysql.E003'
-                    )
+                        id='django_mysql.E003',
+                    ),
                 )
         return errors
 
