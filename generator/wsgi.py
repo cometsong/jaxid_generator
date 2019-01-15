@@ -9,6 +9,7 @@ app_settings = "generator.settings.prod"
 # semi-global wsgi script
 import os
 import sys
+import site
 
 # settings.py sitting at /path/to/apps/my_application
 #os.environ.setdefault("DJANGO_SETTINGS_MODULE", app_settings)
@@ -24,6 +25,7 @@ new_sys_path = [
 new_sys_path.extend(sys.path)
 # remove dupe items from list:
 sys.path = list(dict.fromkeys(new_sys_path))
+site.addsitedir(path_lib)
 
 from django.core.wsgi import get_wsgi_application
 application = get_wsgi_application()
