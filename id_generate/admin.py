@@ -301,7 +301,7 @@ class BoxIdAdmin(BaseImportAdmin):
                      'sequencing_type_code',
                      'notes',
                      )
-    search_fields = BoxId.all_field_names
+    search_fields = BoxId.search_fields()
     list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
 
     ordering = ['-creation_date']
@@ -340,7 +340,7 @@ class PlateIdAdmin(BaseImportAdmin):
                      'sequencing_type_code',
                      'notes',
                      )
-    search_fields = PlateId.all_field_names
+    search_fields = PlateId.search_fields()
     list_filter = ('project_code', 'sample_type', 'nucleic_acid_type', 'sequencing_type',)
 
     ordering = ['-creation_date']
