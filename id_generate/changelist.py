@@ -21,8 +21,8 @@ class IdChangeList(ChangeList):
                 # flag this qs as results from most recent import
                 self.import_results = True
         except Exception as e:
-            print(f'ERROR: {funcname()} - Exception: {e.response}')
-        finally:
+            print(f'ERROR: {funcname()} - Exception: {e}')
+        else:
             # print(f'DEBUG: {funcname()} - qset length: {qs.count()}')
             return qs
 

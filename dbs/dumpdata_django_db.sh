@@ -18,14 +18,10 @@ get_datestamp_ymd () { #{{{ ### from cometsong_util_functions.sh ###
 } #}}}
 
 ### print/err/die funcs from cometsong_util_functions.sh ### #{{{
-# print: echoes all args to stdout
-    print() { printf '%b\n' "$@"; }
-# err: echoes all args to stderr
-    err()   { print "$*" >&2; }
-# debug: calls `err`
-    debug() { err "$@"; }
-# die: sends all args to `err` then exits >0
-    die()   { err "$@" && exit 11; }
+print() { printf '%b\n' "$@"; }
+err()   { print "$*" >&2; }
+debug() { err "$@"; }
+die()   { err "$@" && exit 11; }
 # }}}
 
 prepend_items() { #{{{
@@ -50,6 +46,9 @@ Format="json"
 DjangoAppPath="/var/www/apps/${App}"
 BackupFile="${DjangoAppPath}/backups/${Today}.db.${App}.${Format}"
 
+AppSettings="generator.settings.prod"
+[[ "$App" =~ "_dev" ]] && AppSettings="generator.settings.dev"
+
 #Exclusions=$(prepend_items '-e ' sessions contenttypes auth admin.logentry)
 Exclusions=$(prepend_items '-e ' sessions contenttypes)
 
@@ -57,7 +56,7 @@ EmailTo=${DjangoAdmin}@jax.org
 
 #~~~~~~~~~~~~~~~~~~~~~~ Rsync Vars ~~~~~ #{{{
 ArchiveHost='ctdtn02'
-ArchivePath='/tier2/mbiomecore/data/jaxid/database'
+ArchivePath='/tier2/mbiomecore/jaxid/database'
 
 SshOpts='-e "ssh -o StrictHostKeyChecking=no"'
 RsyncOpts='--quiet --times --links --compress'
@@ -73,18 +72,17 @@ print "Beginning data dump of '$App' django database."
 
 [[ -d ${DjangoAppPath} ]] && cd ${DjangoAppPath} && . ./bin/activate
 if [[ $? == 0 ]]; then
-#--natural-foreign \
-manage.py dumpdata \
+  manage.py dumpdata \
+    --settings $AppSettings \
     --format $Format \
     --natural-primary \
     --indent 4 \
     ${Exclusions} \
     -o ${BackupFile} \
     \
-    && gzip -vf9N ${BackupFile}
-
-    SuccessfulRsync=$(eval $RsyncCmd)
-    RsyncCheck=$(ssh ${ArchiveHost} "stat -t ${ArchivePath}/$(basename ${BackupFile}).gz")
+    && gzip -vf9N ${BackupFile} \
+    && SuccessfulRsync=$(eval $RsyncCmd) \
+    && RsyncCheck=$(ssh ${ArchiveHost} "stat -t ${ArchivePath}/$(basename ${BackupFile}).gz")
 fi
 
 if [[ -f "${BackupFile}.gz" ]]; then
@@ -106,7 +104,7 @@ else
     File=""
 fi
 
-print "Emailing the backup results."
+print "\nEmailing the backup results."
 
 print "${Msg}" |     \
     mail ${File}    \

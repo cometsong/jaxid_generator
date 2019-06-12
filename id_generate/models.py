@@ -437,6 +437,12 @@ class BaseIdModel(models.Model):
         'sample_type', 'nucleic_acid_type', 'sequencing_type', 'notes',
         )
 
+    def search_fields():
+        return (
+                'jaxid', 'parent_jaxid', 'project_code__code', 'collab_id', 'notes',
+                'sample_type__code', 'nucleic_acid_type__code', 'sequencing_type__code',
+                )
+
     def project_code_code(self):
         return self.project_code.code
     project_code_code.short_description = 'Project'
