@@ -27,6 +27,7 @@ ALLOWED_HOSTS = [
 
 ### Application definition {{{
 APP_NAME = 'jaxid_generator'
+WIKI_URL = 'https://jacksonlaboratory.sharepoint.com/sites/MicrobiomeCoreWiki'
 ROOT_URLCONF = 'generator.urls'
 WSGI_APPLICATION = 'generator.wsgi.application'
 import generator

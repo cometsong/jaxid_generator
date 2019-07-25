@@ -5,6 +5,7 @@ from suit.apps import DjangoSuitConfig
 from suit.menu import ParentItem, ChildItem
 
 APP_NAME = settings.APP_NAME
+WIKI_URL = settings.WIKI_URL
 
 class SuitConfig(DjangoSuitConfig):
     name = 'suit'
@@ -64,15 +65,15 @@ class SuitConfig(DjangoSuitConfig):
                 icon='fa fa-user-circle'),
 
             ParentItem(
-                label='SOP and Request Template:',
+                label='SOP and Request Sheet',
                 use_first_child_url=False,
                 url='',
                 children=[
                     ChildItem('View JAX ID Request SOP',
                               target_blank=True,
-                              url='https://teams-p.jax.org/sites/Microbiome_Core/SOPs/JAX%20ID%20Request%20SOP.docx?Web=1'),
-                    ChildItem('Download JAX ID Request Template Sheet',
-                              url='https://teams-p.jax.org/sites/Microbiome_Core/Sample%20Sheet%20Templates/JAX%20ID%20Request%20Template%20Sample%20Sheet.xlsx'),
+                              url=f'{WIKI_URL}/Wet%20Lab%20SOPs/Forms/All.aspx?parent=1&id=%2Fsites%2FMicrobiomeCoreWiki%2FWet%20Lab%20SOPs%2FJAX%20ID%20Request%20SOP%2Edocx'),
+                    ChildItem('View JAX ID Request Template Sheet',
+                              url=f'{WIKI_URL}/Sample Sheet Templates/Forms/All.aspx?parent=1&id=%2Fsites%2FMicrobiomeCoreWiki%2FSample Sheet Templates%2FJAX ID Request Template Sample Sheet.xlsx'),
                     ],
                 icon='fa fa-file'),
            )
