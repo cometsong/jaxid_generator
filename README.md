@@ -16,7 +16,7 @@ The <em>JAXID Generator</em>
  - Search by project/sample/sequence type codes, plus by text in search bar
  - Import sets of IDs for creation of records or for updating preexisting records
  - Export results of specific searches (via backend MySQL database queries) to 
-	`xlsx` format files
+    `xlsx` format files
 
 ---
 
@@ -40,7 +40,8 @@ The <em>JAXID Generator</em>
 
 
 <!-- 
-<img src="https://github.com/cometsong/jaxid_generator/raw/devel/static/screenshots/JAXid_Databrowse_index.png" height="250"><br/><img src="https://github.com/cometsong/jaxid_generator/raw/devel/static/screenshots/JAXid_Databrowse_SampleTypes.png" height="250"><br/>
+<img src="https://github.com/cometsong/jaxid_generator/raw/devel/static/screenshots/JAXid_Databrowse_index.png" height="250"><br/>
+<img src="https://github.com/cometsong/jaxid_generator/raw/devel/static/screenshots/JAXid_Databrowse_SampleTypes.png" height="250"><br/>
 -->
 ---
 
