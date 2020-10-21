@@ -1,13 +1,9 @@
-<script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/js/all.min.js"></script>
 <h2 align='center'>
-<i class="fas fa-microscope fa-sm fa-flip-horizontal" style="color:DarkCyan;"></i>
-Sample ID Tracking <em>(LIMS-esque)</em> Application
-<i class="fas fa-microscope fa-sm" style="color:DarkCyan;"></i>
-<br/>
-The <em>JAXID Generator</em>
+Sample ID Tracking <em>(LIMS-esque)</em> Application<br/> 
+:microscope: The <em>JAXID</em> Generator :microscope:
 </h2>
 
-### for: Biological Samples,<br/>Sequencing Extractions and Libraries and Pools,<br/>Plates and Storage Boxes
+### Tracks Biological Samples,<br/>Sequencing Extractions and Libraries and Pools,<br/>Plates and Storage Boxes
 
  - Generate new IDs for incoming samples, for sequencing extractions, libraries,
     pools, plates, and storage boxes.
